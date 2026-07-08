@@ -18,6 +18,14 @@
   --muted: #b4b2a9;
   --fundo: #f7f6f2;
   --card: #ffffff;
+
+  /* Tema do shell (header, barra de módulos, botões) — sobrescrito por projeto em AppShell.
+     Não usar para badges de marca de documento (Planneta/Faz), que ficam fixos nas variáveis azul/verde acima. */
+  --tema-escuro: #0d2b5e;
+  --tema: #185fa5;
+  --tema-pale: #e6f1fb;
+  --tema-texto: #0c447c;
+  --tema-accento: #378add;
 }
 html,
 body,
@@ -72,12 +80,12 @@ body {
   background: var(--fundo);
 }
 .btn-primary {
-  background: var(--azul);
+  background: var(--tema);
   color: #fff;
-  border-color: var(--azul);
+  border-color: var(--tema);
 }
 .btn-primary:hover {
-  background: #0c447c;
+  background: var(--tema-escuro);
 }
 .btn-success {
   background: var(--verde);
@@ -103,12 +111,12 @@ body {
   font-weight: 500;
 }
 .chip:hover {
-  border-color: var(--azul);
+  border-color: var(--tema);
 }
 .chip.on {
-  background: var(--azul-pale);
-  border-color: var(--azul);
-  color: #0c447c;
+  background: var(--tema-pale);
+  border-color: var(--tema);
+  color: var(--tema-texto);
 }
 .tpl-grid {
   display: grid;
@@ -127,7 +135,7 @@ body {
   gap: 8px;
 }
 .tpl-card:hover {
-  border-color: var(--azul);
+  border-color: var(--tema);
   box-shadow: 0 2px 8px rgba(13, 43, 94, 0.08);
   transform: translateY(-1px);
 }
@@ -181,7 +189,7 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--azul);
+  border-color: var(--tema);
 }
 textarea {
   resize: vertical;
@@ -329,7 +337,7 @@ textarea {
   opacity: 1;
 }
 .plugin-strip {
-  background: var(--azul-pale);
+  background: var(--tema-pale);
   border: 1px solid #b5d4f4;
   border-radius: 10px;
   padding: 10px 14px;
@@ -342,7 +350,7 @@ textarea {
 .plugin-label {
   font-size: 12px;
   font-weight: 600;
-  color: #0c447c;
+  color: var(--tema-texto);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -355,7 +363,7 @@ textarea {
   background: #fff;
   cursor: pointer;
   font-size: 12px;
-  color: var(--azul);
+  color: var(--tema);
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -364,9 +372,9 @@ textarea {
   font-family: inherit;
 }
 .action-btn:hover {
-  background: var(--azul);
+  background: var(--tema);
   color: #fff;
-  border-color: var(--azul);
+  border-color: var(--tema);
 }
 .action-btn.g {
   border-color: #c0dd97;
@@ -391,8 +399,8 @@ textarea {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: var(--azul-pale);
-  color: #0c447c;
+  background: var(--tema-pale);
+  color: var(--tema-texto);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -446,9 +454,9 @@ textarea {
   flex-shrink: 0;
 }
 .stepn.active {
-  background: var(--azul);
+  background: var(--tema);
   color: #fff;
-  border-color: var(--azul);
+  border-color: var(--tema);
 }
 .stepn.done {
   background: var(--verde-pale);
@@ -461,7 +469,7 @@ textarea {
   white-space: nowrap;
 }
 .stepl.active {
-  color: var(--azul);
+  color: var(--tema);
   font-weight: 600;
 }
 .stepline {
@@ -600,7 +608,7 @@ textarea {
   background: var(--fundo);
 }
 .hdr-top {
-  background: var(--azul-escuro);
+  background: var(--tema-escuro);
   display: flex;
   align-items: center;
   gap: 11px;
@@ -616,7 +624,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--azul-escuro);
+  color: var(--tema-escuro);
   font-weight: 700;
   font-size: 14px;
   flex-shrink: 0;
@@ -653,14 +661,67 @@ textarea {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--azul-pale);
+  background: var(--tema-pale);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0c447c;
+  color: var(--tema-texto);
   font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
+}
+.hdr-project {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding-left: 12px;
+  margin-left: 2px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+.hdr-project-logo {
+  height: 26px;
+  width: auto;
+  max-width: 64px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 5px;
+  padding: 2px 4px;
+  flex-shrink: 0;
+}
+.hdr-project-text {
+  min-width: 0;
+  line-height: 1.15;
+}
+.hdr-project-name {
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+}
+.badge.hdr-tpl-count {
+  background: var(--tema-pale);
+  color: var(--tema-texto);
+}
+.hdr-back-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  border-radius: 99px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+.hdr-back-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
 }
 .hdr-user-text {
   line-height: 1.15;
@@ -681,6 +742,11 @@ textarea {
   font-size: 16px;
   flex-shrink: 0;
 }
+@media (max-width: 760px) {
+  .hdr-project-text {
+    display: none;
+  }
+}
 @media (max-width: 640px) {
   .hdr-clock {
     display: none;
@@ -697,14 +763,25 @@ textarea {
   .hdr-tpl-count {
     display: none;
   }
-}
-@media (max-width: 380px) {
+  .hdr-project {
+    padding-left: 8px;
+  }
+  .hdr-project-logo {
+    height: 22px;
+    max-width: 46px;
+  }
+  .hdr-back-btn {
+    padding: 5px 9px;
+  }
+  .hdr-back-btn span {
+    display: none;
+  }
   .hdr-user-text {
     display: none;
   }
 }
 .hdr-modbar {
-  background: #0c447c;
+  background: var(--tema);
   display: flex;
   align-items: center;
   gap: 2px;
@@ -737,7 +814,7 @@ textarea {
 }
 .mod-tab.on {
   color: #fff;
-  border-bottom-color: #378add;
+  border-bottom-color: var(--tema-accento);
   font-weight: 600;
   background: rgba(255, 255, 255, 0.08);
 }
@@ -766,7 +843,7 @@ textarea {
   gap: 10px;
 }
 .pf-card:hover {
-  border-color: var(--azul);
+  border-color: var(--tema);
   box-shadow: 0 3px 12px rgba(13, 43, 94, 0.1);
   transform: translateY(-2px);
 }
@@ -806,7 +883,7 @@ textarea {
   flex-wrap: wrap;
 }
 .crumb a {
-  color: var(--azul);
+  color: var(--tema);
   cursor: pointer;
   text-decoration: none;
   font-weight: 600;
@@ -829,4 +906,72 @@ textarea {
   gap: 10px;
   margin-bottom: 18px;
   flex-wrap: wrap;
+}
+
+/* ===== seleção de projetos ===== */
+.proj-select-wrap {
+  min-height: 100vh;
+  background: var(--fundo);
+  padding: 24px 20px 40px;
+}
+.proj-select-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1120px;
+  margin: 0 auto 28px;
+}
+.proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.proj-card {
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-top: 4px solid var(--borda);
+  border-radius: 14px;
+  padding: 22px 18px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+.proj-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+.proj-card-logo {
+  height: 64px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.proj-card-logo img {
+  max-height: 64px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.proj-card-nome {
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.proj-card-cidade {
+  font-size: 11.5px;
+  color: var(--texto-sec);
+}
+.proj-card-brand {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-top: 4px;
 }

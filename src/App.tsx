@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
+import { useProjectStore } from '@/store/useProjectStore'
 import LoginScreen from '@/components/login/LoginScreen'
+import ProjectSelectionScreen from '@/components/projects/ProjectSelectionScreen'
 import AppShell from '@/components/layout/AppShell'
 import DocumentosModule from '@/modules/documentos/DocumentosModule'
 import AssistenciaModule from '@/modules/assistencia/AssistenciaModule'
@@ -11,15 +13,39 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   return children
 }
 
+function RequireProject({ children }: { children: JSX.Element }) {
+  const project = useProjectStore((s) => s.selectedProject)
+  if (!project) return <Navigate to="/projects" replace />
+  return children
+}
+
+function EntryRedirect() {
+  const user = useAuthStore((s) => s.user)
+  const project = useProjectStore((s) => s.selectedProject)
+  if (!user) return <Navigate to="/login" replace />
+  if (!project) return <Navigate to="/projects" replace />
+  return <Navigate to="/app" replace />
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginScreen />} />
       <Route
+        path="/projects"
+        element={
+          <RequireAuth>
+            <ProjectSelectionScreen />
+          </RequireAuth>
+        }
+      />
+      <Route
         path="/app"
         element={
           <RequireAuth>
-            <AppShell />
+            <RequireProject>
+              <AppShell />
+            </RequireProject>
           </RequireAuth>
         }
       >
@@ -27,7 +53,7 @@ export default function App() {
         <Route path="documentos/*" element={<DocumentosModule />} />
         <Route path="assistencia" element={<AssistenciaModule />} />
       </Route>
-      <Route path="*" element={<Navigate to="/app" replace />} />
+      <Route path="*" element={<EntryRedirect />} />
     </Routes>
   )
 }

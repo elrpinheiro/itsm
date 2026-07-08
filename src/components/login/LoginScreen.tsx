@@ -14,7 +14,7 @@ export default function LoginScreen() {
       alert('Informe usuário e senha.')
       return
     }
-    navigate('/app', { replace: true })
+    navigate('/projects', { replace: true })
   }
 
   return (

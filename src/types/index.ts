@@ -68,3 +68,24 @@ export interface EquipmentItem {
 export type DocumentFormData = Record<string, string>
 
 export type WizardStep = 1 | 2 | 3 | 4
+
+/** Organização mantenedora de um projeto — usada só para tematizar o shell, independente das marcas de documento (BrandId). */
+export type ProjectBrandId = 'planneta' | 'faz' | 'educamundi'
+
+export interface ProjectTheme {
+  label: string
+  escuro: string
+  medio: string
+  pale: string
+  texto: string
+  accento: string
+}
+
+/** Um projeto/entidade selecionável na tela pós-login (ex.: "Caçapava — Escola do Futuro"). */
+export interface Project {
+  id: string
+  cidade: string
+  nome: string
+  brandId: ProjectBrandId
+  logo: string
+}
