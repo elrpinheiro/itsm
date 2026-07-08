@@ -93,6 +93,8 @@ function MatrizSection() {
   const allProjects = useAllProjects()
   const matrizes = allProjects.filter((p) => p.isMatriz)
 
+  if (matrizes.length === 0) return null
+
   function handleSelect(project: Project) {
     selectProject(project)
     navigate('/app')

@@ -10,80 +10,10 @@ import incluirCerquilho from '@/assets/logos/incluircerquilho.png'
 import conectarRioClaro from '@/assets/logos/conectarrioclaro.jpg'
 import conectaOz from '@/assets/logos/conectaoz-osasco.png'
 import espacoIntec from '@/assets/logos/espacointec.png'
-import educamundiLogo from '@/assets/logos/educamundi.png'
 import educaJuquitiba from '@/assets/logos/educajuquitiba.png'
-import vitaeBrasilLogo from '@/assets/logos/vitae-brasil.png'
-import albertLogo from '@/assets/logos/albert.png'
-import solumLogo from '@/assets/logos/solum.png'
 import planetaProjetosLogo from '@/assets/logos/planeta-projetos.png'
-import fazLogo from '@/assets/logos/faz-educacao.png'
-import plannetaLogo from '@/assets/logos/planneta-educacao.png'
 
-/**
- * Cada empresa do grupo tem uma matriz (isMatriz: true) — ela também pode
- * abrir chamados e terá seu próprio catálogo de atendimento, por isso é
- * selecionável como qualquer projeto de campo. Os projetos de campo (cidades)
- * ficam abaixo, agrupados por empresa mantenedora.
- */
 export const PROJECTS: Project[] = [
-  // ===== Matriz =====
-  {
-    id: 'matriz-vitae-brasil',
-    cidade: 'Matriz',
-    nome: 'Vitae Brasil',
-    brandId: 'vitae-brasil',
-    logo: vitaeBrasilLogo,
-    isMatriz: true,
-  },
-  {
-    id: 'matriz-faz',
-    cidade: 'Matriz',
-    nome: 'Faz Educação & Tecnologia',
-    brandId: 'faz',
-    logo: fazLogo,
-    isMatriz: true,
-  },
-  {
-    id: 'matriz-planneta',
-    cidade: 'Matriz',
-    nome: 'Planeta Educação',
-    brandId: 'planneta',
-    logo: plannetaLogo,
-    isMatriz: true,
-  },
-  {
-    id: 'matriz-solum',
-    cidade: 'Matriz',
-    nome: 'Solum Ambiental',
-    brandId: 'solum',
-    logo: solumLogo,
-    isMatriz: true,
-  },
-  {
-    id: 'matriz-albert',
-    cidade: 'Matriz',
-    nome: 'Albert',
-    brandId: 'albert',
-    logo: albertLogo,
-    isMatriz: true,
-  },
-  {
-    id: 'matriz-educamundi',
-    cidade: 'Matriz',
-    nome: 'Educamundi',
-    brandId: 'educamundi',
-    logo: educamundiLogo,
-    isMatriz: true,
-  },
-  {
-    id: 'matriz-planeta-projetos',
-    cidade: 'Matriz',
-    nome: 'Planeta Projetos',
-    brandId: 'planeta-projetos',
-    logo: planetaProjetosLogo,
-    isMatriz: true,
-  },
-
   // ===== Projetos: Faz Educação & Tecnologia =====
   {
     id: 'ubatuba-nucleo-inovacao',
@@ -179,14 +109,5 @@ export const PROJECTS: Project[] = [
     nome: 'Aedifica',
     brandId: 'planeta-projetos',
     logo: planetaProjetosLogo,
-  },
-
-  // ===== Projetos: Educamundi =====
-  {
-    id: 'sjc-fundhas',
-    cidade: 'São José dos Campos',
-    nome: 'Fundhas',
-    brandId: 'educamundi',
-    logo: educamundiLogo,
   },
 ]
