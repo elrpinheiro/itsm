@@ -206,16 +206,32 @@ export default function ProjectSelectionScreen() {
     resizeRef.current = null
   }
 
-  // sempre que uma marca ganha projetos de campo (dado novo ou cadastro futuro), acrescenta o bloco na última coluna
+  // mantém o layout salvo em sincronia com quem tem projeto de campo hoje: remove marcas que
+  // ficaram sem nenhum (ex.: viraram só matriz) e acrescenta as novas na última coluna
   useEffect(() => {
     setLayout((prev) => {
-      const known = new Set(prev.flatMap((c) => c.brandIds))
+      const fieldSet = new Set(fieldBrandIds)
+      let changed = false
+      let cols = prev
+        .map((c) => {
+          const filtered = c.brandIds.filter((id) => fieldSet.has(id))
+          if (filtered.length !== c.brandIds.length) changed = true
+          return { ...c, brandIds: filtered }
+        })
+        .filter((c) => c.brandIds.length > 0)
+
+      const known = new Set(cols.flatMap((c) => c.brandIds))
       const missing = fieldBrandIds.filter((id) => !known.has(id))
-      if (missing.length === 0) return prev
-      if (prev.length === 0) return [{ id: `col-${Date.now()}`, brandIds: missing }]
-      const next = prev.map((c) => ({ ...c }))
-      next[next.length - 1] = { ...next[next.length - 1], brandIds: [...next[next.length - 1].brandIds, ...missing] }
-      return next
+      if (missing.length > 0) {
+        changed = true
+        if (cols.length === 0) {
+          cols = [{ id: `col-${Date.now()}`, brandIds: missing }]
+        } else {
+          const last = { ...cols[cols.length - 1], brandIds: [...cols[cols.length - 1].brandIds, ...missing] }
+          cols = [...cols.slice(0, -1), last]
+        }
+      }
+      return changed ? cols : prev
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fieldBrandIds.join(',')])
