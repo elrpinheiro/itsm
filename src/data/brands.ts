@@ -2,6 +2,10 @@ import type { Brand, BrandId } from '@/types'
 import plannetaLogo from '@/assets/logos/planneta-educacao.png'
 import fazLogo from '@/assets/logos/faz-educacao.png'
 import educamundiLogo from '@/assets/logos/educamundi.png'
+import planetaProjetosLogo from '@/assets/logos/planeta-projetos.png'
+import solumLogo from '@/assets/logos/solum.png'
+import albertLogo from '@/assets/logos/albert.png'
+import vitaeBrasilLogo from '@/assets/logos/vitae-brasil.png'
 
 export const BRANDS: Record<BrandId, Brand> = {
   planneta: {
@@ -27,6 +31,34 @@ export const BRANDS: Record<BrandId, Brand> = {
     cor: '#3A1850',
     badgeClass: 'badge-purple',
     logo: educamundiLogo,
+  },
+  'planeta-projetos': {
+    id: 'planeta-projetos',
+    nome: 'Planeta Projetos',
+    razaoSocial: 'Planeta Projetos Ltda.',
+    cor: '#633F32',
+    logo: planetaProjetosLogo,
+  },
+  solum: {
+    id: 'solum',
+    nome: 'Solum Ambiental',
+    razaoSocial: 'Solum Waste Solution Ambiental Ltda.',
+    cor: '#008137',
+    logo: solumLogo,
+  },
+  albert: {
+    id: 'albert',
+    nome: 'Albert',
+    razaoSocial: 'Albert Ltda.',
+    cor: '#E5004C',
+    logo: albertLogo,
+  },
+  'vitae-brasil': {
+    id: 'vitae-brasil',
+    nome: 'Vitae Brasil',
+    razaoSocial: 'Vitae Brasil Soluções Inteligentes Ltda.',
+    cor: '#005CAA',
+    logo: vitaeBrasilLogo,
   },
 }
 

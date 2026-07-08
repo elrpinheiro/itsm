@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllBrandIds, useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
 import { PROJECT_ALERTS, getAlertDescription, getAlertLevel, getAlertTotal } from '@/data/projectAlerts'
 import type { Project, ProjectBrandId } from '@/types'
-import AddBrandModal from './AddBrandModal'
-import AddProjectModal from './AddProjectModal'
 
 type SlotId = 'left' | 'right'
 type ColumnLayout = Record<SlotId, ProjectBrandId[]>
@@ -110,12 +107,10 @@ function ProjectColumn({ brandId, slot, isDragTarget, onDragStart, onDragEnd, on
 }
 
 export default function ProjectSelectionScreen() {
-  const isAdmin = useAuthStore((s) => s.user?.papel === 'Administrador')
   const allBrandIds = useAllBrandIds()
 
   const [layout, setLayout] = useState<ColumnLayout>(loadLayout)
   const [dragOver, setDragOver] = useState<{ slot: SlotId; brandId: ProjectBrandId | null } | null>(null)
-  const [modal, setModal] = useState<'brand' | 'project' | null>(null)
   const draggedBrand = useRef<ProjectBrandId | null>(null)
 
   useEffect(() => {
@@ -192,19 +187,7 @@ export default function ProjectSelectionScreen() {
   return (
     <div className="proj-select-wrap">
       <div className="proj-select-title">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <div style={{ fontWeight: 700, fontSize: 15 }}>Selecione um projeto</div>
-          {isAdmin && (
-            <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
-              <button className="btn admin-add-btn" onClick={() => setModal('brand')}>
-                + Empresa
-              </button>
-              <button className="btn admin-add-btn" onClick={() => setModal('project')}>
-                + Projeto
-              </button>
-            </div>
-          )}
-        </div>
+        <div style={{ fontWeight: 700, fontSize: 15 }}>Selecione um projeto</div>
       </div>
 
       <div className="proj-columns">
@@ -230,9 +213,6 @@ export default function ProjectSelectionScreen() {
           </div>
         ))}
       </div>
-
-      {modal === 'brand' && <AddBrandModal onClose={() => setModal(null)} />}
-      {modal === 'project' && <AddProjectModal onClose={() => setModal(null)} />}
     </div>
   )
 }
