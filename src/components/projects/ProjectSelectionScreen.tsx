@@ -326,10 +326,6 @@ export default function ProjectSelectionScreen() {
 
   return (
     <div className="proj-select-wrap" onPointerMove={onColumnResizeMove} onPointerUp={endColumnResize} onPointerCancel={endColumnResize}>
-      <div className="proj-select-title">
-        <div style={{ fontWeight: 700, fontSize: 15 }}>Selecione um projeto</div>
-      </div>
-
       <MatrizSection />
 
       <div className="proj-section">

@@ -36,6 +36,10 @@ export default function AuthenticatedLayout() {
 
   const [poppedVtcall, setPoppedVtcall] = useState(false)
   const [poppedMktzap, setPoppedMktzap] = useState(false)
+  const [minimizedVtcall, setMinimizedVtcall] = useState(false)
+  const [minimizedMktzap, setMinimizedMktzap] = useState(false)
+  const [popoutBlockedVtcall, setPopoutBlockedVtcall] = useState(false)
+  const [popoutBlockedMktzap, setPopoutBlockedMktzap] = useState(false)
 
   const panelsRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<DragMode | null>(null)
@@ -77,6 +81,15 @@ export default function AuthenticatedLayout() {
   }
   function endDrag() {
     dragRef.current = null
+  }
+
+  function openVtcallPopout() {
+    setPopoutBlockedVtcall(false)
+    setPoppedVtcall(true)
+  }
+  function openMktzapPopout() {
+    setPopoutBlockedMktzap(false)
+    setPoppedMktzap(true)
   }
 
   const insideApp = location.pathname.startsWith('/app') && !!project
@@ -143,12 +156,17 @@ export default function AuthenticatedLayout() {
                   placeholder={<VtcallPlaceholder />}
                   url={vtcallUrl}
                   externalUrl={VTCALL_URL}
-                  flexBasisPct={poppedMktzap ? 100 : split}
+                  flexBasisPct={poppedMktzap || minimizedMktzap ? 100 : split}
                   popped={false}
-                  onTogglePop={() => setPoppedVtcall(true)}
+                  onTogglePop={openVtcallPopout}
+                  minimized={minimizedVtcall}
+                  onToggleMinimize={() => setMinimizedVtcall((v) => !v)}
+                  popoutBlocked={popoutBlockedVtcall}
                 />
               )}
-              {dockedCount === 2 && <div className="op-divider-h" onPointerDown={startSplitDrag} title="Arraste para redimensionar" />}
+              {dockedCount === 2 && !minimizedVtcall && !minimizedMktzap && (
+                <div className="op-divider-h" onPointerDown={startSplitDrag} title="Arraste para redimensionar" />
+              )}
               {!poppedMktzap && (
                 <OperationPanel
                   title="MKTZAP"
@@ -157,9 +175,12 @@ export default function AuthenticatedLayout() {
                   placeholder={<MktzapPlaceholder />}
                   url={mktzapUrl}
                   externalUrl={MKTZAP_URL}
-                  flexBasisPct={poppedVtcall ? 100 : 100 - split}
+                  flexBasisPct={poppedVtcall || minimizedVtcall ? 100 : 100 - split}
                   popped={false}
-                  onTogglePop={() => setPoppedMktzap(true)}
+                  onTogglePop={openMktzapPopout}
+                  minimized={minimizedMktzap}
+                  onToggleMinimize={() => setMinimizedMktzap((v) => !v)}
+                  popoutBlocked={popoutBlockedMktzap}
                 />
               )}
             </div>
@@ -168,7 +189,11 @@ export default function AuthenticatedLayout() {
       </div>
 
       {poppedVtcall && (
-        <PopoutWindow title="Vtcall — Vitae ITSM" onClose={() => setPoppedVtcall(false)}>
+        <PopoutWindow
+          title="Vtcall — Vitae ITSM"
+          onClose={() => setPoppedVtcall(false)}
+          onOpenFailed={() => setPopoutBlockedVtcall(true)}
+        >
           <OperationPanel
             title="Vtcall"
             subtitle="Ligações em tempo real"
@@ -182,7 +207,11 @@ export default function AuthenticatedLayout() {
         </PopoutWindow>
       )}
       {poppedMktzap && (
-        <PopoutWindow title="MKTZAP — Vitae ITSM" onClose={() => setPoppedMktzap(false)}>
+        <PopoutWindow
+          title="MKTZAP — Vitae ITSM"
+          onClose={() => setPoppedMktzap(false)}
+          onOpenFailed={() => setPopoutBlockedMktzap(true)}
+        >
           <OperationPanel
             title="MKTZAP"
             subtitle="Atendimento via WhatsApp"

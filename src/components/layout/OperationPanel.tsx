@@ -10,6 +10,9 @@ interface Props {
   flexBasisPct?: number
   popped: boolean
   onTogglePop: () => void
+  minimized?: boolean
+  onToggleMinimize?: () => void
+  popoutBlocked?: boolean
 }
 
 /**
@@ -19,15 +22,28 @@ interface Props {
  * iframe (X-Frame-Options) por segurança própria, então o fallback garante
  * que o atendente sempre consiga acessar o sistema de um jeito ou de outro.
  *
- * Pode ser renderizado "docked" (encaixado na coluna lateral) ou "popped"
- * (dentro de uma janela própria do navegador — ver PopoutWindow — que pode
- * ser arrastada para outro monitor).
+ * Pode ser renderizado "docked" (encaixado na coluna lateral, podendo ser
+ * minimizado), ou "popped" (dentro de uma janela própria do navegador — ver
+ * PopoutWindow — que pode ser arrastada para outro monitor).
  */
-export default function OperationPanel({ title, subtitle, logo, placeholder, url, externalUrl, flexBasisPct, popped, onTogglePop }: Props) {
+export default function OperationPanel({
+  title,
+  subtitle,
+  logo,
+  placeholder,
+  url,
+  externalUrl,
+  flexBasisPct,
+  popped,
+  onTogglePop,
+  minimized,
+  onToggleMinimize,
+  popoutBlocked,
+}: Props) {
   return (
     <div
-      className="op-panel"
-      style={popped ? { height: '100%' } : flexBasisPct != null ? { flexBasis: `${flexBasisPct}%` } : undefined}
+      className={`op-panel${minimized ? ' minimized' : ''}`}
+      style={popped ? { height: '100%' } : minimized ? { flex: '0 0 auto' } : flexBasisPct != null ? { flexBasis: `${flexBasisPct}%` } : undefined}
     >
       <div className="op-panel-header">
         <img src={logo} alt={title} className="op-panel-logo" />
@@ -36,6 +52,15 @@ export default function OperationPanel({ title, subtitle, logo, placeholder, url
           <div className="op-panel-subtitle">{subtitle}</div>
         </div>
         {url && <span className="op-panel-live">● ao vivo</span>}
+        {!popped && onToggleMinimize && (
+          <button
+            className="op-panel-pop"
+            onClick={onToggleMinimize}
+            title={minimized ? 'Restaurar painel' : 'Ocultar/minimizar painel'}
+          >
+            {minimized ? '▸' : '▾'}
+          </button>
+        )}
         <button
           className="op-panel-pop"
           onClick={onTogglePop}
@@ -47,7 +72,17 @@ export default function OperationPanel({ title, subtitle, logo, placeholder, url
           ↗
         </a>
       </div>
-      <div className="op-panel-body">{url ? <iframe src={url} title={title} className="op-panel-iframe" /> : placeholder}</div>
+      {!minimized && (
+        <>
+          {popoutBlocked && !popped && (
+            <div className="op-panel-notice">
+              Não foi possível abrir uma janela separada — o navegador bloqueou o pop-up. Permita pop-ups para este site e
+              clique em "⤢" novamente.
+            </div>
+          )}
+          <div className="op-panel-body">{url ? <iframe src={url} title={title} className="op-panel-iframe" /> : placeholder}</div>
+        </>
+      )}
     </div>
   )
 }

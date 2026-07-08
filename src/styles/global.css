@@ -906,6 +906,20 @@ textarea {
   background: var(--fundo);
   color: var(--tema);
 }
+.op-panel.minimized {
+  min-height: 0;
+}
+.op-panel.minimized .op-panel-header {
+  border-bottom: none;
+}
+.op-panel-notice {
+  font-size: 11px;
+  color: #92400e;
+  background: #fef3c7;
+  border-bottom: 1px solid #fde68a;
+  padding: 8px 10px;
+  line-height: 1.4;
+}
 
 .op-panel-body {
   flex: 1;

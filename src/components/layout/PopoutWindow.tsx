@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom'
 interface Props {
   title: string
   onClose: () => void
+  /** Chamado quando o navegador recusa abrir a janela (pop-up bloqueado) — além de onClose, que sempre roda para reverter o estado "popped". */
+  onOpenFailed?: () => void
   children: ReactNode
   width?: number
   height?: number
@@ -14,16 +16,22 @@ interface Props {
  * renderiza `children` nela via portal, mantendo o mesmo estado/React tree da
  * janela principal. Isso permite arrastar a janela para outro monitor —
  * diferente de um painel flutuante, que fica preso à aba/janela original.
+ *
+ * Se o navegador bloquear o pop-up (comum dentro de iframes de preview, por
+ * exemplo), `window.open` retorna null — nesse caso avisamos via `onOpenFailed`
+ * em vez de um `window.alert`, que pode não aparecer em contextos restritos.
  */
-export default function PopoutWindow({ title, onClose, children, width = 420, height = 640 }: Props) {
+export default function PopoutWindow({ title, onClose, onOpenFailed, children, width = 420, height = 640 }: Props) {
   const [container, setContainer] = useState<HTMLElement | null>(null)
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
+  const onOpenFailedRef = useRef(onOpenFailed)
+  onOpenFailedRef.current = onOpenFailed
 
   useEffect(() => {
     const win = window.open('', '', `width=${width},height=${height}`)
     if (!win) {
-      window.alert('Não foi possível abrir a janela. Verifique se o navegador está bloqueando pop-ups para este site.')
+      onOpenFailedRef.current?.()
       onCloseRef.current()
       return
     }
