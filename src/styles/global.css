@@ -1194,12 +1194,25 @@ textarea {
   flex: 1;
   min-width: 0;
   max-width: 230px;
+  min-height: 60px;
+  border-radius: 14px;
+  transition: outline-color 0.12s;
+  outline: 2px dashed transparent;
+  outline-offset: 4px;
+}
+.proj-col-stack.drag-target {
+  outline-color: var(--tema);
 }
 .proj-column {
   background: #fff;
   border: 1px solid var(--borda);
   border-radius: 14px;
   padding: 10px;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.proj-column.drag-target {
+  border-color: var(--tema);
+  box-shadow: 0 0 0 2px var(--tema-pale);
 }
 .proj-column-header {
   display: flex;
@@ -1208,6 +1221,16 @@ textarea {
   padding-bottom: 8px;
   margin-bottom: 8px;
   border-bottom: 2px solid var(--borda);
+  cursor: grab;
+}
+.proj-column-header:active {
+  cursor: grabbing;
+}
+.proj-column-grip {
+  color: var(--texto-sec);
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 .proj-column-logo {
   height: 24px;
@@ -1219,6 +1242,8 @@ textarea {
   font-size: 11px;
   font-weight: 700;
   line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 .proj-column-count {
   font-size: 10px;
@@ -1285,6 +1310,8 @@ textarea {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 .proj-alert-badge {
   position: absolute;
