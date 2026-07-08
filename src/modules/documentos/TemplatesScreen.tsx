@@ -2,14 +2,15 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PORTFOLIOS } from '@/data/portfolios'
 import { TEMPLATES } from '@/data/templates'
-import { BRANDS } from '@/data/brands'
+import { useBrand } from '@/store/useCatalogStore'
 import { useProjectStore } from '@/store/useProjectStore'
+import { brandBadgeStyle } from '@/utils/color'
 
 export default function TemplatesScreen() {
   const { portfolioId } = useParams()
   const navigate = useNavigate()
   const project = useProjectStore((s) => s.selectedProject)
-  const brand = BRANDS[project?.brandId ?? 'planneta']
+  const brand = useBrand(project?.brandId ?? 'planneta')
   const portfolio = PORTFOLIOS.find((p) => p.id === portfolioId)
   const [query, setQuery] = useState('')
 
@@ -74,7 +75,9 @@ export default function TemplatesScreen() {
             <div className="tpl-name">{t.nome}</div>
             <div className="tpl-code">{t.code}</div>
             <div className="tpl-foot">
-              <span className={`badge ${brand.badgeClass}`}>{brand.nome}</span>
+              <span className={`badge ${brand.badgeClass ?? ''}`} style={brandBadgeStyle(brand)}>
+                {brand.nome}
+              </span>
               <span style={{ fontSize: 11, color: 'var(--muted)' }}>{t.signers.length} assin.</span>
             </div>
           </div>

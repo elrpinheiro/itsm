@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getTemplateById } from '@/data/templates'
-import { BRANDS } from '@/data/brands'
-import type { BrandId, ChecklistItem, DocumentFormData, EquipmentItem, Signer, WizardStep } from '@/types'
+import { useAllBrandsMap } from '@/store/useCatalogStore'
+import { brandBadgeStyle } from '@/utils/color'
+import type { ChecklistItem, DocumentFormData, EquipmentItem, Signer, WizardStep } from '@/types'
 import { WizardContext, type WizardContextValue } from './WizardContext'
 import StepIndicator from './StepIndicator'
 import Step1Fill from './Step1Fill'
@@ -27,7 +28,8 @@ export default function DocumentWizard() {
   const { portfolioId, templateId, brandId } = useParams()
   const navigate = useNavigate()
   const template = templateId ? getTemplateById(templateId) : undefined
-  const brand = brandId ? BRANDS[brandId as BrandId] : undefined
+  const brandsMap = useAllBrandsMap()
+  const brand = brandId ? brandsMap[brandId] : undefined
 
   const [step, setStep] = useState<WizardStep>(1)
   const [formData, setFormData] = useState<DocumentFormData>({})
@@ -99,7 +101,9 @@ export default function DocumentWizard() {
             {template.code} · {brand.nome}
           </div>
         </div>
-        <span className={`badge ${brand.badgeClass}`}>{brand.nome}</span>
+        <span className={`badge ${brand.badgeClass ?? ''}`} style={brandBadgeStyle(brand)}>
+          {brand.nome}
+        </span>
       </div>
 
       <StepIndicator step={step} />

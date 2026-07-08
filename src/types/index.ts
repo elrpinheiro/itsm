@@ -1,11 +1,13 @@
-export type BrandId = 'planneta' | 'faz' | 'educamundi'
+/** Identificador de marca — os 3 valores originais continuam existindo, mas o admin pode cadastrar novas em tempo de execução, por isso o tipo é aberto. */
+export type BrandId = string
 
 export interface Brand {
   id: BrandId
   nome: string
   razaoSocial: string
   cor: string
-  badgeClass: 'badge-blue' | 'badge-green' | 'badge-purple'
+  /** Classe CSS fixa (badge-blue/green/purple) usada pelas marcas originais; marcas criadas pelo admin não têm classe pré-definida e usam estilo inline derivado de `cor`. */
+  badgeClass?: 'badge-blue' | 'badge-green' | 'badge-purple'
   logo: string
 }
 

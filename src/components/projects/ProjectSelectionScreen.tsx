@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
-import { PROJECTS } from '@/data/projects'
-import { PROJECT_THEMES } from '@/data/projectThemes'
+import { useAllBrandIds, useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
 import { PROJECT_ALERTS, getAlertDescription, getAlertLevel, getAlertTotal } from '@/data/projectAlerts'
 import type { Project, ProjectBrandId } from '@/types'
+import AddBrandModal from './AddBrandModal'
+import AddProjectModal from './AddProjectModal'
 
 type SlotId = 'left' | 'right'
 type ColumnLayout = Record<SlotId, ProjectBrandId[]>
@@ -13,7 +15,6 @@ const STORAGE_KEY = 'itsm-proj-column-layout'
 
 /** Arranjo padrão: Faz isolada à esquerda; Planneta e Educamundi empilhadas à direita. */
 const DEFAULT_LAYOUT: ColumnLayout = { left: ['faz'], right: ['planneta', 'educamundi'] }
-const ALL_BRANDS: ProjectBrandId[] = ['planneta', 'faz', 'educamundi']
 
 function loadLayout(): ColumnLayout {
   try {
@@ -22,11 +23,7 @@ function loadLayout(): ColumnLayout {
     const parsed = JSON.parse(raw)
     const left: ProjectBrandId[] = Array.isArray(parsed?.left) ? parsed.left : []
     const right: ProjectBrandId[] = Array.isArray(parsed?.right) ? parsed.right : []
-    const found = [...left, ...right]
-    // garante que nenhuma marca suma nem se duplique caso o formato salvo mude no futuro
-    if (ALL_BRANDS.every((b) => found.includes(b)) && found.length === ALL_BRANDS.length) {
-      return { left, right }
-    }
+    if (left.length + right.length > 0) return { left, right }
   } catch {
     /* localStorage indisponível ou dado corrompido — usa o padrão */
   }
@@ -46,8 +43,9 @@ interface ProjectColumnProps {
 function ProjectColumn({ brandId, slot, isDragTarget, onDragStart, onDragEnd, onDragOver, onDrop }: ProjectColumnProps) {
   const navigate = useNavigate()
   const selectProject = useProjectStore((s) => s.selectProject)
-  const theme = PROJECT_THEMES[brandId]
-  const projects = PROJECTS.filter((p) => p.brandId === brandId)
+  const allProjects = useAllProjects()
+  const theme = useProjectTheme(brandId)
+  const projects = allProjects.filter((p) => p.brandId === brandId)
 
   function handleSelect(project: Project) {
     selectProject(project)
@@ -56,7 +54,7 @@ function ProjectColumn({ brandId, slot, isDragTarget, onDragStart, onDragEnd, on
 
   return (
     <div
-      className={`proj-column proj-column-${brandId}${isDragTarget ? ' drag-target' : ''}`}
+      className={`proj-column${isDragTarget ? ' drag-target' : ''}`}
       onDragOver={onDragOver(slot, brandId)}
       onDrop={onDrop(slot, brandId)}
     >
@@ -103,19 +101,35 @@ function ProjectColumn({ brandId, slot, isDragTarget, onDragStart, onDragEnd, on
             </button>
           )
         })}
+        {projects.length === 0 && <div className="proj-column-empty">Nenhum projeto cadastrado ainda.</div>}
       </div>
     </div>
   )
 }
 
 export default function ProjectSelectionScreen() {
+  const isAdmin = useAuthStore((s) => s.user?.papel === 'Administrador')
+  const allBrandIds = useAllBrandIds()
+
   const [layout, setLayout] = useState<ColumnLayout>(loadLayout)
   const [dragOver, setDragOver] = useState<{ slot: SlotId; brandId: ProjectBrandId | null } | null>(null)
+  const [modal, setModal] = useState<'brand' | 'project' | null>(null)
   const draggedBrand = useRef<ProjectBrandId | null>(null)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(layout))
   }, [layout])
+
+  // sempre que uma nova marca é cadastrada (pelo admin), acrescenta o bloco à direita automaticamente
+  useEffect(() => {
+    setLayout((prev) => {
+      const known = new Set([...prev.left, ...prev.right])
+      const missing = allBrandIds.filter((id) => !known.has(id))
+      if (missing.length === 0) return prev
+      return { ...prev, right: [...prev.right, ...missing] }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allBrandIds.join(',')])
 
   function moveBrand(brandId: ProjectBrandId, targetSlot: SlotId, beforeBrand?: ProjectBrandId) {
     setLayout((prev) => {
@@ -176,7 +190,19 @@ export default function ProjectSelectionScreen() {
   return (
     <div className="proj-select-wrap">
       <div className="proj-select-title">
-        <div style={{ fontWeight: 700, fontSize: 15 }}>Selecione um projeto</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>Selecione um projeto</div>
+          {isAdmin && (
+            <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+              <button className="btn admin-add-btn" onClick={() => setModal('brand')}>
+                + Empresa
+              </button>
+              <button className="btn admin-add-btn" onClick={() => setModal('project')}>
+                + Projeto
+              </button>
+            </div>
+          )}
+        </div>
         <div style={{ fontSize: 11.5, color: 'var(--texto-sec)' }}>
           Escolha a entidade para acessar a Central de Documentos e a Assistência. Arraste o cabeçalho de um bloco (⠿) para
           reorganizar — a posição fica salva.
@@ -206,6 +232,9 @@ export default function ProjectSelectionScreen() {
           </div>
         ))}
       </div>
+
+      {modal === 'brand' && <AddBrandModal onClose={() => setModal(null)} />}
+      {modal === 'project' && <AddProjectModal onClose={() => setModal(null)} />}
     </div>
   )
 }

@@ -2,7 +2,7 @@ import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointer
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
-import { PROJECT_THEMES } from '@/data/projectThemes'
+import { useProjectTheme } from '@/store/useCatalogStore'
 import { useClock } from '@/hooks/useClock'
 import OperationPanel from './OperationPanel'
 import { VtcallPlaceholder, MktzapPlaceholder } from './operationPlaceholders'
@@ -48,7 +48,7 @@ export default function AuthenticatedLayout() {
   const mktzapFloatRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<DragMode | null>(null)
 
-  const theme = PROJECT_THEMES[project?.brandId ?? 'planneta']
+  const theme = useProjectTheme(project?.brandId ?? 'planneta')
   const themeVars = {
     '--tema-escuro': theme.escuro,
     '--tema': theme.medio,

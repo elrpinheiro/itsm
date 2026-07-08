@@ -1338,6 +1338,105 @@ textarea {
   background: #dc2626;
   animation: proj-alert-pulse 1.6s ease-in-out infinite;
 }
+.proj-column-empty {
+  font-size: 11.5px;
+  color: var(--texto-sec);
+  padding: 10px 6px;
+  text-align: center;
+}
+.admin-add-btn {
+  padding: 6px 11px;
+  font-size: 12px;
+}
+
+/* ===== modal genérico ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 30, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.modal-card {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--borda);
+}
+.modal-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--texto-sec);
+  cursor: pointer;
+  padding: 4px 7px;
+  border-radius: 6px;
+  font-family: inherit;
+}
+.modal-close:hover {
+  background: var(--fundo);
+  color: var(--texto);
+}
+.modal-body {
+  padding: 18px;
+}
+
+/* ===== formulário de administração (nova empresa / novo projeto) ===== */
+.admin-color-input {
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+.admin-logo-preview {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+}
+.admin-logo-preview img {
+  height: 44px;
+  max-width: 140px;
+  object-fit: contain;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 4px;
+  background: #fff;
+}
+.admin-error {
+  font-size: 12px;
+  color: #dc2626;
+  background: #fdeaea;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
 @keyframes proj-alert-pulse {
   0%,
   100% {
