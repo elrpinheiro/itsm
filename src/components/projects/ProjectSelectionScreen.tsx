@@ -3,7 +3,10 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { PROJECTS } from '@/data/projects'
 import { PROJECT_THEMES } from '@/data/projectThemes'
-import type { Project } from '@/types'
+import type { Project, ProjectBrandId } from '@/types'
+
+/** Ordem das colunas: Planneta à esquerda, Faz ao centro (maior volume de projetos), Educamundi à direita. */
+const COLUMN_ORDER: ProjectBrandId[] = ['planneta', 'faz', 'educamundi']
 
 export default function ProjectSelectionScreen() {
   const navigate = useNavigate()
@@ -57,24 +60,37 @@ export default function ProjectSelectionScreen() {
         </div>
       </div>
 
-      <div className="proj-grid">
-        {PROJECTS.map((project) => {
-          const theme = PROJECT_THEMES[project.brandId]
+      <div className="proj-columns">
+        {COLUMN_ORDER.map((brandId) => {
+          const theme = PROJECT_THEMES[brandId]
+          const projects = PROJECTS.filter((p) => p.brandId === brandId)
           return (
-            <div
-              key={project.id}
-              className="proj-card"
-              style={{ borderTopColor: theme.medio }}
-              onClick={() => handleSelect(project)}
-            >
-              <div className="proj-card-logo">
-                <img src={project.logo} alt={project.nome} />
+            <div className={`proj-column proj-column-${brandId}`} key={brandId}>
+              <div className="proj-column-header" style={{ borderBottomColor: theme.medio }}>
+                <img src={theme.logo} alt={theme.label} className="proj-column-logo" />
+                <div>
+                  <div className="proj-column-title">{theme.label}</div>
+                  <div className="proj-column-count">
+                    {projects.length} projeto{projects.length !== 1 ? 's' : ''}
+                  </div>
+                </div>
               </div>
-              <div className="proj-card-nome">{project.nome}</div>
-              <div className="proj-card-cidade">{project.cidade}</div>
-              <span className="proj-card-brand" style={{ background: theme.pale, color: theme.texto }}>
-                {theme.label}
-              </span>
+              <div className="proj-column-grid">
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="proj-card"
+                    style={{ borderTopColor: theme.medio }}
+                    onClick={() => handleSelect(project)}
+                  >
+                    <div className="proj-card-logo">
+                      <img src={project.logo} alt={project.nome} />
+                    </div>
+                    <div className="proj-card-nome">{project.nome}</div>
+                    <div className="proj-card-cidade">{project.cidade}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           )
         })}

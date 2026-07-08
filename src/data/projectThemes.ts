@@ -1,4 +1,7 @@
 import type { ProjectBrandId, ProjectTheme } from '@/types'
+import plannetaLogo from '@/assets/logos/planneta-educacao.png'
+import fazLogo from '@/assets/logos/faz-educacao.png'
+import educamundiLogo from '@/assets/logos/educamundi.png'
 
 /**
  * Paleta de cada organização mantenedora, usada para tematizar o shell (header,
@@ -9,6 +12,7 @@ import type { ProjectBrandId, ProjectTheme } from '@/types'
 export const PROJECT_THEMES: Record<ProjectBrandId, ProjectTheme> = {
   planneta: {
     label: 'Planneta Educação',
+    logo: plannetaLogo,
     escuro: '#0D2B5E',
     medio: '#185FA5',
     pale: '#E6F1FB',
@@ -17,6 +21,7 @@ export const PROJECT_THEMES: Record<ProjectBrandId, ProjectTheme> = {
   },
   faz: {
     label: 'Faz Educação & Tecnologia',
+    logo: fazLogo,
     escuro: '#0E371F',
     medio: '#1E7A45',
     pale: '#EAF3DE',
@@ -25,6 +30,7 @@ export const PROJECT_THEMES: Record<ProjectBrandId, ProjectTheme> = {
   },
   educamundi: {
     label: 'Educamundi',
+    logo: educamundiLogo,
     escuro: '#3A1850',
     medio: '#8035B2',
     pale: '#F2EBF7',

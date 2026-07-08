@@ -11,6 +11,7 @@ import conectarRioClaro from '@/assets/logos/conectarrioclaro.jpg'
 import conectaOz from '@/assets/logos/conectaoz-osasco.png'
 import espacoIntec from '@/assets/logos/espacointec.png'
 import educamundiLogo from '@/assets/logos/educamundi.png'
+import educaJuquitiba from '@/assets/logos/educajuquitiba.png'
 
 export const PROJECTS: Project[] = [
   {
@@ -89,6 +90,13 @@ export const PROJECTS: Project[] = [
     nome: 'Espaço Intec — Inclusão e Tecnologia Conectando Futuros',
     brandId: 'faz',
     logo: espacoIntec,
+  },
+  {
+    id: 'juquitiba-educajuquitiba',
+    cidade: 'Juquitiba',
+    nome: 'EducaJuquitiba',
+    brandId: 'faz',
+    logo: educaJuquitiba,
   },
   {
     id: 'sjc-fundhas',

@@ -74,6 +74,7 @@ export type ProjectBrandId = 'planneta' | 'faz' | 'educamundi'
 
 export interface ProjectTheme {
   label: string
+  logo: string
   escuro: string
   medio: string
   pale: string
