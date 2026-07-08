@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
 
 interface Props {
   title: string
@@ -12,7 +12,8 @@ interface Props {
   onTogglePop: () => void
   minimized?: boolean
   onToggleMinimize?: () => void
-  popoutBlocked?: boolean
+  onDragHandlePointerDown?: (e: ReactPointerEvent) => void
+  onHideToEdge?: () => void
 }
 
 /**
@@ -23,8 +24,8 @@ interface Props {
  * que o atendente sempre consiga acessar o sistema de um jeito ou de outro.
  *
  * Pode ser renderizado "docked" (encaixado na coluna lateral, podendo ser
- * minimizado), ou "popped" (dentro de uma janela própria do navegador — ver
- * PopoutWindow — que pode ser arrastada para outro monitor).
+ * minimizado) ou "popped" (painel flutuante dentro da própria página, que
+ * pode ser arrastado pelo cabeçalho e ocultado na lateral direita).
  */
 export default function OperationPanel({
   title,
@@ -38,51 +39,68 @@ export default function OperationPanel({
   onTogglePop,
   minimized,
   onToggleMinimize,
-  popoutBlocked,
+  onDragHandlePointerDown,
+  onHideToEdge,
 }: Props) {
   return (
     <div
       className={`op-panel${minimized ? ' minimized' : ''}`}
-      style={popped ? { height: '100%' } : minimized ? { flex: '0 0 auto' } : flexBasisPct != null ? { flexBasis: `${flexBasisPct}%` } : undefined}
+      style={popped ? undefined : minimized ? { flex: '0 0 auto' } : flexBasisPct != null ? { flexBasis: `${flexBasisPct}%` } : undefined}
     >
-      <div className="op-panel-header">
+      <div
+        className="op-panel-header"
+        onPointerDown={
+          popped
+            ? (e) => {
+                e.preventDefault()
+                onDragHandlePointerDown?.(e)
+              }
+            : undefined
+        }
+        onDragStart={(e) => e.preventDefault()}
+        style={popped ? { cursor: 'grab', touchAction: 'none', userSelect: 'none' } : undefined}
+      >
         <img src={logo} alt={title} className="op-panel-logo" />
         <div className="op-panel-titles">
           <div className="op-panel-title">{title}</div>
           <div className="op-panel-subtitle">{subtitle}</div>
         </div>
         {url && <span className="op-panel-live">● ao vivo</span>}
-        {!popped && onToggleMinimize && (
+        {onToggleMinimize && (
           <button
             className="op-panel-pop"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={onToggleMinimize}
             title={minimized ? 'Restaurar painel' : 'Ocultar/minimizar painel'}
           >
             {minimized ? '▸' : '▾'}
           </button>
         )}
+        {popped && onHideToEdge && (
+          <button className="op-panel-pop" onPointerDown={(e) => e.stopPropagation()} onClick={onHideToEdge} title="Ocultar na lateral direita">
+            »
+          </button>
+        )}
         <button
           className="op-panel-pop"
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={onTogglePop}
-          title={popped ? 'Fixar novamente na tela principal' : 'Destacar em janela própria (dá para mover para outro monitor)'}
+          title={popped ? 'Fixar novamente na coluna lateral' : 'Destacar como janela flutuante (pode ser arrastada pela tela)'}
         >
           {popped ? '📌' : '⤢'}
         </button>
-        <a className="op-panel-link" href={externalUrl} target="_blank" rel="noreferrer" title="Abrir em nova aba">
+        <a
+          className="op-panel-link"
+          href={externalUrl}
+          target="_blank"
+          rel="noreferrer"
+          title="Abrir em nova aba do navegador"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           ↗
         </a>
       </div>
-      {!minimized && (
-        <>
-          {popoutBlocked && !popped && (
-            <div className="op-panel-notice">
-              Não foi possível abrir uma janela separada — o navegador bloqueou o pop-up. Permita pop-ups para este site e
-              clique em "⤢" novamente.
-            </div>
-          )}
-          <div className="op-panel-body">{url ? <iframe src={url} title={title} className="op-panel-iframe" /> : placeholder}</div>
-        </>
-      )}
+      {!minimized && <div className="op-panel-body">{url ? <iframe src={url} title={title} className="op-panel-iframe" /> : placeholder}</div>}
     </div>
   )
 }

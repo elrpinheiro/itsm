@@ -3,9 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useProjectTheme } from '@/store/useCatalogStore'
-import { useClock } from '@/hooks/useClock'
 import OperationPanel from './OperationPanel'
-import PopoutWindow from './PopoutWindow'
 import { VtcallPlaceholder, MktzapPlaceholder } from './operationPlaceholders'
 import vtcallLogo from '@/assets/logos/vtcall.png'
 import whatsappLogo from '@/assets/logos/WhatsApp.png'
@@ -25,7 +23,18 @@ const PANELS_DEFAULT_WIDTH = 360
 const SPLIT_MIN = 20
 const SPLIT_MAX = 80
 
-type DragMode = { kind: 'width'; startX: number; startWidth: number } | { kind: 'split'; startY: number; startSplit: number }
+const FLOAT_WIDTH = 340
+const FLOAT_EDGE_THRESHOLD = 40
+
+type DragMode =
+  | { kind: 'width'; startX: number; startWidth: number }
+  | { kind: 'split'; startY: number; startSplit: number }
+  | { kind: 'float'; which: 'vtcall' | 'mktzap'; startX: number; startY: number; startPosX: number; startPosY: number }
+
+interface FloatPos {
+  x: number
+  y: number
+}
 
 export default function AuthenticatedLayout() {
   const user = useAuthStore((s) => s.user)
@@ -33,7 +42,6 @@ export default function AuthenticatedLayout() {
   const project = useProjectStore((s) => s.selectedProject)
   const navigate = useNavigate()
   const location = useLocation()
-  const clock = useClock()
 
   const [vtcallUrl, setVtcallUrl] = useState<string | null>(null)
   const [mktzapUrl, setMktzapUrl] = useState<string | null>(null)
@@ -44,8 +52,10 @@ export default function AuthenticatedLayout() {
   const [poppedMktzap, setPoppedMktzap] = useState(false)
   const [minimizedVtcall, setMinimizedVtcall] = useState(false)
   const [minimizedMktzap, setMinimizedMktzap] = useState(false)
-  const [popoutBlockedVtcall, setPopoutBlockedVtcall] = useState(false)
-  const [popoutBlockedMktzap, setPopoutBlockedMktzap] = useState(false)
+  const [edgeVtcall, setEdgeVtcall] = useState(false)
+  const [edgeMktzap, setEdgeMktzap] = useState(false)
+  const [posVtcall, setPosVtcall] = useState<FloatPos>({ x: 60, y: 90 })
+  const [posMktzap, setPosMktzap] = useState<FloatPos>({ x: 430, y: 90 })
 
   const panelsRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<DragMode | null>(null)
@@ -73,32 +83,51 @@ export default function AuthenticatedLayout() {
     dragRef.current = { kind: 'split', startY: e.clientY, startSplit: split }
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
+  function startFloatDrag(which: 'vtcall' | 'mktzap', e: ReactPointerEvent) {
+    const pos = which === 'vtcall' ? posVtcall : posMktzap
+    dragRef.current = { kind: 'float', which, startX: e.clientX, startY: e.clientY, startPosX: pos.x, startPosY: pos.y }
+    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+  }
   function onDrag(e: ReactPointerEvent) {
     const drag = dragRef.current
     if (!drag) return
     if (drag.kind === 'width') {
       const delta = drag.startX - e.clientX
       setPanelsWidth(Math.min(PANELS_MAX_WIDTH, Math.max(PANELS_MIN_WIDTH, drag.startWidth + delta)))
-    } else {
+    } else if (drag.kind === 'split') {
       const containerHeight = panelsRef.current?.clientHeight ?? 1
       const deltaPct = ((e.clientY - drag.startY) / containerHeight) * 100
       setSplit(Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, drag.startSplit + deltaPct)))
+    } else {
+      const nx = Math.min(Math.max(drag.startPosX + (e.clientX - drag.startX), 0), Math.max(0, window.innerWidth - FLOAT_WIDTH))
+      const ny = Math.min(Math.max(drag.startPosY + (e.clientY - drag.startY), 0), Math.max(0, window.innerHeight - 44))
+      if (drag.which === 'vtcall') setPosVtcall({ x: nx, y: ny })
+      else setPosMktzap({ x: nx, y: ny })
     }
   }
-  function endDrag() {
+  function endDrag(e: ReactPointerEvent) {
+    const drag = dragRef.current
+    if (drag?.kind === 'float' && e.clientX > window.innerWidth - FLOAT_EDGE_THRESHOLD) {
+      if (drag.which === 'vtcall') setEdgeVtcall(true)
+      else setEdgeMktzap(true)
+    }
     dragRef.current = null
   }
 
-  function openVtcallPopout() {
-    setPopoutBlockedVtcall(false)
-    setPoppedVtcall(true)
-  }
-  function openMktzapPopout() {
-    setPopoutBlockedMktzap(false)
-    setPoppedMktzap(true)
+  function restoreFromEdge(which: 'vtcall' | 'mktzap') {
+    const y = Math.min(Math.max((which === 'vtcall' ? posVtcall.y : posMktzap.y), 0), window.innerHeight - 44)
+    const x = Math.max(0, window.innerWidth - FLOAT_WIDTH - 24)
+    if (which === 'vtcall') {
+      setPosVtcall({ x, y })
+      setEdgeVtcall(false)
+    } else {
+      setPosMktzap({ x, y })
+      setEdgeMktzap(false)
+    }
   }
 
   const insideApp = location.pathname.startsWith('/app') && !!project
+  const currentModule = NAV_MODULES.find((m) => location.pathname.startsWith(m.path))
   const dockedCount = (poppedVtcall ? 0 : 1) + (poppedMktzap ? 0 : 1)
 
   return (
@@ -123,15 +152,18 @@ export default function AuthenticatedLayout() {
           </div>
         )}
 
-        <div className="op-actions">
-          <span className="op-actions-label">Entrar em Operação</span>
-          <button className={`op-btn${vtcallUrl ? ' on' : ''}`} onClick={() => setVtcallUrl(VTCALL_URL)}>
-            <img src={vtcallLogo} alt="" /> <span>Vtcall</span>
-          </button>
-          <button className={`op-btn${mktzapUrl ? ' on' : ''}`} onClick={() => setMktzapUrl(MKTZAP_URL)}>
-            <img src={whatsappLogo} alt="" /> <span>MKTZAP</span>
-          </button>
-        </div>
+        {currentModule && (
+          <div className="hdr-project">
+            <span className="hdr-modtitle-icon">{currentModule.icon}</span>
+            <div className="hdr-project-text">
+              <div className="hdr-project-name">{currentModule.label}</div>
+              <div className="hdr-sub">Visão global</div>
+            </div>
+            <button className="hdr-back-btn" onClick={() => navigate('/projects')} title="Voltar à tela principal">
+              🏠 <span>Início</span>
+            </button>
+          </div>
+        )}
 
         <nav className="hdr-nav">
           {NAV_MODULES.map((m) => (
@@ -147,7 +179,15 @@ export default function AuthenticatedLayout() {
         </nav>
 
         <div className="hdr-right">
-          <span className="hdr-clock">{clock}</span>
+          <div className="op-actions">
+            <span className="op-actions-label">Entrar em Operação</span>
+            <button className={`op-btn${vtcallUrl ? ' on' : ''}`} onClick={() => setVtcallUrl(VTCALL_URL)}>
+              <img src={vtcallLogo} alt="" /> <span>Vtcall</span>
+            </button>
+            <button className={`op-btn${mktzapUrl ? ' on' : ''}`} onClick={() => setMktzapUrl(MKTZAP_URL)}>
+              <img src={whatsappLogo} alt="" /> <span>MKTZAP</span>
+            </button>
+          </div>
           <div className="hdr-ava">{user?.iniciais ?? ''}</div>
           <div className="hdr-user-text">
             <div className="hdr-user-name">{user?.nome ?? ''}</div>
@@ -177,10 +217,9 @@ export default function AuthenticatedLayout() {
                   externalUrl={VTCALL_URL}
                   flexBasisPct={poppedMktzap || minimizedMktzap ? 100 : split}
                   popped={false}
-                  onTogglePop={openVtcallPopout}
+                  onTogglePop={() => setPoppedVtcall(true)}
                   minimized={minimizedVtcall}
                   onToggleMinimize={() => setMinimizedVtcall((v) => !v)}
-                  popoutBlocked={popoutBlockedVtcall}
                 />
               )}
               {dockedCount === 2 && !minimizedVtcall && !minimizedMktzap && (
@@ -196,10 +235,9 @@ export default function AuthenticatedLayout() {
                   externalUrl={MKTZAP_URL}
                   flexBasisPct={poppedVtcall || minimizedVtcall ? 100 : 100 - split}
                   popped={false}
-                  onTogglePop={openMktzapPopout}
+                  onTogglePop={() => setPoppedMktzap(true)}
                   minimized={minimizedMktzap}
                   onToggleMinimize={() => setMinimizedMktzap((v) => !v)}
-                  popoutBlocked={popoutBlockedMktzap}
                 />
               )}
             </div>
@@ -207,12 +245,8 @@ export default function AuthenticatedLayout() {
         )}
       </div>
 
-      {poppedVtcall && (
-        <PopoutWindow
-          title="Vtcall — Vitae ITSM"
-          onClose={() => setPoppedVtcall(false)}
-          onOpenFailed={() => setPopoutBlockedVtcall(true)}
-        >
+      {poppedVtcall && !edgeVtcall && (
+        <div className="floating-panel" style={{ left: posVtcall.x, top: posVtcall.y, width: FLOAT_WIDTH }}>
           <OperationPanel
             title="Vtcall"
             subtitle="Ligações em tempo real"
@@ -222,15 +256,26 @@ export default function AuthenticatedLayout() {
             externalUrl={VTCALL_URL}
             popped
             onTogglePop={() => setPoppedVtcall(false)}
+            minimized={minimizedVtcall}
+            onToggleMinimize={() => setMinimizedVtcall((v) => !v)}
+            onDragHandlePointerDown={(e) => startFloatDrag('vtcall', e)}
+            onHideToEdge={() => setEdgeVtcall(true)}
           />
-        </PopoutWindow>
+        </div>
       )}
-      {poppedMktzap && (
-        <PopoutWindow
-          title="MKTZAP — Vitae ITSM"
-          onClose={() => setPoppedMktzap(false)}
-          onOpenFailed={() => setPopoutBlockedMktzap(true)}
+      {poppedVtcall && edgeVtcall && (
+        <button
+          className="floating-edge-tab"
+          style={{ top: Math.min(Math.max(posVtcall.y, 0), window.innerHeight - 64) }}
+          onClick={() => restoreFromEdge('vtcall')}
+          title="Mostrar Vtcall"
         >
+          <img src={vtcallLogo} alt="Vtcall" />
+        </button>
+      )}
+
+      {poppedMktzap && !edgeMktzap && (
+        <div className="floating-panel" style={{ left: posMktzap.x, top: posMktzap.y, width: FLOAT_WIDTH }}>
           <OperationPanel
             title="MKTZAP"
             subtitle="Atendimento via WhatsApp"
@@ -240,8 +285,22 @@ export default function AuthenticatedLayout() {
             externalUrl={MKTZAP_URL}
             popped
             onTogglePop={() => setPoppedMktzap(false)}
+            minimized={minimizedMktzap}
+            onToggleMinimize={() => setMinimizedMktzap((v) => !v)}
+            onDragHandlePointerDown={(e) => startFloatDrag('mktzap', e)}
+            onHideToEdge={() => setEdgeMktzap(true)}
           />
-        </PopoutWindow>
+        </div>
+      )}
+      {poppedMktzap && edgeMktzap && (
+        <button
+          className="floating-edge-tab"
+          style={{ top: Math.min(Math.max(posMktzap.y, 0), window.innerHeight - 64) }}
+          onClick={() => restoreFromEdge('mktzap')}
+          title="Mostrar MKTZAP"
+        >
+          <img src={whatsappLogo} alt="MKTZAP" />
+        </button>
       )}
     </div>
   )
