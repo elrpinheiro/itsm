@@ -1312,6 +1312,9 @@ textarea {
   text-overflow: ellipsis;
   text-transform: uppercase;
   letter-spacing: 0.01em;
+  border: 1px solid var(--proj-accent, var(--borda));
+  border-radius: 6px;
+  padding: 3px 9px;
 }
 .proj-alert-badge {
   position: absolute;
