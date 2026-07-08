@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { PORTFOLIOS } from '@/data/portfolios'
-import { BRAND_LIST } from '@/data/brands'
 
 export default function PortfoliosScreen() {
   const navigate = useNavigate()
@@ -14,7 +13,7 @@ export default function PortfoliosScreen() {
       </div>
       <div className="pf-grid">
         {PORTFOLIOS.map((p) => {
-          const nDocs = p.templateIds.length * BRAND_LIST.length
+          const nDocs = p.templateIds.length
           return (
             <div className="pf-card" key={p.id} onClick={() => navigate(p.id)}>
               <div className="pf-icon" style={{ background: p.bg }}>

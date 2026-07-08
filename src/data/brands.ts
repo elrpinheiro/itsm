@@ -1,6 +1,7 @@
 import type { Brand, BrandId } from '@/types'
 import plannetaLogo from '@/assets/logos/planneta-educacao.png'
 import fazLogo from '@/assets/logos/faz-educacao.png'
+import educamundiLogo from '@/assets/logos/educamundi.png'
 
 export const BRANDS: Record<BrandId, Brand> = {
   planneta: {
@@ -18,6 +19,14 @@ export const BRANDS: Record<BrandId, Brand> = {
     cor: '#1E7A45',
     badgeClass: 'badge-green',
     logo: fazLogo,
+  },
+  educamundi: {
+    id: 'educamundi',
+    nome: 'Educamundi',
+    razaoSocial: 'Educamundi Soluções Educacionais Ltda.',
+    cor: '#3A1850',
+    badgeClass: 'badge-purple',
+    logo: educamundiLogo,
   },
 }
 

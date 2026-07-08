@@ -1,12 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { MODULES } from '@/modules/registry'
 import { TEMPLATES } from '@/data/templates'
-import { BRAND_LIST } from '@/data/brands'
 
 export default function ModuleTabs() {
   const location = useLocation()
   const navigate = useNavigate()
-  const totalTemplates = TEMPLATES.length * BRAND_LIST.length
+  const totalTemplates = TEMPLATES.length
 
   return (
     <div className="hdr-modbar">

@@ -2,32 +2,23 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PORTFOLIOS } from '@/data/portfolios'
 import { TEMPLATES } from '@/data/templates'
-import { BRANDS, BRAND_LIST } from '@/data/brands'
-import type { BrandId } from '@/types'
-
-type FilterValue = 'todos' | BrandId
+import { BRANDS } from '@/data/brands'
+import { useProjectStore } from '@/store/useProjectStore'
 
 export default function TemplatesScreen() {
   const { portfolioId } = useParams()
   const navigate = useNavigate()
+  const project = useProjectStore((s) => s.selectedProject)
+  const brand = BRANDS[project?.brandId ?? 'planneta']
   const portfolio = PORTFOLIOS.find((p) => p.id === portfolioId)
-  const [filter, setFilter] = useState<FilterValue>('todos')
   const [query, setQuery] = useState('')
 
   const templates = portfolio ? TEMPLATES.filter((t) => portfolio.templateIds.includes(t.id)) : TEMPLATES
 
   const cards = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const result: { templateId: string; brandId: BrandId }[] = []
-    templates.forEach((t) => {
-      BRAND_LIST.forEach((b) => {
-        if (filter !== 'todos' && filter !== b.id) return
-        if (q && !t.nome.toLowerCase().includes(q) && !t.code.toLowerCase().includes(q)) return
-        result.push({ templateId: t.id, brandId: b.id })
-      })
-    })
-    return result
-  }, [templates, filter, query])
+    return templates.filter((t) => !q || t.nome.toLowerCase().includes(q) || t.code.toLowerCase().includes(q))
+  }, [templates, query])
 
   if (!portfolio) {
     return (
@@ -49,15 +40,23 @@ export default function TemplatesScreen() {
         <span>›</span>
         <b style={{ color: 'var(--texto)' }}>{portfolio.nome}</b>
       </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-        <span className={`chip${filter === 'todos' ? ' on' : ''}`} onClick={() => setFilter('todos')}>
-          Todos
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 14,
+          flexWrap: 'wrap',
+          padding: '8px 12px',
+          background: '#fff',
+          border: '1px solid var(--borda)',
+          borderRadius: 10,
+        }}
+      >
+        <img src={brand.logo} alt={brand.nome} style={{ height: 20, maxWidth: 70, objectFit: 'contain' }} />
+        <span style={{ fontSize: 12, color: 'var(--texto-sec)' }}>
+          Documentos com a identidade visual de <b style={{ color: 'var(--texto)' }}>{brand.nome}</b>
         </span>
-        {BRAND_LIST.map((b) => (
-          <span key={b.id} className={`chip${filter === b.id ? ' on' : ''}`} onClick={() => setFilter(b.id)}>
-            {b.nome}
-          </span>
-        ))}
         <input
           type="text"
           placeholder="Buscar documento..."
@@ -67,27 +66,19 @@ export default function TemplatesScreen() {
         />
       </div>
       <div className="tpl-grid">
-        {cards.map(({ templateId, brandId }) => {
-          const t = templates.find((x) => x.id === templateId)!
-          const b = BRANDS[brandId]
-          return (
-            <div
-              className="tpl-card"
-              key={`${templateId}-${brandId}`}
-              onClick={() => navigate(`${templateId}/${brandId}`)}
-            >
-              <div className="tpl-icon" style={{ background: t.iconBg }}>
-                {t.icon}
-              </div>
-              <div className="tpl-name">{t.nome}</div>
-              <div className="tpl-code">{t.code}</div>
-              <div className="tpl-foot">
-                <span className={`badge ${b.badgeClass}`}>{b.nome}</span>
-                <span style={{ fontSize: 11, color: 'var(--muted)' }}>{t.signers.length} assin.</span>
-              </div>
+        {cards.map((t) => (
+          <div className="tpl-card" key={t.id} onClick={() => navigate(`${t.id}/${brand.id}`)}>
+            <div className="tpl-icon" style={{ background: t.iconBg }}>
+              {t.icon}
             </div>
-          )
-        })}
+            <div className="tpl-name">{t.nome}</div>
+            <div className="tpl-code">{t.code}</div>
+            <div className="tpl-foot">
+              <span className={`badge ${brand.badgeClass}`}>{brand.nome}</span>
+              <span style={{ fontSize: 11, color: 'var(--muted)' }}>{t.signers.length} assin.</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

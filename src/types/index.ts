@@ -1,11 +1,11 @@
-export type BrandId = 'planneta' | 'faz'
+export type BrandId = 'planneta' | 'faz' | 'educamundi'
 
 export interface Brand {
   id: BrandId
   nome: string
   razaoSocial: string
   cor: string
-  badgeClass: 'badge-blue' | 'badge-green'
+  badgeClass: 'badge-blue' | 'badge-green' | 'badge-purple'
   logo: string
 }
 
@@ -69,8 +69,8 @@ export type DocumentFormData = Record<string, string>
 
 export type WizardStep = 1 | 2 | 3 | 4
 
-/** Organização mantenedora de um projeto — usada só para tematizar o shell, independente das marcas de documento (BrandId). */
-export type ProjectBrandId = 'planneta' | 'faz' | 'educamundi'
+/** Organização mantenedora de um projeto — mesmo conjunto de marcas usado nos documentos (BrandId). */
+export type ProjectBrandId = BrandId
 
 export interface ProjectTheme {
   label: string
