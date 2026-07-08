@@ -12,6 +12,10 @@ import conectaOz from '@/assets/logos/conectaoz-osasco.png'
 import espacoIntec from '@/assets/logos/espacointec.png'
 import educamundiLogo from '@/assets/logos/educamundi.png'
 import educaJuquitiba from '@/assets/logos/educajuquitiba.png'
+import vitaeBrasilLogo from '@/assets/logos/vitae-brasil.png'
+import albertLogo from '@/assets/logos/albert.png'
+import solumLogo from '@/assets/logos/solum.png'
+import planetaProjetosLogo from '@/assets/logos/planeta-projetos.png'
 
 export const PROJECTS: Project[] = [
   {
@@ -104,5 +108,33 @@ export const PROJECTS: Project[] = [
     nome: 'Fundhas',
     brandId: 'educamundi',
     logo: educamundiLogo,
+  },
+  {
+    id: 'vitae-brasil-matriz',
+    cidade: 'Matriz',
+    nome: 'Vitae Brasil',
+    brandId: 'vitae-brasil',
+    logo: vitaeBrasilLogo,
+  },
+  {
+    id: 'albert-sede',
+    cidade: 'Sede',
+    nome: 'Albert',
+    brandId: 'albert',
+    logo: albertLogo,
+  },
+  {
+    id: 'solum-sede',
+    cidade: 'Sede',
+    nome: 'Solum Ambiental',
+    brandId: 'solum',
+    logo: solumLogo,
+  },
+  {
+    id: 'sp-aedifica',
+    cidade: 'São Paulo',
+    nome: 'Aedifica',
+    brandId: 'planeta-projetos',
+    logo: planetaProjetosLogo,
   },
 ]

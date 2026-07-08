@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type DragEvent } from 'react'
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type DragEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllBrandIds, useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
@@ -8,7 +8,12 @@ import type { Project, ProjectBrandId, ProjectTheme } from '@/types'
 /** Vitae Brasil é a empresa do grupo — fica fixa em um banner acima de todas as demais, não faz parte das colunas arrastáveis. */
 const GROUP_BRAND_ID: ProjectBrandId = 'vitae-brasil'
 const STORAGE_KEY = 'itsm-proj-column-layout-v2'
+const WIDTHS_STORAGE_KEY = 'itsm-proj-column-widths'
 const NEW_COLUMN = '__new__'
+
+const DEFAULT_COL_WIDTH = 240
+const MIN_COL_WIDTH = 170
+const MAX_COL_WIDTH = 440
 
 interface ColumnData {
   id: string
@@ -33,6 +38,18 @@ function loadLayout(): ColumnData[] {
     /* localStorage indisponível ou dado corrompido — usa o padrão */
   }
   return DEFAULT_LAYOUT
+}
+
+function loadColumnWidths(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(WIDTHS_STORAGE_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    if (parsed && typeof parsed === 'object') return parsed
+  } catch {
+    /* localStorage indisponível ou dado corrompido — usa o padrão */
+  }
+  return {}
 }
 
 function ProjectRow({ project, theme, onSelect }: { project: Project; theme: ProjectTheme; onSelect: (p: Project) => void }) {
@@ -153,13 +170,35 @@ export default function ProjectSelectionScreen() {
   const draggableBrandIds = allBrandIds.filter((id) => id !== GROUP_BRAND_ID)
 
   const [layout, setLayout] = useState<ColumnData[]>(loadLayout)
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(loadColumnWidths)
   const [dragOver, setDragOver] = useState<{ colId: string; brandId: ProjectBrandId | null } | null>(null)
   const [isDraggingAny, setIsDraggingAny] = useState(false)
   const draggedBrand = useRef<ProjectBrandId | null>(null)
+  const resizeRef = useRef<{ colId: string; startX: number; startWidth: number } | null>(null)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(layout))
   }, [layout])
+
+  useEffect(() => {
+    localStorage.setItem(WIDTHS_STORAGE_KEY, JSON.stringify(columnWidths))
+  }, [columnWidths])
+
+  function startColumnResize(colId: string) {
+    return (e: ReactPointerEvent) => {
+      resizeRef.current = { colId, startX: e.clientX, startWidth: columnWidths[colId] ?? DEFAULT_COL_WIDTH }
+      ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+    }
+  }
+  function onColumnResizeMove(e: ReactPointerEvent) {
+    const r = resizeRef.current
+    if (!r) return
+    const next = Math.min(MAX_COL_WIDTH, Math.max(MIN_COL_WIDTH, r.startWidth + (e.clientX - r.startX)))
+    setColumnWidths((prev) => ({ ...prev, [r.colId]: next }))
+  }
+  function endColumnResize() {
+    resizeRef.current = null
+  }
 
   // sempre que uma nova marca é cadastrada, acrescenta o bloco na última coluna automaticamente
   useEffect(() => {
@@ -255,7 +294,7 @@ export default function ProjectSelectionScreen() {
   }
 
   return (
-    <div className="proj-select-wrap">
+    <div className="proj-select-wrap" onPointerMove={onColumnResizeMove} onPointerUp={endColumnResize} onPointerCancel={endColumnResize}>
       <div className="proj-select-title">
         <div style={{ fontWeight: 700, fontSize: 15 }}>Selecione um projeto</div>
       </div>
@@ -264,25 +303,28 @@ export default function ProjectSelectionScreen() {
 
       <div className="proj-columns">
         {layout.map((col) => (
-          <div
-            key={col.id}
-            className={`proj-col-stack${dragOver?.colId === col.id && dragOver.brandId === null ? ' drag-target' : ''}`}
-            onDragOver={handleStackDragOver(col.id)}
-            onDrop={handleStackDrop(col.id)}
-          >
-            {col.brandIds.map((brandId) => (
-              <BrandBlock
-                key={brandId}
-                brandId={brandId}
-                colId={col.id}
-                isDragTarget={dragOver?.colId === col.id && dragOver.brandId === brandId}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                onDragOver={handleColumnDragOver}
-                onDrop={handleColumnDrop}
-              />
-            ))}
-          </div>
+          <Fragment key={col.id}>
+            <div
+              className={`proj-col-stack${dragOver?.colId === col.id && dragOver.brandId === null ? ' drag-target' : ''}`}
+              style={{ width: columnWidths[col.id] ?? DEFAULT_COL_WIDTH }}
+              onDragOver={handleStackDragOver(col.id)}
+              onDrop={handleStackDrop(col.id)}
+            >
+              {col.brandIds.map((brandId) => (
+                <BrandBlock
+                  key={brandId}
+                  brandId={brandId}
+                  colId={col.id}
+                  isDragTarget={dragOver?.colId === col.id && dragOver.brandId === brandId}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={handleColumnDragOver}
+                  onDrop={handleColumnDrop}
+                />
+              ))}
+            </div>
+            <div className="proj-col-resize" onPointerDown={startColumnResize(col.id)} title="Arraste para redimensionar a coluna" />
+          </Fragment>
         ))}
         <div
           className={`proj-col-newzone${isDraggingAny ? ' active' : ''}${dragOver?.colId === NEW_COLUMN ? ' drag-target' : ''}`}

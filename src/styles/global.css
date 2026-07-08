@@ -1149,8 +1149,29 @@ textarea {
 .proj-columns {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 4px;
   width: 100%;
+}
+.proj-col-resize {
+  align-self: stretch;
+  width: 10px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  position: relative;
+}
+.proj-col-resize::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 0.12s;
+}
+.proj-col-resize:hover::after {
+  background: var(--tema);
 }
 .proj-col-newzone {
   flex: 1;
@@ -1227,9 +1248,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 1;
-  min-width: 0;
-  max-width: 230px;
+  flex: 0 0 auto;
   min-height: 60px;
   border-radius: 14px;
   transition: outline-color 0.12s;
@@ -1296,8 +1315,10 @@ textarea {
     max-width: 320px;
   }
   .proj-col-stack {
-    max-width: none;
-    width: 100%;
+    width: 100% !important;
+  }
+  .proj-col-resize {
+    display: none;
   }
   .proj-col-newzone {
     flex: none;
