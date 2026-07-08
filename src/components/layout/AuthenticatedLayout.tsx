@@ -13,6 +13,12 @@ import whatsappLogo from '@/assets/logos/WhatsApp.png'
 const VTCALL_URL = 'https://vitae.vtcall.app/auth/'
 const MKTZAP_URL = 'https://mktzap.com.br/login'
 
+const NAV_MODULES: { path: string; label: string; icon: string }[] = [
+  { path: '/assistencia', label: 'Assistência', icon: '🎧' },
+  { path: '/administracao', label: 'Administração', icon: '⚙️' },
+  { path: '/ativos', label: 'Ativos', icon: '💻' },
+]
+
 const PANELS_MIN_WIDTH = 280
 const PANELS_MAX_WIDTH = 720
 const PANELS_DEFAULT_WIDTH = 360
@@ -120,12 +126,25 @@ export default function AuthenticatedLayout() {
         <div className="op-actions">
           <span className="op-actions-label">Entrar em Operação</span>
           <button className={`op-btn${vtcallUrl ? ' on' : ''}`} onClick={() => setVtcallUrl(VTCALL_URL)}>
-            <img src={vtcallLogo} alt="" /> Vtcall
+            <img src={vtcallLogo} alt="" /> <span>Vtcall</span>
           </button>
           <button className={`op-btn${mktzapUrl ? ' on' : ''}`} onClick={() => setMktzapUrl(MKTZAP_URL)}>
-            <img src={whatsappLogo} alt="" /> MKTZAP
+            <img src={whatsappLogo} alt="" /> <span>MKTZAP</span>
           </button>
         </div>
+
+        <nav className="hdr-nav">
+          {NAV_MODULES.map((m) => (
+            <button
+              key={m.path}
+              className={`hdr-nav-btn${location.pathname.startsWith(m.path) ? ' on' : ''}`}
+              onClick={() => navigate(m.path)}
+            >
+              <span className="ic">{m.icon}</span>
+              <span>{m.label}</span>
+            </button>
+          ))}
+        </nav>
 
         <div className="hdr-right">
           <span className="hdr-clock">{clock}</span>

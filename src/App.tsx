@@ -7,6 +7,9 @@ import ProjectSelectionScreen from '@/components/projects/ProjectSelectionScreen
 import AppShell from '@/components/layout/AppShell'
 import DocumentosModule from '@/modules/documentos/DocumentosModule'
 import AssistenciaModule from '@/modules/assistencia/AssistenciaModule'
+import AssistenciaGlobalModule from '@/modules/assistencia-global/AssistenciaGlobalModule'
+import AdministracaoModule from '@/modules/administracao/AdministracaoModule'
+import AtivosModule from '@/modules/ativos/AtivosModule'
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const user = useAuthStore((s) => s.user)
@@ -40,6 +43,9 @@ export default function App() {
         }
       >
         <Route path="/projects" element={<ProjectSelectionScreen />} />
+        <Route path="/assistencia" element={<AssistenciaGlobalModule />} />
+        <Route path="/administracao" element={<AdministracaoModule />} />
+        <Route path="/ativos" element={<AtivosModule />} />
         <Route
           path="/app"
           element={
