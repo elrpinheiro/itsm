@@ -203,10 +203,6 @@ export default function ProjectSelectionScreen() {
             </div>
           )}
         </div>
-        <div style={{ fontSize: 11.5, color: 'var(--texto-sec)' }}>
-          Escolha a entidade para acessar a Central de Documentos e a Assistência. Arraste o cabeçalho de um bloco (⠿) para
-          reorganizar — a posição fica salva.
-        </div>
       </div>
 
       <div className="proj-columns">
