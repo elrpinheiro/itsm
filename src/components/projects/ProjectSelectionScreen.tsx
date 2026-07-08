@@ -83,19 +83,21 @@ function ProjectColumn({ brandId, slot, isDragTarget, onDragStart, onDragEnd, on
             <button
               key={project.id}
               className="proj-row"
-              style={{ '--proj-accent': theme.medio } as CSSProperties}
+              style={{ '--proj-accent': theme.medio, '--proj-accent-pale': theme.pale } as CSSProperties}
               onClick={() => handleSelect(project)}
               title={project.nome}
             >
               <span className="proj-row-avatar">
                 <span className="proj-row-avatar-inner">
-                  <img src={project.logo} alt={project.nome} />
-                </span>
-                {level && (
-                  <span className={`proj-alert-badge ${level}`} title={getAlertDescription(alert)}>
-                    {getAlertTotal(alert)}
+                  <span className="proj-row-avatar-clip">
+                    <img src={project.logo} alt={project.nome} />
                   </span>
-                )}
+                  {level && (
+                    <span className={`proj-alert-badge ${level}`} title={getAlertDescription(alert)}>
+                      {getAlertTotal(alert)}
+                    </span>
+                  )}
+                </span>
               </span>
               <span className="proj-row-cidade">{project.cidade}</span>
             </button>

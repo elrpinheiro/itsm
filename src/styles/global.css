@@ -1266,11 +1266,11 @@ textarea {
 }
 .proj-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 6px;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border-radius: 9px;
+  border: 1px solid var(--proj-accent, var(--borda));
   background: none;
   cursor: pointer;
   width: 100%;
@@ -1279,16 +1279,25 @@ textarea {
   transition: all 0.12s;
 }
 .proj-row:hover {
-  background: var(--fundo);
-  border-color: var(--proj-accent, var(--borda));
+  box-shadow: 0 0 0 1px var(--proj-accent, var(--borda));
 }
 .proj-row-avatar {
   position: relative;
-  width: 34px;
-  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
   flex-shrink: 0;
+  background: var(--proj-accent-pale, var(--fundo));
+  border-radius: 8px 0 0 8px;
 }
 .proj-row-avatar-inner {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+.proj-row-avatar-clip {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -1299,12 +1308,17 @@ textarea {
   background: #fff;
   border: 1.5px solid var(--borda);
 }
-.proj-row-avatar-inner img {
+.proj-row-avatar-clip img {
   max-width: 78%;
   max-height: 78%;
   object-fit: contain;
 }
 .proj-row-cidade {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 8px 10px;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -1312,9 +1326,7 @@ textarea {
   text-overflow: ellipsis;
   text-transform: uppercase;
   letter-spacing: 0.01em;
-  border: 1px solid var(--proj-accent, var(--borda));
-  border-radius: 6px;
-  padding: 3px 9px;
+  border-left: 1px solid var(--proj-accent, var(--borda));
 }
 .proj-alert-badge {
   position: absolute;
