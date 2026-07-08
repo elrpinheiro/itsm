@@ -58,6 +58,12 @@ export interface ChecklistItem {
   descricao: string
 }
 
+/** Uma linha de equipamento nos termos de entrega/devolução (permite múltiplos itens por documento). */
+export interface EquipmentItem {
+  descricao: string
+  patrimonio: string
+}
+
 /** Dados de formulário livres, indexados por chave de campo do template ativo. */
 export type DocumentFormData = Record<string, string>
 

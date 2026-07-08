@@ -1,5 +1,5 @@
 import { createContext, useContext, type Dispatch, type SetStateAction } from 'react'
-import type { Brand, ChecklistItem, DocumentFormData, Signer, TemplateDef, WizardStep } from '@/types'
+import type { Brand, ChecklistItem, DocumentFormData, EquipmentItem, Signer, TemplateDef, WizardStep } from '@/types'
 
 export interface WizardContextValue {
   template: TemplateDef
@@ -12,6 +12,8 @@ export interface WizardContextValue {
   updateMultiField: (key: string, values: string[]) => void
   checklist: ChecklistItem[]
   setChecklist: (items: ChecklistItem[]) => void
+  equipamentos: EquipmentItem[]
+  setEquipamentos: (items: EquipmentItem[]) => void
   signers: Signer[]
   setSigners: Dispatch<SetStateAction<Signer[]>>
   currentSignerIndex: number

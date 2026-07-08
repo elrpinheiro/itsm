@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getTemplateById } from '@/data/templates'
 import { BRANDS } from '@/data/brands'
-import type { BrandId, ChecklistItem, DocumentFormData, Signer, WizardStep } from '@/types'
+import type { BrandId, ChecklistItem, DocumentFormData, EquipmentItem, Signer, WizardStep } from '@/types'
 import { WizardContext, type WizardContextValue } from './WizardContext'
 import StepIndicator from './StepIndicator'
 import Step1Fill from './Step1Fill'
@@ -33,6 +33,7 @@ export default function DocumentWizard() {
   const [formData, setFormData] = useState<DocumentFormData>({})
   const [multiData, setMultiData] = useState<Record<string, string[]>>({})
   const [checklist, setChecklist] = useState<ChecklistItem[]>([])
+  const [equipamentos, setEquipamentos] = useState<EquipmentItem[]>([])
   const [signers, setSigners] = useState<Signer[]>([])
   const [currentSignerIndex, setCurrentSignerIndex] = useState(0)
 
@@ -42,6 +43,7 @@ export default function DocumentWizard() {
     setFormData({})
     setMultiData({})
     setChecklist([])
+    setEquipamentos([])
     setSigners(buildInitialSigners(template.signers.map((s) => s.cargo)))
     setCurrentSignerIndex(0)
   }, [template, brand])
@@ -77,6 +79,8 @@ export default function DocumentWizard() {
     updateMultiField,
     checklist,
     setChecklist,
+    equipamentos,
+    setEquipamentos,
     signers,
     setSigners,
     currentSignerIndex,

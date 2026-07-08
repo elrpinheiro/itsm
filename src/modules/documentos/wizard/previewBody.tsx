@@ -1,4 +1,4 @@
-import type { Brand, ChecklistItem, DocumentFormData, TemplateId } from '@/types'
+import type { Brand, ChecklistItem, DocumentFormData, EquipmentItem, TemplateId } from '@/types'
 import { MANUT_EQUIPAMENTOS } from './templateForms/manutEquipamentos'
 import { FORMATACAO_PROCESSOS } from './templateForms/formatacaoProcessos'
 import { MOBILIZACAO_CONFIGURACAO } from './templateForms/mobilizacaoChecklist'
@@ -27,12 +27,17 @@ function EquipamentoRow({ label, estado, motivo }: { label: string; estado?: str
 
 const cellStyle = { border: '1px solid #E0DED6', padding: '3px 6px' }
 
+function equipamentoRows(equipamentos: EquipmentItem[]) {
+  return equipamentos.filter((eq) => eq.descricao.trim() || eq.patrimonio.trim())
+}
+
 export function renderPreviewBody(
   templateId: TemplateId,
   data: DocumentFormData,
   multiData: Record<string, string[]>,
   brand: Brand,
   checklist: ChecklistItem[],
+  equipamentos: EquipmentItem[],
 ) {
   switch (templateId) {
     case 'manut':
@@ -133,20 +138,15 @@ export function renderPreviewBody(
                   <b>Usuário:</b> {data.usuario || ''}
                 </td>
               </tr>
-              <tr>
-                <td style={{ ...cellStyle, textAlign: 'center' }}>02</td>
-                <td style={cellStyle}>
-                  <b>Dispositivo:</b> {data.dispositivo || ''}
-                  <br />
-                  <b>Patrimônio:</b> {data.patrimonio || ''}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ ...cellStyle, textAlign: 'center' }}>03</td>
-                <td style={cellStyle}>
-                  <b>Item:</b> {data.itens || ''}
-                </td>
-              </tr>
+              {equipamentoRows(equipamentos).map((eq, i) => (
+                <tr key={i}>
+                  <td style={{ ...cellStyle, textAlign: 'center' }}>{String(i + 2).padStart(2, '0')}</td>
+                  <td style={cellStyle}>
+                    {eq.descricao}
+                    {eq.patrimonio ? ` · Patrimônio: ${eq.patrimonio}` : ''}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
           <p style={{ marginBottom: 6 }}>
@@ -248,24 +248,15 @@ export function renderPreviewBody(
                   <b>Usuário:</b> {data.usuario || ''}
                 </td>
               </tr>
-              <tr>
-                <td style={{ ...cellStyle, textAlign: 'center' }}>02</td>
-                <td style={cellStyle}>
-                  <b>Dispositivo:</b> {data.dispositivo || ''}
-                  <br />
-                  <b>Patrimônio:</b> {data.patrimonio || ''}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ ...cellStyle, textAlign: 'center' }}>03</td>
-                <td style={cellStyle}>
-                  <b>Item:</b> {data.itens || ''}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ ...cellStyle, textAlign: 'center' }}>04</td>
-                <td style={cellStyle}>{data.itemExtra || ''}</td>
-              </tr>
+              {equipamentoRows(equipamentos).map((eq, i) => (
+                <tr key={i}>
+                  <td style={{ ...cellStyle, textAlign: 'center' }}>{String(i + 2).padStart(2, '0')}</td>
+                  <td style={cellStyle}>
+                    {eq.descricao}
+                    {eq.patrimonio ? ` · Patrimônio: ${eq.patrimonio}` : ''}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </>
