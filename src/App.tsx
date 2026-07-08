@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import LoginScreen from '@/components/login/LoginScreen'
+import AuthenticatedLayout from '@/components/layout/AuthenticatedLayout'
 import ProjectSelectionScreen from '@/components/projects/ProjectSelectionScreen'
 import AppShell from '@/components/layout/AppShell'
 import DocumentosModule from '@/modules/documentos/DocumentosModule'
@@ -32,26 +33,25 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginScreen />} />
       <Route
-        path="/projects"
         element={
           <RequireAuth>
-            <ProjectSelectionScreen />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/app"
-        element={
-          <RequireAuth>
-            <RequireProject>
-              <AppShell />
-            </RequireProject>
+            <AuthenticatedLayout />
           </RequireAuth>
         }
       >
-        <Route index element={<Navigate to="documentos" replace />} />
-        <Route path="documentos/*" element={<DocumentosModule />} />
-        <Route path="assistencia" element={<AssistenciaModule />} />
+        <Route path="/projects" element={<ProjectSelectionScreen />} />
+        <Route
+          path="/app"
+          element={
+            <RequireProject>
+              <AppShell />
+            </RequireProject>
+          }
+        >
+          <Route index element={<Navigate to="documentos" replace />} />
+          <Route path="documentos/*" element={<DocumentosModule />} />
+          <Route path="assistencia" element={<AssistenciaModule />} />
+        </Route>
       </Route>
       <Route path="*" element={<EntryRedirect />} />
     </Routes>
