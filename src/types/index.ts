@@ -91,4 +91,6 @@ export interface Project {
   nome: string
   brandId: ProjectBrandId
   logo: string
+  /** Verdadeiro para a matriz/sede da empresa (sem cidade de campo) — cada empresa do grupo tem exatamente uma, e ela também pode abrir chamados/ter seu próprio catálogo de atendimento. */
+  isMatriz?: boolean
 }

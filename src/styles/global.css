@@ -1200,49 +1200,27 @@ textarea {
   padding: 20px;
 }
 
-/* ===== banner fixo da empresa do grupo (Vitae Brasil) ===== */
-.proj-group-banner {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
-  border: 1.5px solid var(--borda);
-  border-radius: 14px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
+/* ===== seções "Matriz" e "Projetos" ===== */
+.proj-section {
+  margin-bottom: 20px;
 }
-.proj-group-banner-logo {
-  height: 34px;
-  max-width: 130px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-.proj-group-banner-text {
-  flex-shrink: 0;
-  min-width: 140px;
-}
-.proj-group-banner-title {
-  font-size: 14px;
+.proj-section-title {
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  color: var(--texto-sec);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--borda);
 }
-.proj-group-banner-sub {
-  font-size: 11px;
-  font-weight: 600;
-}
-.proj-group-banner-list {
+.matriz-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  flex: 1;
+  gap: 10px;
 }
-.proj-group-banner-list .proj-row {
-  width: 190px;
-}
-.proj-group-banner-empty {
-  font-size: 12px;
-  color: var(--texto-sec);
+.matriz-grid .proj-row {
+  width: 230px;
 }
 .proj-col-stack {
   display: flex;
@@ -1325,7 +1303,7 @@ textarea {
     min-height: 60px;
     width: 100%;
   }
-  .proj-group-banner-list .proj-row {
+  .matriz-grid .proj-row {
     width: 100%;
   }
 }

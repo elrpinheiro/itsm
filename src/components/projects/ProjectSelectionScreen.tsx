@@ -1,12 +1,10 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type DragEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
-import { useAllBrandIds, useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
+import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
 import { PROJECT_ALERTS, getAlertDescription, getAlertLevel, getAlertTotal } from '@/data/projectAlerts'
 import type { Project, ProjectBrandId, ProjectTheme } from '@/types'
 
-/** Vitae Brasil é a empresa do grupo — fica fixa em um banner acima de todas as demais, não faz parte das colunas arrastáveis. */
-const GROUP_BRAND_ID: ProjectBrandId = 'vitae-brasil'
 const STORAGE_KEY = 'itsm-proj-column-layout-v2'
 const WIDTHS_STORAGE_KEY = 'itsm-proj-column-widths'
 const NEW_COLUMN = '__new__'
@@ -52,7 +50,17 @@ function loadColumnWidths(): Record<string, number> {
   return {}
 }
 
-function ProjectRow({ project, theme, onSelect }: { project: Project; theme: ProjectTheme; onSelect: (p: Project) => void }) {
+function ProjectRow({
+  project,
+  theme,
+  onSelect,
+  label,
+}: {
+  project: Project
+  theme: ProjectTheme
+  onSelect: (p: Project) => void
+  label?: string
+}) {
   const alert = PROJECT_ALERTS[project.id]
   const level = getAlertLevel(alert)
   return (
@@ -74,9 +82,37 @@ function ProjectRow({ project, theme, onSelect }: { project: Project; theme: Pro
           )}
         </span>
       </span>
-      <span className="proj-row-cidade">{project.cidade}</span>
+      <span className="proj-row-cidade">{label ?? project.cidade}</span>
     </button>
   )
+}
+
+function MatrizSection() {
+  const navigate = useNavigate()
+  const selectProject = useProjectStore((s) => s.selectProject)
+  const allProjects = useAllProjects()
+  const matrizes = allProjects.filter((p) => p.isMatriz)
+
+  function handleSelect(project: Project) {
+    selectProject(project)
+    navigate('/app')
+  }
+
+  return (
+    <div className="proj-section">
+      <div className="proj-section-title">Matriz</div>
+      <div className="matriz-grid">
+        {matrizes.map((project) => (
+          <MatrizRow key={project.id} project={project} onSelect={handleSelect} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function MatrizRow({ project, onSelect }: { project: Project; onSelect: (p: Project) => void }) {
+  const theme = useProjectTheme(project.brandId)
+  return <ProjectRow project={project} theme={theme} onSelect={onSelect} label={project.nome} />
 }
 
 interface BrandBlockProps {
@@ -94,7 +130,7 @@ function BrandBlock({ brandId, colId, isDragTarget, onDragStart, onDragEnd, onDr
   const selectProject = useProjectStore((s) => s.selectProject)
   const allProjects = useAllProjects()
   const theme = useProjectTheme(brandId)
-  const projects = allProjects.filter((p) => p.brandId === brandId)
+  const projects = allProjects.filter((p) => p.brandId === brandId && !p.isMatriz)
 
   function handleSelect(project: Project) {
     selectProject(project)
@@ -134,40 +170,10 @@ function BrandBlock({ brandId, colId, isDragTarget, onDragStart, onDragEnd, onDr
   )
 }
 
-function GroupBanner() {
-  const navigate = useNavigate()
-  const selectProject = useProjectStore((s) => s.selectProject)
-  const allProjects = useAllProjects()
-  const theme = useProjectTheme(GROUP_BRAND_ID)
-  const projects = allProjects.filter((p) => p.brandId === GROUP_BRAND_ID)
-
-  function handleSelect(project: Project) {
-    selectProject(project)
-    navigate('/app')
-  }
-
-  return (
-    <div className="proj-group-banner" style={{ borderColor: theme.medio, background: theme.pale }}>
-      <img src={theme.logo} alt={theme.label} className="proj-group-banner-logo" />
-      <div className="proj-group-banner-text">
-        <div className="proj-group-banner-title">{theme.label}</div>
-        <div className="proj-group-banner-sub" style={{ color: theme.texto }}>
-          Empresa do grupo · {projects.length} projeto{projects.length !== 1 ? 's' : ''}
-        </div>
-      </div>
-      <div className="proj-group-banner-list">
-        {projects.map((project) => (
-          <ProjectRow key={project.id} project={project} theme={theme} onSelect={handleSelect} />
-        ))}
-        {projects.length === 0 && <div className="proj-group-banner-empty">Nenhum projeto cadastrado ainda.</div>}
-      </div>
-    </div>
-  )
-}
-
 export default function ProjectSelectionScreen() {
-  const allBrandIds = useAllBrandIds()
-  const draggableBrandIds = allBrandIds.filter((id) => id !== GROUP_BRAND_ID)
+  const allProjects = useAllProjects()
+  // só entram nas colunas de "Projetos" marcas que têm ao menos um projeto de campo (não-matriz)
+  const fieldBrandIds = Array.from(new Set(allProjects.filter((p) => !p.isMatriz).map((p) => p.brandId)))
 
   const [layout, setLayout] = useState<ColumnData[]>(loadLayout)
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(loadColumnWidths)
@@ -200,11 +206,11 @@ export default function ProjectSelectionScreen() {
     resizeRef.current = null
   }
 
-  // sempre que uma nova marca é cadastrada, acrescenta o bloco na última coluna automaticamente
+  // sempre que uma marca ganha projetos de campo (dado novo ou cadastro futuro), acrescenta o bloco na última coluna
   useEffect(() => {
     setLayout((prev) => {
       const known = new Set(prev.flatMap((c) => c.brandIds))
-      const missing = draggableBrandIds.filter((id) => !known.has(id))
+      const missing = fieldBrandIds.filter((id) => !known.has(id))
       if (missing.length === 0) return prev
       if (prev.length === 0) return [{ id: `col-${Date.now()}`, brandIds: missing }]
       const next = prev.map((c) => ({ ...c }))
@@ -212,7 +218,7 @@ export default function ProjectSelectionScreen() {
       return next
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draggableBrandIds.join(',')])
+  }, [fieldBrandIds.join(',')])
 
   function moveBrand(brandId: ProjectBrandId, targetColId: string, beforeBrand?: ProjectBrandId) {
     setLayout((prev) => {
@@ -299,39 +305,42 @@ export default function ProjectSelectionScreen() {
         <div style={{ fontWeight: 700, fontSize: 15 }}>Selecione um projeto</div>
       </div>
 
-      <GroupBanner />
+      <MatrizSection />
 
-      <div className="proj-columns">
-        {layout.map((col) => (
-          <Fragment key={col.id}>
-            <div
-              className={`proj-col-stack${dragOver?.colId === col.id && dragOver.brandId === null ? ' drag-target' : ''}`}
-              style={{ width: columnWidths[col.id] ?? DEFAULT_COL_WIDTH }}
-              onDragOver={handleStackDragOver(col.id)}
-              onDrop={handleStackDrop(col.id)}
-            >
-              {col.brandIds.map((brandId) => (
-                <BrandBlock
-                  key={brandId}
-                  brandId={brandId}
-                  colId={col.id}
-                  isDragTarget={dragOver?.colId === col.id && dragOver.brandId === brandId}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={handleColumnDragOver}
-                  onDrop={handleColumnDrop}
-                />
-              ))}
-            </div>
-            <div className="proj-col-resize" onPointerDown={startColumnResize(col.id)} title="Arraste para redimensionar a coluna" />
-          </Fragment>
-        ))}
-        <div
-          className={`proj-col-newzone${isDraggingAny ? ' active' : ''}${dragOver?.colId === NEW_COLUMN ? ' drag-target' : ''}`}
-          onDragOver={handleNewColumnDragOver}
-          onDrop={handleNewColumnDrop}
-        >
-          {isDraggingAny && <span className="proj-col-newzone-hint">Solte aqui para criar uma nova coluna</span>}
+      <div className="proj-section">
+        <div className="proj-section-title">Projetos</div>
+        <div className="proj-columns">
+          {layout.map((col) => (
+            <Fragment key={col.id}>
+              <div
+                className={`proj-col-stack${dragOver?.colId === col.id && dragOver.brandId === null ? ' drag-target' : ''}`}
+                style={{ width: columnWidths[col.id] ?? DEFAULT_COL_WIDTH }}
+                onDragOver={handleStackDragOver(col.id)}
+                onDrop={handleStackDrop(col.id)}
+              >
+                {col.brandIds.map((brandId) => (
+                  <BrandBlock
+                    key={brandId}
+                    brandId={brandId}
+                    colId={col.id}
+                    isDragTarget={dragOver?.colId === col.id && dragOver.brandId === brandId}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={handleColumnDragOver}
+                    onDrop={handleColumnDrop}
+                  />
+                ))}
+              </div>
+              <div className="proj-col-resize" onPointerDown={startColumnResize(col.id)} title="Arraste para redimensionar a coluna" />
+            </Fragment>
+          ))}
+          <div
+            className={`proj-col-newzone${isDraggingAny ? ' active' : ''}${dragOver?.colId === NEW_COLUMN ? ' drag-target' : ''}`}
+            onDragOver={handleNewColumnDragOver}
+            onDrop={handleNewColumnDrop}
+          >
+            {isDraggingAny && <span className="proj-col-newzone-hint">Solte aqui para criar uma nova coluna</span>}
+          </div>
         </div>
       </div>
     </div>

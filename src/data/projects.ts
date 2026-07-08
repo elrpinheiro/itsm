@@ -16,29 +16,75 @@ import vitaeBrasilLogo from '@/assets/logos/vitae-brasil.png'
 import albertLogo from '@/assets/logos/albert.png'
 import solumLogo from '@/assets/logos/solum.png'
 import planetaProjetosLogo from '@/assets/logos/planeta-projetos.png'
+import fazLogo from '@/assets/logos/faz-educacao.png'
+import plannetaLogo from '@/assets/logos/planneta-educacao.png'
 
+/**
+ * Cada empresa do grupo tem uma matriz (isMatriz: true) — ela também pode
+ * abrir chamados e terá seu próprio catálogo de atendimento, por isso é
+ * selecionável como qualquer projeto de campo. Os projetos de campo (cidades)
+ * ficam abaixo, agrupados por empresa mantenedora.
+ */
 export const PROJECTS: Project[] = [
+  // ===== Matriz =====
   {
-    id: 'osasco-eu-tenho-futuro',
-    cidade: 'Osasco',
-    nome: 'Eu Tenho Futuro',
-    brandId: 'planneta',
-    logo: euTenhoFuturo,
+    id: 'matriz-vitae-brasil',
+    cidade: 'Matriz',
+    nome: 'Vitae Brasil',
+    brandId: 'vitae-brasil',
+    logo: vitaeBrasilLogo,
+    isMatriz: true,
   },
   {
-    id: 'taboao-da-serra-educataboao',
-    cidade: 'Taboão da Serra',
-    nome: 'EducaTaboão',
-    brandId: 'planneta',
-    logo: educaTaboao,
+    id: 'matriz-faz',
+    cidade: 'Matriz',
+    nome: 'Faz Educação & Tecnologia',
+    brandId: 'faz',
+    logo: fazLogo,
+    isMatriz: true,
   },
   {
-    id: 'marilia-educacao-acolhedora',
-    cidade: 'Marília',
-    nome: 'Educação Acolhedora',
+    id: 'matriz-planneta',
+    cidade: 'Matriz',
+    nome: 'Planeta Educação',
     brandId: 'planneta',
-    logo: educacaoAcolhedora,
+    logo: plannetaLogo,
+    isMatriz: true,
   },
+  {
+    id: 'matriz-solum',
+    cidade: 'Matriz',
+    nome: 'Solum Ambiental',
+    brandId: 'solum',
+    logo: solumLogo,
+    isMatriz: true,
+  },
+  {
+    id: 'matriz-albert',
+    cidade: 'Matriz',
+    nome: 'Albert',
+    brandId: 'albert',
+    logo: albertLogo,
+    isMatriz: true,
+  },
+  {
+    id: 'matriz-educamundi',
+    cidade: 'Matriz',
+    nome: 'Educamundi',
+    brandId: 'educamundi',
+    logo: educamundiLogo,
+    isMatriz: true,
+  },
+  {
+    id: 'matriz-planeta-projetos',
+    cidade: 'Matriz',
+    nome: 'Planeta Projetos',
+    brandId: 'planeta-projetos',
+    logo: planetaProjetosLogo,
+    isMatriz: true,
+  },
+
+  // ===== Projetos: Faz Educação & Tecnologia =====
   {
     id: 'ubatuba-nucleo-inovacao',
     cidade: 'Ubatuba',
@@ -102,39 +148,45 @@ export const PROJECTS: Project[] = [
     brandId: 'faz',
     logo: educaJuquitiba,
   },
+
+  // ===== Projetos: Planeta Educação =====
   {
-    id: 'sjc-fundhas',
-    cidade: 'São José dos Campos',
-    nome: 'Fundhas',
-    brandId: 'educamundi',
-    logo: educamundiLogo,
+    id: 'osasco-eu-tenho-futuro',
+    cidade: 'Osasco',
+    nome: 'Eu Tenho Futuro',
+    brandId: 'planneta',
+    logo: euTenhoFuturo,
   },
   {
-    id: 'vitae-brasil-matriz',
-    cidade: 'Matriz',
-    nome: 'Vitae Brasil',
-    brandId: 'vitae-brasil',
-    logo: vitaeBrasilLogo,
+    id: 'taboao-da-serra-educataboao',
+    cidade: 'Taboão da Serra',
+    nome: 'EducaTaboão',
+    brandId: 'planneta',
+    logo: educaTaboao,
   },
   {
-    id: 'albert-sede',
-    cidade: 'Sede',
-    nome: 'Albert',
-    brandId: 'albert',
-    logo: albertLogo,
+    id: 'marilia-educacao-acolhedora',
+    cidade: 'Marília',
+    nome: 'Educação Acolhedora',
+    brandId: 'planneta',
+    logo: educacaoAcolhedora,
   },
-  {
-    id: 'solum-sede',
-    cidade: 'Sede',
-    nome: 'Solum Ambiental',
-    brandId: 'solum',
-    logo: solumLogo,
-  },
+
+  // ===== Projetos: Planeta Projetos =====
   {
     id: 'sp-aedifica',
     cidade: 'São Paulo',
     nome: 'Aedifica',
     brandId: 'planeta-projetos',
     logo: planetaProjetosLogo,
+  },
+
+  // ===== Projetos: Educamundi =====
+  {
+    id: 'sjc-fundhas',
+    cidade: 'São José dos Campos',
+    nome: 'Fundhas',
+    brandId: 'educamundi',
+    logo: educamundiLogo,
   },
 ]
