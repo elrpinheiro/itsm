@@ -1,5 +1,8 @@
 import type { Brand, ChecklistItem, DocumentFormData, TemplateId } from '@/types'
 import { MANUT_EQUIPAMENTOS } from './templateForms/manutEquipamentos'
+import { FORMATACAO_PROCESSOS } from './templateForms/formatacaoProcessos'
+import { MOBILIZACAO_CONFIGURACAO } from './templateForms/mobilizacaoChecklist'
+import { GMUD_ETAPAS } from './templateForms/gmudEtapas'
 
 function Kv({ label, value }: { label: string; value?: string }) {
   return (
@@ -219,6 +222,187 @@ export function renderPreviewBody(
             {data.confirma === 'Recuso recebimento' ? 'X' : '  '}) Recuso recebimento
           </div>
           {data.confirma === 'Recuso recebimento' && <Kv label="Motivo da recusa" value={data.motivo} />}
+        </>
+      )
+    case 'devolucao':
+      return (
+        <>
+          <div style={{ fontSize: 9, color: '#888', marginBottom: 6 }}>
+            (1ª via – {brand.nome} · 2ª via – Funcionário)
+          </div>
+          <div style={{ marginBottom: 6 }}>
+            Declaro para todos os fins de direito que realizei a devolução do equipamento/dispositivo descrito no
+            item abaixo, em perfeito estado de funcionamento.
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>
+            <thead>
+              <tr>
+                <th style={{ ...cellStyle, background: '#F1EFE8', width: 22 }}>Item</th>
+                <th style={{ ...cellStyle, background: '#F1EFE8', textAlign: 'left' }}>Descrição</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ ...cellStyle, textAlign: 'center' }}>01</td>
+                <td style={cellStyle}>
+                  <b>Usuário:</b> {data.usuario || ''}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ ...cellStyle, textAlign: 'center' }}>02</td>
+                <td style={cellStyle}>
+                  <b>Dispositivo:</b> {data.dispositivo || ''}
+                  <br />
+                  <b>Patrimônio:</b> {data.patrimonio || ''}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ ...cellStyle, textAlign: 'center' }}>03</td>
+                <td style={cellStyle}>
+                  <b>Item:</b> {data.itens || ''}
+                </td>
+              </tr>
+              <tr>
+                <td style={{ ...cellStyle, textAlign: 'center' }}>04</td>
+                <td style={cellStyle}>{data.itemExtra || ''}</td>
+              </tr>
+            </tbody>
+          </table>
+        </>
+      )
+    case 'usb':
+      return (
+        <>
+          <div style={{ fontSize: 9, color: '#888', marginBottom: 6 }}>
+            (1ª via – {brand.nome} · 2ª via – Funcionário)
+          </div>
+          <p style={{ marginBottom: 6 }}>
+            Declaro, para os devidos fins, que solicitei a liberação de uso da porta USB do equipamento abaixo
+            identificado. Estou ciente de que o uso de mídias removíveis é <b>exceção</b>, permitido somente por
+            necessidade operacional justificada.
+          </p>
+          <Kv label="Usuário" value={data.usuario} />
+          <Kv label="Dispositivo" value={data.dispositivo} />
+          <Kv label="Nome do computador" value={data.nomeComputador} />
+          <Kv label="Patrimônio" value={data.patrimonio} />
+          <div className="doc-kv">
+            <b>Validade:</b>
+            <span>90 dias após a assinatura deste</span>
+          </div>
+          <Kv label="Motivo da utilização" value={data.motivo} />
+          <p style={{ margin: '6px 0' }}>
+            Declaro estar ciente de que portas USB representam risco elevado à segurança da informação, podendo
+            permitir fuga de dados, instalação de softwares não autorizados e entrada de vírus ou malwares. O uso
+            indevido pode comprometer dados pessoais e corporativos, violando inclusive a{' '}
+            <b>LGPD (Lei 13.709/2018)</b>.
+          </p>
+          <div className="doc-sec">Comprometo-me a</div>
+          <ul style={{ margin: '0 0 6px 14px', padding: 0 }}>
+            <li>Utilizar exclusivamente dispositivos autorizados pela empresa.</li>
+            <li>Evitar uso de modems 3G, HDs externos ou mídias não reconhecidas pela TI.</li>
+            <li>Garantir que dispositivos conectados estejam livres de vírus e riscos.</li>
+            <li>Nunca utilizar mídias removíveis como armazenamento preferencial para dados corporativos.</li>
+            <li>Proteger dados pessoais e corporativos, respeitando as normas de segurança e a LGPD.</li>
+            <li>Informar imediatamente qualquer incidente, suspeita de vírus ou comportamento anormal.</li>
+          </ul>
+          <div className="doc-sec">Estou ciente de que</div>
+          <ul style={{ margin: '0 0 6px 14px', padding: 0 }}>
+            <li>A liberação de USB depende de autorização da supervisão e equipe de TI.</li>
+            <li>A empresa pode realizar auditorias, bloqueios e monitoramento de uso para garantir conformidade.</li>
+          </ul>
+          <p>Declaro que li, compreendi e concordo integralmente com as condições acima.</p>
+        </>
+      )
+    case 'formatacao': {
+      return (
+        <>
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Kv label="Número da OS" value={data.numeroOS} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Kv label="Patrimônio" value={data.patrimonio} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Kv label="Data" value={data.data} />
+            </div>
+          </div>
+          <div className="doc-sec">Softwares necessários</div>
+          <div className="doc-txt">{(multiData.softwares ?? []).join(', ') || '—'}</div>
+          {data.outrosSoftwares && <Kv label="Outros softwares" value={data.outrosSoftwares} />}
+          <div className="doc-sec">Processo de formatação</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 9.5, marginBottom: 4 }}>
+            <thead>
+              <tr>
+                <th style={{ ...cellStyle, background: '#F1EFE8', textAlign: 'left' }}>Processo</th>
+                <th style={{ ...cellStyle, background: '#F1EFE8', width: 42 }}>Realizado?</th>
+                <th style={{ ...cellStyle, background: '#F1EFE8', textAlign: 'left' }}>Observação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {FORMATACAO_PROCESSOS.map((p) => (
+                <tr key={p.key}>
+                  <td style={cellStyle}>
+                    <b>{p.processo}</b>
+                    <br />
+                    <span style={{ color: '#6b6a64' }}>{p.detalhamento}</span>
+                  </td>
+                  <td style={{ ...cellStyle, textAlign: 'center' }}>{data[`proc_${p.key}_realizado`] || '—'}</td>
+                  <td style={cellStyle}>{data[`proc_${p.key}_obs`] || ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="doc-sec">Observações</div>
+          <div className="doc-txt">{data.obs || ''}</div>
+        </>
+      )
+    }
+    case 'mobilizacao': {
+      return (
+        <>
+          <div className="doc-sec">Identificação</div>
+          <Kv label="Projeto" value={data.projeto} />
+          <Kv label="Data" value={data.data} />
+          <Kv label="Setor" value={data.setor} />
+          <Kv label="Unidade escolar" value={data.unidadeEscolar} />
+          <div className="doc-sec">Configuração de equipamentos</div>
+          {MOBILIZACAO_CONFIGURACAO.map((grupo) => {
+            const marcados = multiData[`config_${grupo.key}`] ?? []
+            return (
+              <div className="doc-kv" key={grupo.key}>
+                <b>{grupo.label}:</b>
+                <span>{marcados.join(', ') || '—'}</span>
+              </div>
+            )
+          })}
+          <div className="doc-sec">Instalação física de equipamentos</div>
+          <div className="doc-txt">{(multiData.instalacaoFisica ?? []).join(', ') || '—'}</div>
+          <div className="doc-sec">Observações</div>
+          <div className="doc-txt">{data.obs || ''}</div>
+        </>
+      )
+    }
+    case 'gmud':
+      return (
+        <>
+          <div className="doc-sec">Identificação</div>
+          <Kv label="Título da mudança" value={data.titulo} />
+          <Kv label="Data/Hora" value={data.dataHora} />
+          <Kv label="Nº do chamado (TIC)" value={data.ticNumero} />
+          <Kv label="Responsável pela execução" value={data.responsavel} />
+          <div className="doc-sec">Progresso</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 4 }}>
+            {GMUD_ETAPAS.map((etapa) => (
+              <span className="ev-mini" key={etapa.key} style={{ color: '#0C447C', background: 'var(--azul-pale)' }}>
+                {etapa.label}: {data[`etapa_${etapa.key}`] || '—'}
+              </span>
+            ))}
+          </div>
+          <div className="doc-sec">Escopo</div>
+          <div className="doc-txt">{data.escopo || ''}</div>
+          <div className="doc-sec">Informações adicionais</div>
+          <div className="doc-txt">{data.infoAdicionais || ''}</div>
         </>
       )
     default:

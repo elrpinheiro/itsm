@@ -9,7 +9,17 @@ export interface Brand {
   logo: string
 }
 
-export type TemplateId = 'manut' | 'checklist' | 'termo' | 'homolog' | 'recibo'
+export type TemplateId =
+  | 'manut'
+  | 'checklist'
+  | 'termo'
+  | 'homolog'
+  | 'recibo'
+  | 'gmud'
+  | 'formatacao'
+  | 'mobilizacao'
+  | 'devolucao'
+  | 'usb'
 
 export interface Portfolio {
   id: string

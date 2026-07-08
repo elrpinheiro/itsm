@@ -41,6 +41,46 @@ export const TEMPLATES: TemplateDef[] = [
     iconBg: '#EEEDFE',
     signers: [{ cargo: 'Responsável pela entrega' }, { cargo: 'Responsável pelo recebimento' }],
   },
+  {
+    id: 'devolucao',
+    code: 'FO-TIC-SD-0009',
+    nome: 'Termo de Devolução de Equipamentos de TI',
+    icon: '↩️',
+    iconBg: '#FDEAEA',
+    signers: [{ cargo: 'Técnico Responsável' }, { cargo: 'Colaborador' }],
+  },
+  {
+    id: 'usb',
+    code: 'FO-TIC-SD-0002',
+    nome: 'Termo de Liberação de USB',
+    icon: '🔌',
+    iconBg: '#EAF0FD',
+    signers: [{ cargo: 'Técnico Responsável' }, { cargo: 'Gerente Responsável' }, { cargo: 'Colaborador' }],
+  },
+  {
+    id: 'formatacao',
+    code: 'CHK-FORMATACAO',
+    nome: 'Checklist para Formatação',
+    icon: '🖥',
+    iconBg: '#FDF3D9',
+    signers: [{ cargo: 'Operador' }, { cargo: 'ServiceDelivery' }],
+  },
+  {
+    id: 'mobilizacao',
+    code: 'FO-TIC-SD-0004',
+    nome: 'Checklist de Mobilização',
+    icon: '🚀',
+    iconBg: '#E3F5F0',
+    signers: [{ cargo: 'Visitado por' }],
+  },
+  {
+    id: 'gmud',
+    code: 'GMUD',
+    nome: 'Gestão de Mudanças — TIC',
+    icon: '🔄',
+    iconBg: '#E8ECFB',
+    signers: [{ cargo: 'Responsável pela execução' }, { cargo: 'Aprovador da mudança' }],
+  },
 ]
 
 export function getTemplateById(id: string) {
