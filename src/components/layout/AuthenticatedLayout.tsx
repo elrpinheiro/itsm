@@ -5,6 +5,7 @@ import { useProjectStore } from '@/store/useProjectStore'
 import { useProjectTheme } from '@/store/useCatalogStore'
 import { useClock } from '@/hooks/useClock'
 import OperationPanel from './OperationPanel'
+import PopoutWindow from './PopoutWindow'
 import { VtcallPlaceholder, MktzapPlaceholder } from './operationPlaceholders'
 import vtcallLogo from '@/assets/logos/vtcall.png'
 import whatsappLogo from '@/assets/logos/WhatsApp.png'
@@ -18,13 +19,7 @@ const PANELS_DEFAULT_WIDTH = 360
 const SPLIT_MIN = 20
 const SPLIT_MAX = 80
 
-type FloatId = 'vtcall' | 'mktzap'
-type FloatPos = { top: number; left: number }
-
-type DragMode =
-  | { kind: 'width'; startX: number; startWidth: number }
-  | { kind: 'split'; startY: number; startSplit: number }
-  | { kind: 'float'; id: FloatId; startX: number; startY: number; startTop: number; startLeft: number }
+type DragMode = { kind: 'width'; startX: number; startWidth: number } | { kind: 'split'; startY: number; startSplit: number }
 
 export default function AuthenticatedLayout() {
   const user = useAuthStore((s) => s.user)
@@ -41,11 +36,8 @@ export default function AuthenticatedLayout() {
 
   const [poppedVtcall, setPoppedVtcall] = useState(false)
   const [poppedMktzap, setPoppedMktzap] = useState(false)
-  const [floatPos, setFloatPos] = useState<Record<FloatId, FloatPos | null>>({ vtcall: null, mktzap: null })
 
   const panelsRef = useRef<HTMLDivElement>(null)
-  const vtcallFloatRef = useRef<HTMLDivElement>(null)
-  const mktzapFloatRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<DragMode | null>(null)
 
   const theme = useProjectTheme(project?.brandId ?? 'planneta')
@@ -71,28 +63,16 @@ export default function AuthenticatedLayout() {
     dragRef.current = { kind: 'split', startY: e.clientY, startSplit: split }
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
-  function startFloatDrag(id: FloatId, ref: React.RefObject<HTMLDivElement>) {
-    return (e: ReactPointerEvent) => {
-      const rect = ref.current?.getBoundingClientRect()
-      const current = floatPos[id] ?? { top: rect?.top ?? 90, left: rect?.left ?? 90 }
-      dragRef.current = { kind: 'float', id, startX: e.clientX, startY: e.clientY, startTop: current.top, startLeft: current.left }
-      ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-    }
-  }
   function onDrag(e: ReactPointerEvent) {
     const drag = dragRef.current
     if (!drag) return
     if (drag.kind === 'width') {
       const delta = drag.startX - e.clientX
       setPanelsWidth(Math.min(PANELS_MAX_WIDTH, Math.max(PANELS_MIN_WIDTH, drag.startWidth + delta)))
-    } else if (drag.kind === 'split') {
+    } else {
       const containerHeight = panelsRef.current?.clientHeight ?? 1
       const deltaPct = ((e.clientY - drag.startY) / containerHeight) * 100
       setSplit(Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, drag.startSplit + deltaPct)))
-    } else {
-      const left = Math.max(0, drag.startLeft + (e.clientX - drag.startX))
-      const top = Math.max(0, drag.startTop + (e.clientY - drag.startY))
-      setFloatPos((prev) => ({ ...prev, [drag.id]: { top, left } }))
     }
   }
   function endDrag() {
@@ -188,11 +168,7 @@ export default function AuthenticatedLayout() {
       </div>
 
       {poppedVtcall && (
-        <div
-          className="op-float"
-          ref={vtcallFloatRef}
-          style={floatPos.vtcall ? { top: floatPos.vtcall.top, left: floatPos.vtcall.left, right: 'auto', bottom: 'auto' } : undefined}
-        >
+        <PopoutWindow title="Vtcall — Vitae ITSM" onClose={() => setPoppedVtcall(false)}>
           <OperationPanel
             title="Vtcall"
             subtitle="Ligações em tempo real"
@@ -202,16 +178,11 @@ export default function AuthenticatedLayout() {
             externalUrl={VTCALL_URL}
             popped
             onTogglePop={() => setPoppedVtcall(false)}
-            onHeaderPointerDown={startFloatDrag('vtcall', vtcallFloatRef)}
           />
-        </div>
+        </PopoutWindow>
       )}
       {poppedMktzap && (
-        <div
-          className="op-float op-float-mktzap"
-          ref={mktzapFloatRef}
-          style={floatPos.mktzap ? { top: floatPos.mktzap.top, left: floatPos.mktzap.left, right: 'auto', bottom: 'auto' } : undefined}
-        >
+        <PopoutWindow title="MKTZAP — Vitae ITSM" onClose={() => setPoppedMktzap(false)}>
           <OperationPanel
             title="MKTZAP"
             subtitle="Atendimento via WhatsApp"
@@ -221,9 +192,8 @@ export default function AuthenticatedLayout() {
             externalUrl={MKTZAP_URL}
             popped
             onTogglePop={() => setPoppedMktzap(false)}
-            onHeaderPointerDown={startFloatDrag('mktzap', mktzapFloatRef)}
           />
-        </div>
+        </PopoutWindow>
       )}
     </div>
   )

@@ -1,4 +1,4 @@
-import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 interface Props {
   title: string
@@ -10,7 +10,6 @@ interface Props {
   flexBasisPct?: number
   popped: boolean
   onTogglePop: () => void
-  onHeaderPointerDown?: (e: ReactPointerEvent) => void
 }
 
 /**
@@ -21,26 +20,16 @@ interface Props {
  * que o atendente sempre consiga acessar o sistema de um jeito ou de outro.
  *
  * Pode ser renderizado "docked" (encaixado na coluna lateral) ou "popped"
- * (janela flutuante arrastável pelo cabeçalho e redimensionável).
+ * (dentro de uma janela própria do navegador — ver PopoutWindow — que pode
+ * ser arrastada para outro monitor).
  */
-export default function OperationPanel({
-  title,
-  subtitle,
-  logo,
-  placeholder,
-  url,
-  externalUrl,
-  flexBasisPct,
-  popped,
-  onTogglePop,
-  onHeaderPointerDown,
-}: Props) {
+export default function OperationPanel({ title, subtitle, logo, placeholder, url, externalUrl, flexBasisPct, popped, onTogglePop }: Props) {
   return (
-    <div className="op-panel" style={!popped && flexBasisPct != null ? { flexBasis: `${flexBasisPct}%` } : undefined}>
-      <div
-        className={`op-panel-header${popped ? ' op-panel-header-drag' : ''}`}
-        onPointerDown={popped ? onHeaderPointerDown : undefined}
-      >
+    <div
+      className="op-panel"
+      style={popped ? { height: '100%' } : flexBasisPct != null ? { flexBasis: `${flexBasisPct}%` } : undefined}
+    >
+      <div className="op-panel-header">
         <img src={logo} alt={title} className="op-panel-logo" />
         <div className="op-panel-titles">
           <div className="op-panel-title">{title}</div>
@@ -50,19 +39,11 @@ export default function OperationPanel({
         <button
           className="op-panel-pop"
           onClick={onTogglePop}
-          onPointerDown={(e) => e.stopPropagation()}
-          title={popped ? 'Fixar novamente na tela principal' : 'Destacar em janela flutuante'}
+          title={popped ? 'Fixar novamente na tela principal' : 'Destacar em janela própria (dá para mover para outro monitor)'}
         >
           {popped ? '📌' : '⤢'}
         </button>
-        <a
-          className="op-panel-link"
-          href={externalUrl}
-          target="_blank"
-          rel="noreferrer"
-          onPointerDown={(e) => e.stopPropagation()}
-          title="Abrir em nova aba"
-        >
+        <a className="op-panel-link" href={externalUrl} target="_blank" rel="noreferrer" title="Abrir em nova aba">
           ↗
         </a>
       </div>
