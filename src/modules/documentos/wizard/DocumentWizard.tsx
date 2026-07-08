@@ -31,6 +31,7 @@ export default function DocumentWizard() {
 
   const [step, setStep] = useState<WizardStep>(1)
   const [formData, setFormData] = useState<DocumentFormData>({})
+  const [multiData, setMultiData] = useState<Record<string, string[]>>({})
   const [checklist, setChecklist] = useState<ChecklistItem[]>([])
   const [signers, setSigners] = useState<Signer[]>([])
   const [currentSignerIndex, setCurrentSignerIndex] = useState(0)
@@ -39,6 +40,7 @@ export default function DocumentWizard() {
     if (!template) return
     setStep(1)
     setFormData({})
+    setMultiData({})
     setChecklist([])
     setSigners(buildInitialSigners(template.signers.map((s) => s.cargo)))
     setCurrentSignerIndex(0)
@@ -61,6 +63,8 @@ export default function DocumentWizard() {
 
   const updateField = (key: string, value: string) =>
     setFormData((prev) => ({ ...prev, [key]: value }))
+  const updateMultiField = (key: string, values: string[]) =>
+    setMultiData((prev) => ({ ...prev, [key]: values }))
 
   const ctx: WizardContextValue = {
     template,
@@ -69,6 +73,8 @@ export default function DocumentWizard() {
     setStep,
     formData,
     updateField,
+    multiData,
+    updateMultiField,
     checklist,
     setChecklist,
     signers,

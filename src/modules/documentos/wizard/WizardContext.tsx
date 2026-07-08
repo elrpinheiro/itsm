@@ -8,6 +8,8 @@ export interface WizardContextValue {
   setStep: (step: WizardStep) => void
   formData: DocumentFormData
   updateField: (key: string, value: string) => void
+  multiData: Record<string, string[]>
+  updateMultiField: (key: string, values: string[]) => void
   checklist: ChecklistItem[]
   setChecklist: (items: ChecklistItem[]) => void
   signers: Signer[]

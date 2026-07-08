@@ -1,4 +1,6 @@
 import type { Brand, BrandId } from '@/types'
+import plannetaLogo from '@/assets/logos/planneta-educacao.png'
+import fazLogo from '@/assets/logos/faz-educacao.png'
 
 export const BRANDS: Record<BrandId, Brand> = {
   planneta: {
@@ -7,6 +9,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     razaoSocial: 'Planeta Educação Gráfica e Editora Ltda.',
     cor: '#0D2B5E',
     badgeClass: 'badge-blue',
+    logo: plannetaLogo,
   },
   faz: {
     id: 'faz',
@@ -14,6 +17,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     razaoSocial: 'Faz Educação & Tecnologia',
     cor: '#1E7A45',
     badgeClass: 'badge-green',
+    logo: fazLogo,
   },
 }
 

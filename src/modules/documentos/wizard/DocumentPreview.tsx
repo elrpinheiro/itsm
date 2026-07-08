@@ -8,17 +8,21 @@ interface Props {
 }
 
 const DocumentPreview = forwardRef<HTMLDivElement, Props>(function DocumentPreview({ style, children }, ref) {
-  const { template, brand, formData, checklist } = useWizard()
+  const { template, brand, formData, multiData, checklist } = useWizard()
 
   return (
     <div className="doc" style={style} ref={ref}>
-      <div className="doc-head" style={{ background: brand.cor }}>
-        <span>{template.nome.toUpperCase()}</span>
-        <span>{brand.nome.toUpperCase()}</span>
+      <div className="doc-head" style={{ borderBottomColor: brand.cor }}>
+        <div>
+          <div className="doc-head-title">{template.nome.toUpperCase()}</div>
+          <div className="doc-head-code">{template.code}</div>
+        </div>
+        <img src={brand.logo} alt={brand.nome} className="doc-logo" />
       </div>
       <div className="doc-body">
-        {renderPreviewBody(template.id, formData, brand, checklist)}
-        <div style={{ height: 70 }} />
+        {renderPreviewBody(template.id, formData, multiData, brand, checklist)}
+        <div style={{ height: 60 }} />
+        <div className="doc-footer">{template.code}</div>
       </div>
       {children}
     </div>

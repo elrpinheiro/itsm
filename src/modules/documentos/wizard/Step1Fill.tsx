@@ -3,7 +3,8 @@ import { TEMPLATE_FORMS } from './templateForms'
 import DocumentPreview from './DocumentPreview'
 
 export default function Step1Fill() {
-  const { template, formData, updateField, checklist, setChecklist, setStep } = useWizard()
+  const { template, formData, updateField, multiData, updateMultiField, checklist, setChecklist, setStep } =
+    useWizard()
   const FormComponent = TEMPLATE_FORMS[template.id]
 
   return (
@@ -18,8 +19,10 @@ export default function Step1Fill() {
           <FormComponent
             data={formData}
             checklist={checklist}
+            multiData={multiData}
             onChange={updateField}
             onChecklistChange={setChecklist}
+            onMultiChange={updateMultiField}
           />
         </div>
       </div>

@@ -1,7 +1,8 @@
-import { TextField, TextAreaField, RadioField } from './fields'
+import { TextField, TextAreaField, RadioField, CheckboxGroupField, SectionTitle } from './fields'
 import type { TemplateFormProps } from './types'
+import { MANUT_EQUIPAMENTOS } from './manutEquipamentos'
 
-export default function ManutencaoForm({ data, onChange }: TemplateFormProps) {
+export default function ManutencaoForm({ data, multiData, onChange, onMultiChange }: TemplateFormProps) {
   return (
     <>
       <TextField
@@ -30,24 +31,65 @@ export default function ManutencaoForm({ data, onChange }: TemplateFormProps) {
         value={data.objetivo ?? ''}
         onChange={(v) => onChange('objetivo', v)}
       />
-      <RadioField
-        label="Unifi (infraestrutura) — estado"
-        name="unifi"
-        value={data.unifi ?? ''}
-        options={['Bom', 'Ruim']}
-        onChange={(v) => onChange('unifi', v)}
+
+      <SectionTitle>Checklist — Recursos de Infraestrutura</SectionTitle>
+      {MANUT_EQUIPAMENTOS.filter((eq) => eq.coluna === 'infra').map((eq) => {
+        const estado = data[`${eq.key}_estado`] ?? ''
+        const motivo = multiData[`${eq.key}_motivo`] ?? []
+        return (
+          <div key={eq.key}>
+            <RadioField
+              label={eq.label}
+              name={`${eq.key}_estado`}
+              value={estado}
+              options={eq.estadoOptions}
+              onChange={(v) => onChange(`${eq.key}_estado`, v)}
+            />
+            {estado === 'Ruim' && (
+              <CheckboxGroupField
+                label="Motivo (se ruim)"
+                values={motivo}
+                options={eq.motivoOptions}
+                onChange={(v) => onMultiChange(`${eq.key}_motivo`, v)}
+              />
+            )}
+          </div>
+        )
+      })}
+
+      <SectionTitle>Checklist — Recursos Operacionais</SectionTitle>
+      {MANUT_EQUIPAMENTOS.filter((eq) => eq.coluna === 'oper').map((eq) => {
+        const estado = data[`${eq.key}_estado`] ?? ''
+        const motivo = multiData[`${eq.key}_motivo`] ?? []
+        return (
+          <div key={eq.key}>
+            <RadioField
+              label={eq.label}
+              name={`${eq.key}_estado`}
+              value={estado}
+              options={eq.estadoOptions}
+              onChange={(v) => onChange(`${eq.key}_estado`, v)}
+            />
+            {estado === 'Ruim' && (
+              <CheckboxGroupField
+                label="Motivo (se ruim)"
+                values={motivo}
+                options={eq.motivoOptions}
+                onChange={(v) => onMultiChange(`${eq.key}_motivo`, v)}
+              />
+            )}
+          </div>
+        )
+      })}
+      <TextField
+        label="Outros (se necessário indicar em soluções de visita) — Especifique"
+        value={data.outros ?? ''}
+        onChange={(v) => onChange('outros', v)}
       />
-      <TextField label="Motivo (se ruim)" value={data.unifi_motivo ?? ''} onChange={(v) => onChange('unifi_motivo', v)} />
-      <RadioField
-        label="Gabinete de carga (operacional) — estado"
-        name="gabinete"
-        value={data.gabinete ?? ''}
-        options={['Bom', 'Ruim']}
-        onChange={(v) => onChange('gabinete', v)}
-      />
-      <TextField label="Motivo (se ruim)" value={data.gab_motivo ?? ''} onChange={(v) => onChange('gab_motivo', v)} />
+
+      <SectionTitle>Soluções da visita</SectionTitle>
       <TextAreaField
-        label="Soluções da visita"
+        label="Descreva as soluções aplicadas"
         placeholder="Descreva as soluções aplicadas..."
         value={data.solucoes ?? ''}
         onChange={(v) => onChange('solucoes', v)}

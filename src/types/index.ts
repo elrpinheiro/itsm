@@ -6,6 +6,7 @@ export interface Brand {
   razaoSocial: string
   cor: string
   badgeClass: 'badge-blue' | 'badge-green'
+  logo: string
 }
 
 export type TemplateId = 'manut' | 'checklist' | 'termo' | 'homolog' | 'recibo'
@@ -43,11 +44,8 @@ export interface Signer {
   signed: boolean
 }
 
-export type ChecklistStatus = '✔' | '✖' | '⚠️' | '–'
-
 export interface ChecklistItem {
   descricao: string
-  status: ChecklistStatus
 }
 
 /** Dados de formulário livres, indexados por chave de campo do template ativo. */

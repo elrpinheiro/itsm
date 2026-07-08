@@ -7,7 +7,7 @@ export const TEMPLATES: TemplateDef[] = [
     nome: 'Relatório de Manutenção Preventiva',
     icon: '🛠',
     iconBg: '#E6F1FB',
-    signers: [{ cargo: 'Visitado por (Técnico)' }, { cargo: 'Responsável do local' }],
+    signers: [{ cargo: 'Visitado por' }, { cargo: 'Responsável do local' }],
   },
   {
     id: 'checklist',
@@ -15,7 +15,7 @@ export const TEMPLATES: TemplateDef[] = [
     nome: 'Checklist de Visita Técnica',
     icon: '📋',
     iconBg: '#EAF3DE',
-    signers: [{ cargo: 'Visitado por (Técnico)' }, { cargo: 'Responsável pela Escola' }],
+    signers: [{ cargo: 'Visitado por' }, { cargo: 'Responsável pela Escola' }],
   },
   {
     id: 'termo',
@@ -23,7 +23,7 @@ export const TEMPLATES: TemplateDef[] = [
     nome: 'Termo de Entrega de Equipamentos',
     icon: '💻',
     iconBg: '#FAEEDA',
-    signers: [{ cargo: 'Técnico' }, { cargo: 'Colaborador' }],
+    signers: [{ cargo: 'Técnico Responsável' }, { cargo: 'Colaborador' }],
   },
   {
     id: 'homolog',
