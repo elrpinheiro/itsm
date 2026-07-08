@@ -16,22 +16,18 @@ export default function TopBar() {
   return (
     <div className="hdr-top">
       <div className="hdr-mark">V</div>
-      <div>
-        <div style={{ color: '#fff', fontSize: 14, fontWeight: 700, lineHeight: 1.1 }}>Vitae ITSM</div>
-        <div style={{ color: 'rgba(255,255,255,.5)', fontSize: 10.5 }}>v1.0 · MVP</div>
+      <div className="hdr-brand">
+        <div className="hdr-brand-name">Vitae ITSM</div>
+        <div className="hdr-sub">v1.0 · MVP</div>
       </div>
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,.75)' }}>{clock}</span>
+      <div className="hdr-right">
+        <span className="hdr-clock">{clock}</span>
         <div className="hdr-ava">{user?.iniciais ?? ''}</div>
-        <div style={{ lineHeight: 1.15 }}>
-          <div style={{ color: '#fff', fontSize: 12, fontWeight: 600 }}>{user?.nome ?? ''}</div>
-          <div style={{ color: 'rgba(255,255,255,.5)', fontSize: 10.5 }}>{user?.papel ?? ''}</div>
+        <div className="hdr-user-text">
+          <div className="hdr-user-name">{user?.nome ?? ''}</div>
+          <div className="hdr-sub">{user?.papel ?? ''}</div>
         </div>
-        <span
-          style={{ color: 'rgba(255,255,255,.6)', cursor: 'pointer', fontSize: 16 }}
-          title="Sair"
-          onClick={handleLogout}
-        >
+        <span className="hdr-logout" title="Sair" onClick={handleLogout}>
           ⏻
         </span>
       </div>

@@ -23,7 +23,7 @@ export default function ModuleTabs() {
         )
       })}
       {location.pathname.startsWith('/app/documentos') && (
-        <span className="badge badge-blue" style={{ marginLeft: 'auto' }}>
+        <span className="badge badge-blue hdr-tpl-count" style={{ marginLeft: 'auto' }}>
           {totalTemplates} templates
         </span>
       )}
