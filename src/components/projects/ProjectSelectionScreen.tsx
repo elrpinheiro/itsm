@@ -120,14 +120,14 @@ function MatrizRow({ project, onSelect }: { project: Project; onSelect: (p: Proj
 interface BrandBlockProps {
   brandId: ProjectBrandId
   colId: string
-  isDragTarget: boolean
+  dragPosition: 'before' | 'after' | null
   onDragStart: (brandId: ProjectBrandId) => (e: DragEvent) => void
   onDragEnd: () => void
   onDragOver: (colId: string, brandId: ProjectBrandId) => (e: DragEvent) => void
   onDrop: (colId: string, brandId: ProjectBrandId) => (e: DragEvent) => void
 }
 
-function BrandBlock({ brandId, colId, isDragTarget, onDragStart, onDragEnd, onDragOver, onDrop }: BrandBlockProps) {
+function BrandBlock({ brandId, colId, dragPosition, onDragStart, onDragEnd, onDragOver, onDrop }: BrandBlockProps) {
   const navigate = useNavigate()
   const selectProject = useProjectStore((s) => s.selectProject)
   const allProjects = useAllProjects()
@@ -141,7 +141,7 @@ function BrandBlock({ brandId, colId, isDragTarget, onDragStart, onDragEnd, onDr
 
   return (
     <div
-      className={`proj-column${isDragTarget ? ' drag-target' : ''}`}
+      className={`proj-column${dragPosition ? ` drag-target-${dragPosition}` : ''}`}
       onDragOver={onDragOver(colId, brandId)}
       onDrop={onDrop(colId, brandId)}
     >
@@ -179,7 +179,7 @@ export default function ProjectSelectionScreen() {
 
   const [layout, setLayout] = useState<ColumnData[]>(loadLayout)
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(loadColumnWidths)
-  const [dragOver, setDragOver] = useState<{ colId: string; brandId: ProjectBrandId | null } | null>(null)
+  const [dragOver, setDragOver] = useState<{ colId: string; brandId: ProjectBrandId | null; after?: boolean } | null>(null)
   const [isDraggingAny, setIsDraggingAny] = useState(false)
   const draggedBrand = useRef<ProjectBrandId | null>(null)
   const resizeRef = useRef<{ colId: string; startX: number; startWidth: number } | null>(null)
@@ -238,7 +238,7 @@ export default function ProjectSelectionScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fieldBrandIds.join(',')])
 
-  function moveBrand(brandId: ProjectBrandId, targetColId: string, beforeBrand?: ProjectBrandId) {
+  function moveBrand(brandId: ProjectBrandId, targetColId: string, targetBrand?: ProjectBrandId, after?: boolean) {
     setLayout((prev) => {
       let cols = prev.map((c) => ({ ...c, brandIds: c.brandIds.filter((b) => b !== brandId) })).filter((c) => c.brandIds.length > 0)
       if (targetColId === NEW_COLUMN) {
@@ -249,8 +249,9 @@ export default function ProjectSelectionScreen() {
           cols = [...cols, { id: targetColId, brandIds: [brandId] }]
         } else {
           const arr = [...cols[idx].brandIds]
-          const insertAt = beforeBrand ? arr.indexOf(beforeBrand) : -1
-          arr.splice(insertAt === -1 ? arr.length : insertAt, 0, brandId)
+          const targetIndex = targetBrand ? arr.indexOf(targetBrand) : -1
+          const insertAt = targetIndex === -1 ? arr.length : after ? targetIndex + 1 : targetIndex
+          arr.splice(insertAt, 0, brandId)
           cols[idx] = { ...cols[idx], brandIds: arr }
         }
       }
@@ -274,7 +275,11 @@ export default function ProjectSelectionScreen() {
     return (e: DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
-      if (dragOver?.colId !== colId || dragOver?.brandId !== brandId) setDragOver({ colId, brandId })
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+      const after = e.clientY > rect.top + rect.height / 2
+      if (dragOver?.colId !== colId || dragOver?.brandId !== brandId || dragOver?.after !== after) {
+        setDragOver({ colId, brandId, after })
+      }
     }
   }
   function handleColumnDrop(colId: string, brandId: ProjectBrandId) {
@@ -282,7 +287,9 @@ export default function ProjectSelectionScreen() {
       e.preventDefault()
       e.stopPropagation()
       const dragged = draggedBrand.current
-      if (dragged && dragged !== brandId) moveBrand(dragged, colId, brandId)
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+      const after = e.clientY > rect.top + rect.height / 2
+      if (dragged && dragged !== brandId) moveBrand(dragged, colId, brandId, after)
       draggedBrand.current = null
       setIsDraggingAny(false)
       setDragOver(null)
@@ -341,7 +348,7 @@ export default function ProjectSelectionScreen() {
                     key={brandId}
                     brandId={brandId}
                     colId={col.id}
-                    isDragTarget={dragOver?.colId === col.id && dragOver.brandId === brandId}
+                    dragPosition={dragOver?.colId === col.id && dragOver.brandId === brandId ? (dragOver.after ? 'after' : 'before') : null}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                     onDragOver={handleColumnDragOver}

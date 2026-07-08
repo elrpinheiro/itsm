@@ -1243,9 +1243,13 @@ textarea {
   padding: 10px;
   transition: border-color 0.12s, box-shadow 0.12s;
 }
-.proj-column.drag-target {
+.proj-column.drag-target-before {
   border-color: var(--tema);
-  box-shadow: 0 0 0 2px var(--tema-pale);
+  box-shadow: 0 -3px 0 0 var(--tema);
+}
+.proj-column.drag-target-after {
+  border-color: var(--tema);
+  box-shadow: 0 3px 0 0 var(--tema);
 }
 .proj-column-header {
   display: flex;
