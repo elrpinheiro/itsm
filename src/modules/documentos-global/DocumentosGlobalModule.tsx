@@ -6,7 +6,7 @@ function DocumentWizardWithBack() {
   const navigate = useNavigate()
   return (
     <div className="main-content">
-      <DocumentWizard onBack={() => navigate('/documentos')} />
+      <DocumentWizard onBack={() => navigate('/ferramentas/documentos')} />
     </div>
   )
 }

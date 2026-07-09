@@ -25,7 +25,7 @@ export default function TemplatesScreen() {
     return (
       <div className="empty-box">
         <div style={{ fontSize: 16, fontWeight: 700 }}>Portfólio não encontrado</div>
-        <button className="btn" style={{ marginTop: 12 }} onClick={() => navigate('/app/documentos')}>
+        <button className="btn" style={{ marginTop: 12 }} onClick={() => navigate('/app/ferramentas/documentos')}>
           ← Voltar aos portfólios
         </button>
       </div>
@@ -35,9 +35,9 @@ export default function TemplatesScreen() {
   return (
     <div>
       <div className="crumb" style={{ marginBottom: 14 }}>
-        <a onClick={() => navigate('/app/documentos')}>Central de Documentos</a>
+        <a onClick={() => navigate('/app/ferramentas/documentos')}>Central de Documentos</a>
         <span>›</span>
-        <a onClick={() => navigate('/app/documentos')}>Portfólios</a>
+        <a onClick={() => navigate('/app/ferramentas/documentos')}>Portfólios</a>
         <span>›</span>
         <b style={{ color: 'var(--texto)' }}>{portfolio.nome}</b>
       </div>

@@ -61,7 +61,7 @@ export default function DocumentosBrowser() {
             </div>
             <div className="tpl-grid">
               {templates.map((t) => (
-                <div className="tpl-card" key={t.id} onClick={() => navigate(`/documentos/${activePortfolio.id}/${t.id}/${activeBrandId}`)}>
+                <div className="tpl-card" key={t.id} onClick={() => navigate(`/ferramentas/documentos/${activePortfolio.id}/${t.id}/${activeBrandId}`)}>
                   <div className="tpl-icon" style={{ background: t.iconBg }}>
                     {t.icon}
                   </div>

@@ -15,8 +15,7 @@ const NAV_MODULES: { path: string; label: string; icon: string }[] = [
   { path: '/assistencia', label: 'Assistência', icon: '🎧' },
   { path: '/administracao', label: 'Administração', icon: '⚙️' },
   { path: '/ativos', label: 'Ativos', icon: '💻' },
-  { path: '/documentos', label: 'Central de Documentos', icon: '📁' },
-  { path: '/base-conhecimento', label: 'Base de Conhecimento', icon: '📚' },
+  { path: '/ferramentas', label: 'Ferramentas', icon: '🧰' },
   { path: '/assinatura-digital', label: 'Assinatura Digital', icon: '✍️' },
 ]
 

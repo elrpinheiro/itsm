@@ -21,7 +21,7 @@ export default function ModuleTabs() {
           </div>
         )
       })}
-      {location.pathname.startsWith('/app/documentos') && (
+      {location.pathname.startsWith('/app/ferramentas/documentos') && (
         <span className="badge badge-blue hdr-tpl-count" style={{ marginLeft: 'auto' }}>
           {totalTemplates} templates
         </span>

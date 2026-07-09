@@ -31,7 +31,7 @@ interface Props {
   onBack?: () => void
 }
 
-export default function DocumentWizard({ basePath = '/app/documentos', onBack }: Props) {
+export default function DocumentWizard({ basePath = '/app/ferramentas/documentos', onBack }: Props) {
   const { portfolioId, templateId, brandId } = useParams()
   const navigate = useNavigate()
   const template = templateId ? getTemplateById(templateId) : undefined

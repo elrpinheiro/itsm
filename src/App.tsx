@@ -5,14 +5,12 @@ import LoginScreen from '@/components/login/LoginScreen'
 import AuthenticatedLayout from '@/components/layout/AuthenticatedLayout'
 import ProjectSelectionScreen from '@/components/projects/ProjectSelectionScreen'
 import AppShell from '@/components/layout/AppShell'
-import DocumentosModule from '@/modules/documentos/DocumentosModule'
 import AssistenciaModule from '@/modules/assistencia/AssistenciaModule'
 import AssistenciaGlobalModule from '@/modules/assistencia-global/AssistenciaGlobalModule'
 import AdministracaoModule from '@/modules/administracao/AdministracaoModule'
 import AtivosModule from '@/modules/ativos/AtivosModule'
-import DocumentosGlobalModule from '@/modules/documentos-global/DocumentosGlobalModule'
-import BaseConhecimentoModule from '@/modules/base-conhecimento/BaseConhecimentoModule'
-import BaseConhecimentoGlobalModule from '@/modules/base-conhecimento-global/BaseConhecimentoGlobalModule'
+import FerramentasModule from '@/modules/ferramentas/FerramentasModule'
+import FerramentasGlobalModule from '@/modules/ferramentas-global/FerramentasGlobalModule'
 import AssinaturaWizard from '@/modules/assinatura/AssinaturaWizard'
 import AssinaturaGlobalModule from '@/modules/assinatura-global/AssinaturaGlobalModule'
 
@@ -51,8 +49,7 @@ export default function App() {
         <Route path="/assistencia" element={<AssistenciaGlobalModule />} />
         <Route path="/administracao" element={<AdministracaoModule />} />
         <Route path="/ativos" element={<AtivosModule />} />
-        <Route path="/documentos/*" element={<DocumentosGlobalModule />} />
-        <Route path="/base-conhecimento" element={<BaseConhecimentoGlobalModule />} />
+        <Route path="/ferramentas/*" element={<FerramentasGlobalModule />} />
         <Route path="/assinatura-digital" element={<AssinaturaGlobalModule />} />
         <Route
           path="/app"
@@ -63,11 +60,10 @@ export default function App() {
           }
         >
           <Route index element={<Navigate to="assistencia" replace />} />
-          <Route path="documentos/*" element={<DocumentosModule />} />
+          <Route path="ferramentas/*" element={<FerramentasModule />} />
           <Route path="assistencia" element={<AssistenciaModule />} />
           <Route path="administracao" element={<AdministracaoModule />} />
           <Route path="ativos" element={<AtivosModule />} />
-          <Route path="base-conhecimento" element={<BaseConhecimentoModule />} />
           <Route path="assinatura-digital" element={<AssinaturaWizard />} />
         </Route>
       </Route>
