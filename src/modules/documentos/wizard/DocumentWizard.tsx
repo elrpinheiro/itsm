@@ -24,7 +24,14 @@ function buildInitialSigners(cargos: string[]): Signer[] {
   }))
 }
 
-export default function DocumentWizard() {
+interface Props {
+  /** Prefixo de rota para onde o botão "← Voltar" retorna (padrão: fluxo de documentos do projeto ativo). */
+  basePath?: string
+  /** Sobrepõe totalmente a navegação do "← Voltar" — use quando o fluxo de origem não tiver uma rota por portfólio (ex.: central de documentos global, que navega por estado local). */
+  onBack?: () => void
+}
+
+export default function DocumentWizard({ basePath = '/app/documentos', onBack }: Props) {
   const { portfolioId, templateId, brandId } = useParams()
   const navigate = useNavigate()
   const template = templateId ? getTemplateById(templateId) : undefined
@@ -51,7 +58,11 @@ export default function DocumentWizard() {
   }, [template, brand])
 
   function handleVoltar() {
-    navigate(portfolioId ? `/app/documentos/${portfolioId}` : '/app/documentos')
+    if (onBack) {
+      onBack()
+      return
+    }
+    navigate(portfolioId ? `${basePath}/${portfolioId}` : basePath)
   }
 
   if (!template || !brand) {

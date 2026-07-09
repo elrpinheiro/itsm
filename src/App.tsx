@@ -10,6 +10,7 @@ import AssistenciaModule from '@/modules/assistencia/AssistenciaModule'
 import AssistenciaGlobalModule from '@/modules/assistencia-global/AssistenciaGlobalModule'
 import AdministracaoModule from '@/modules/administracao/AdministracaoModule'
 import AtivosModule from '@/modules/ativos/AtivosModule'
+import DocumentosGlobalModule from '@/modules/documentos-global/DocumentosGlobalModule'
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const user = useAuthStore((s) => s.user)
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/assistencia" element={<AssistenciaGlobalModule />} />
         <Route path="/administracao" element={<AdministracaoModule />} />
         <Route path="/ativos" element={<AtivosModule />} />
+        <Route path="/documentos/*" element={<DocumentosGlobalModule />} />
         <Route
           path="/app"
           element={
