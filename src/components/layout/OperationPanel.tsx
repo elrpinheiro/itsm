@@ -46,6 +46,7 @@ export default function OperationPanel({
     return (
       <button className="op-panel-mini" onClick={onToggleMinimize} title={`Mostrar ${title}`}>
         <img src={logo} alt={title} />
+        <span className="op-panel-mini-tip">Entrar em Operação</span>
       </button>
     )
   }
