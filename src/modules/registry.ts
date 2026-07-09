@@ -15,4 +15,5 @@ export const MODULES: ModuleDef[] = [
   { key: 'admin', path: 'administracao', label: 'Administração', icon: '⚙️' },
   { key: 'ativos', path: 'ativos', label: 'Ativos', icon: '💻' },
   { key: 'docs', path: 'documentos', label: 'Central de Documentos', icon: '📁' },
+  { key: 'basecon', path: 'base-conhecimento', label: 'Base de Conhecimento', icon: '📚' },
 ]
