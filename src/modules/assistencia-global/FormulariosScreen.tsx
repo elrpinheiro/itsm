@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import SectionSidebarLayout, { type SectionSidebarItem } from '@/components/layout/SectionSidebarLayout'
 import CatalogGrid from '@/components/common/CatalogGrid'
+import TicketClassificationLegend from '@/components/common/TicketClassificationLegend'
 import { PROJECT_CATALOGS } from '@/data/catalog'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
 
@@ -16,6 +17,7 @@ export default function FormulariosScreen() {
   return (
     <SectionSidebarLayout title="Projetos" items={items} active={selectedId ?? ''} onSelect={setSelectedId}>
       <div className="mod-scroll-area">
+        <TicketClassificationLegend />
         {selected ? (
           <div className="mod-catalog">
             <div className="mod-catalog-head">

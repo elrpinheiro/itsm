@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import CatalogGrid from '@/components/common/CatalogGrid'
+import TicketClassificationLegend from '@/components/common/TicketClassificationLegend'
 import { CHAMADOS, type Prioridade, type StatusChamado } from '@/data/chamados'
 import { PROJECT_CATALOGS } from '@/data/catalog'
 
@@ -80,6 +81,7 @@ export default function AssistenciaModule() {
         ) : (
           <div className="mod-scroll-area">
             <div className="mod-section-title">Catálogo de formulários — {project.nome}</div>
+            <TicketClassificationLegend />
             {catalog ? (
               <CatalogGrid items={catalog} />
             ) : (
