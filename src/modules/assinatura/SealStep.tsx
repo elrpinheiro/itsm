@@ -1,8 +1,8 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import type { Signer } from '@/types'
 import { mockDocumentHash } from '@/utils/mockHash'
-import { generateSignedPdf } from '@/utils/generateSignedPdf'
 import SignedMark from '../documentos/wizard/SignedMark'
+import PdfDownloadButton from '../documentos/wizard/PdfDownloadButton'
 import { formatFileSize } from './types'
 import type { UploadedFile } from './types'
 import FilePreview from './FilePreview'
@@ -21,22 +21,6 @@ export default function SealStep({ uploaded, signers, onNovoEnvio }: Props) {
   )
   const docRef = useRef<HTMLDivElement>(null)
   const certRef = useRef<HTMLDivElement>(null)
-  const [generating, setGenerating] = useState(false)
-
-  async function handleDownload() {
-    if (!docRef.current || !certRef.current || generating) return
-    setGenerating(true)
-    try {
-      await generateSignedPdf({
-        documentEl: docRef.current,
-        certificateEl: certRef.current,
-        hash,
-        fileName: `${uploaded.file.name.replace(/\.[^.]+$/, '').replace(/\s+/g, '_')}_selado`,
-      })
-    } finally {
-      setGenerating(false)
-    }
-  }
 
   return (
     <div className="card" style={{ padding: 18, maxWidth: 640, margin: '0 auto' }}>
@@ -116,10 +100,13 @@ export default function SealStep({ uploaded, signers, onNovoEnvio }: Props) {
           <span className="manifest-val">TSA RFC 3161 aplicado</span>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button className="btn btn-primary" style={{ fontSize: 12 }} onClick={handleDownload} disabled={generating}>
-          {generating ? '⏳ Gerando PDF…' : '⬇ Baixar PDF selado'}
-        </button>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <PdfDownloadButton
+          documentEl={() => docRef.current}
+          certificateEl={() => certRef.current}
+          hash={hash}
+          fileName={`${uploaded.file.name.replace(/\.[^.]+$/, '').replace(/\s+/g, '_')}_selado`}
+        />
         <button
           className="btn"
           style={{ fontSize: 12 }}

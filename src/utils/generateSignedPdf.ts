@@ -14,6 +14,18 @@ interface GenerateSignedPdfOptions {
 
 const PAGE_MARGIN = 24
 
+/** Remove acentos e caracteres fora do ASCII básico — nomes de arquivo com acentuação nem sempre
+ * são respeitados pelo atributo `download` do navegador (alguns caem para um nome genérico). */
+const COMBINING_DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g')
+
+function sanitizeFileName(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(COMBINING_DIACRITICS, '')
+    .replace(/[^a-zA-Z0-9_.-]+/g, '_')
+    .replace(/_+/g, '_')
+}
+
 async function renderElementToImage(el: HTMLElement) {
   const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
   return { dataUrl: canvas.toDataURL('image/png'), width: canvas.width, height: canvas.height }
@@ -23,8 +35,18 @@ async function renderElementToImage(el: HTMLElement) {
  * Monta um único PDF fechado com 2 páginas: a primeira reproduz o documento com as assinaturas
  * nas posições definidas e traz o registro do hash; a segunda é o certificado/manifesto de
  * evidências da selagem. Roda inteiramente no navegador (html2canvas + jsPDF), sem backend.
+ *
+ * Retorna o Blob (+ um object URL já pronto) em vez de disparar o download sozinho: em contextos
+ * de iframe restrito (como a pré-visualização de Artifacts), o clique programático que jsPDF usa
+ * internamente em `.save()` pode ser bloqueado pelo sandbox. Deixar o próprio usuário clicar num
+ * link real (`<a href download>`) apontando para esse URL tem muito mais chance de funcionar.
  */
-export async function generateSignedPdf({ documentEl, certificateEl, hash, fileName }: GenerateSignedPdfOptions) {
+export async function generateSignedPdfBlob({
+  documentEl,
+  certificateEl,
+  hash,
+  fileName,
+}: GenerateSignedPdfOptions): Promise<{ blob: Blob; url: string; fileName: string }> {
   const pdf = new jsPDF({ unit: 'pt', format: 'a4' })
   const pageWidth = pdf.internal.pageSize.getWidth()
   const pageHeight = pdf.internal.pageSize.getHeight()
@@ -66,5 +88,7 @@ export async function generateSignedPdf({ documentEl, certificateEl, hash, fileN
   const x2 = (pageWidth - w2) / 2
   pdf.addImage(doc2.dataUrl, 'PNG', x2, PAGE_MARGIN, w2, h2)
 
-  pdf.save(`${fileName}.pdf`)
+  const blob = pdf.output('blob')
+  const url = URL.createObjectURL(blob)
+  return { blob, url, fileName: `${sanitizeFileName(fileName)}.pdf` }
 }
