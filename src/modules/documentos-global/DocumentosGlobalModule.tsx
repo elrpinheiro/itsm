@@ -4,7 +4,11 @@ import DocumentosBrowser from './DocumentosBrowser'
 
 function DocumentWizardWithBack() {
   const navigate = useNavigate()
-  return <DocumentWizard onBack={() => navigate('/documentos')} />
+  return (
+    <div className="main-content">
+      <DocumentWizard onBack={() => navigate('/documentos')} />
+    </div>
+  )
 }
 
 export default function DocumentosGlobalModule() {
