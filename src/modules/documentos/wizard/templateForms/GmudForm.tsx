@@ -1,6 +1,7 @@
-import { TextField, TextAreaField, SectionTitle } from './fields'
+import { TextField, TextAreaField, SectionTitle, RadioField } from './fields'
 import type { TemplateFormProps } from './types'
 import { GMUD_ETAPAS } from './gmudEtapas'
+import { VISIBILIDADE_OPTIONS } from './mudancaVisibilidade'
 
 export default function GmudForm({ data, onChange }: TemplateFormProps) {
   return (
@@ -29,6 +30,13 @@ export default function GmudForm({ data, onChange }: TemplateFormProps) {
         label="Responsável pela execução"
         value={data.responsavel ?? ''}
         onChange={(v) => onChange('responsavel', v)}
+      />
+      <RadioField
+        label="Visibilidade"
+        name="visibilidade"
+        value={data.visibilidade ?? ''}
+        options={VISIBILIDADE_OPTIONS}
+        onChange={(v) => onChange('visibilidade', v)}
       />
 
       <SectionTitle>Progresso</SectionTitle>

@@ -76,7 +76,7 @@ export const TEMPLATES: TemplateDef[] = [
   {
     id: 'gmud',
     code: 'GMUD',
-    nome: 'Gestão de Mudanças — TIC',
+    nome: 'Habilitação de Mudanças',
     icon: '🔄',
     iconBg: '#E8ECFB',
     signers: [{ cargo: 'Responsável pela execução' }, { cargo: 'Aprovador da mudança' }],
