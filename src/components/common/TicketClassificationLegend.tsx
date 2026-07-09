@@ -30,9 +30,16 @@ const ITEMS: LegendItem[] = [
     desc: 'Causa raiz de incidentes recorrentes, investigada para solução definitiva.',
     example: 'Corrigir bug recorrente no servidor.',
   },
+  {
+    color: '#7c3aed',
+    emoji: '🟣',
+    label: 'Habilitação de Mudanças',
+    desc: 'Avalia, aprova e coordena mudanças planejadas em sistemas ou infraestrutura, minimizando riscos ao serviço.',
+    example: 'Atualização de servidor, alteração de rede, implantação de nova versão de sistema.',
+  },
 ]
 
-/** Legenda de classificação de chamados (Requisição/Incidente/Problema), para orientar a equipe ao abrir/triar demandas. */
+/** Legenda de classificação de chamados (Requisição/Incidente/Problema/Habilitação de Mudanças), para orientar a equipe ao abrir/triar demandas. */
 export default function TicketClassificationLegend() {
   const [open, setOpen] = useState(true)
 
