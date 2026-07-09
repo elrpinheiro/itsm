@@ -162,10 +162,6 @@ export default function AuthenticatedLayout() {
     <div className="op-layout" style={themeVars} onPointerMove={onDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
       <div className="hdr-top op-topbar">
         <div className="hdr-mark">V</div>
-        <div className="hdr-brand">
-          <div className="hdr-brand-name">Vitae ITSM</div>
-          <div className="hdr-sub">v1.0 · MVP</div>
-        </div>
 
         {insideApp && project && (
           <div className="hdr-project">

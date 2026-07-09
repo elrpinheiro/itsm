@@ -33,6 +33,40 @@ body,
   height: 100%;
   overflow: hidden;
 }
+
+/* Rolagem interna fina — evita a barra de rolagem clássica (grossa, com setas)
+   nos contêineres que já gerenciam a própria rolagem. */
+.main-content,
+.proj-select-wrap,
+.mod-scroll-area,
+.sec-sidebar-list,
+.sec-content > .main-content,
+.modal-card {
+  scrollbar-width: thin;
+  scrollbar-color: var(--borda) transparent;
+}
+.main-content::-webkit-scrollbar,
+.proj-select-wrap::-webkit-scrollbar,
+.mod-scroll-area::-webkit-scrollbar,
+.sec-sidebar-list::-webkit-scrollbar,
+.modal-card::-webkit-scrollbar {
+  width: 8px;
+}
+.main-content::-webkit-scrollbar-track,
+.proj-select-wrap::-webkit-scrollbar-track,
+.mod-scroll-area::-webkit-scrollbar-track,
+.sec-sidebar-list::-webkit-scrollbar-track,
+.modal-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main-content::-webkit-scrollbar-thumb,
+.proj-select-wrap::-webkit-scrollbar-thumb,
+.mod-scroll-area::-webkit-scrollbar-thumb,
+.sec-sidebar-list::-webkit-scrollbar-thumb,
+.modal-card::-webkit-scrollbar-thumb {
+  background: var(--borda);
+  border-radius: 4px;
+}
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   font-size: 14px;
@@ -662,17 +696,6 @@ textarea {
   font-weight: 700;
   font-size: 14px;
   flex-shrink: 0;
-}
-.hdr-brand {
-  min-width: 0;
-  overflow: hidden;
-}
-.hdr-brand-name {
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.1;
-  white-space: nowrap;
 }
 .hdr-sub {
   color: rgba(255, 255, 255, 0.5);
