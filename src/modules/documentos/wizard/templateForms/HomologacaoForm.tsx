@@ -1,6 +1,7 @@
 import { TextField, TextAreaField } from './fields'
 import type { TemplateFormProps } from './types'
 import type { ChecklistItem } from '@/types'
+import { AVALIACAO_META, AVALIACAO_ORDER } from './avaliacaoOptions'
 
 const LINHAS_PADRAO = 13
 const DEFAULT_ROWS: ChecklistItem[] = Array.from({ length: LINHAS_PADRAO }, () => ({ descricao: '', referencia: '' }))
@@ -33,7 +34,7 @@ export default function HomologacaoForm({ data, checklist, onChange, onChecklist
       />
       <div className="frow">
         <label className="field-label">Checklist de especificações</label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 4 }}>
+        <div className="homolog-row-spec" style={{ marginBottom: 4 }}>
           <span className="field-label" style={{ margin: 0 }}>
             Especificação do edital
           </span>
@@ -43,24 +44,39 @@ export default function HomologacaoForm({ data, checklist, onChange, onChecklist
         </div>
         <div>
           {rows.map((row, i) => (
-            <div className="eq-row" key={i}>
-              <input
-                type="text"
-                value={row.descricao}
-                placeholder={`Especificação exigida no edital — item ${i + 1}`}
-                onChange={(e) => updateRow(i, { descricao: e.target.value })}
-              />
-              <input
-                type="text"
-                value={row.referencia ?? ''}
-                placeholder="Especificação do item de referência escolhido"
-                onChange={(e) => updateRow(i, { referencia: e.target.value })}
-              />
-              {rows.length > 1 && (
-                <span className="x" onClick={() => removeRow(i)}>
-                  ✕
-                </span>
-              )}
+            <div className="homolog-row" key={i}>
+              <div className="homolog-row-spec">
+                <input
+                  type="text"
+                  value={row.descricao}
+                  placeholder={`Especificação exigida no edital — item ${i + 1}`}
+                  onChange={(e) => updateRow(i, { descricao: e.target.value })}
+                />
+                <input
+                  type="text"
+                  value={row.referencia ?? ''}
+                  placeholder="Especificação do item de referência escolhido"
+                  onChange={(e) => updateRow(i, { referencia: e.target.value })}
+                />
+              </div>
+              <div className="homolog-row-avaliacao">
+                <select
+                  value={row.avaliacao ?? ''}
+                  onChange={(e) => updateRow(i, { avaliacao: (e.target.value || undefined) as ChecklistItem['avaliacao'] })}
+                >
+                  <option value="">Selecione a avaliação</option>
+                  {AVALIACAO_ORDER.map((kind) => (
+                    <option key={kind} value={kind}>
+                      {AVALIACAO_META[kind].icon} {AVALIACAO_META[kind].label}
+                    </option>
+                  ))}
+                </select>
+                {rows.length > 1 && (
+                  <span className="x" onClick={() => removeRow(i)}>
+                    ✕
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>

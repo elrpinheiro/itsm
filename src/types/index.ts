@@ -56,10 +56,14 @@ export interface Signer {
   signed: boolean
 }
 
+export type ChecklistAvaliacao = 'nao_atende' | 'atencao' | 'atende'
+
 export interface ChecklistItem {
   descricao: string
   /** Especificação do item de referência escolhido, para comparar lado a lado com o edital. */
   referencia?: string
+  /** Avaliação do item de referência frente à especificação do edital. */
+  avaliacao?: ChecklistAvaliacao
 }
 
 /** Uma linha de equipamento nos termos de entrega/devolução (permite múltiplos itens por documento). */

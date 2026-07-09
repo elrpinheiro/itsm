@@ -545,6 +545,29 @@ textarea {
 .eq-row input {
   flex: 1;
 }
+.eq-row select {
+  flex: 0 0 150px;
+  width: auto;
+}
+.homolog-row {
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed var(--borda);
+}
+.homolog-row-spec {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.homolog-row-avaliacao {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.homolog-row-avaliacao select {
+  flex: 1;
+}
 .eq-row .x {
   cursor: pointer;
   color: var(--muted);

@@ -3,6 +3,7 @@ import { MANUT_EQUIPAMENTOS } from './templateForms/manutEquipamentos'
 import { FORMATACAO_PROCESSOS } from './templateForms/formatacaoProcessos'
 import { MOBILIZACAO_CONFIGURACAO } from './templateForms/mobilizacaoChecklist'
 import { GMUD_ETAPAS } from './templateForms/gmudEtapas'
+import { AVALIACAO_META, AVALIACAO_ORDER } from './templateForms/avaliacaoOptions'
 
 function Kv({ label, value }: { label: string; value?: string }) {
   return (
@@ -197,6 +198,7 @@ export function renderPreviewBody(
               <tr>
                 <th style={{ ...cellStyle, textAlign: 'left', background: '#F5F4EF' }}>Especificação do edital</th>
                 <th style={{ ...cellStyle, textAlign: 'left', background: '#F5F4EF' }}>Especificações do ITEM (Referência)</th>
+                <th style={{ ...cellStyle, textAlign: 'center', background: '#F5F4EF', width: 90 }}>Avaliação</th>
               </tr>
             </thead>
             <tbody>
@@ -206,12 +208,36 @@ export function renderPreviewBody(
                   <tr key={i}>
                     <td style={cellStyle}>{row.descricao}</td>
                     <td style={cellStyle}>{row.referencia ?? ''}</td>
+                    <td style={{ ...cellStyle, textAlign: 'center' }}>
+                      {row.avaliacao ? (
+                        <span style={{ color: AVALIACAO_META[row.avaliacao].color }} title={AVALIACAO_META[row.avaliacao].label}>
+                          {AVALIACAO_META[row.avaliacao].icon}
+                        </span>
+                      ) : (
+                        ''
+                      )}
+                    </td>
                   </tr>
                 ))}
             </tbody>
           </table>
           <div className="doc-sec">Observação</div>
           <div className="doc-txt">{data.obs || ''}</div>
+          <div className="doc-sec">Resumo da avaliação</div>
+          <div style={{ display: 'flex', gap: 14, fontSize: 10.5 }}>
+            {AVALIACAO_ORDER.map((kind) => {
+              const meta = AVALIACAO_META[kind]
+              const count = checklist.filter((row) => row.avaliacao === kind).length
+              return (
+                <div key={kind} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <span style={{ color: meta.color, fontSize: 13 }}>{meta.icon}</span>
+                  <span>
+                    {meta.label}: <b>{count}</b>
+                  </span>
+                </div>
+              )
+            })}
+          </div>
         </>
       )
     }
