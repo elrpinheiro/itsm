@@ -828,6 +828,30 @@ textarea {
   font-size: 16px;
   flex-shrink: 0;
 }
+.hdr-doc-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.hdr-doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  border-radius: 99px;
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.12s;
+}
+.hdr-doc-link:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
 
 /* ===== módulos fixos (Assistência / Administração / Ativos) ===== */
 .hdr-nav {
@@ -1108,6 +1132,12 @@ textarea {
   }
   .hdr-nav-btn {
     padding: 6px 9px;
+  }
+  .hdr-doc-link span {
+    display: none;
+  }
+  .hdr-doc-link {
+    padding: 5px 9px;
   }
 }
 @media (max-width: 480px) {

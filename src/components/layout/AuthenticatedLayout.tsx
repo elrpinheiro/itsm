@@ -10,6 +10,8 @@ import whatsappLogo from '@/assets/logos/WhatsApp.png'
 
 const VTCALL_URL = 'https://vitae.vtcall.app/auth/'
 const MKTZAP_URL = 'https://mktzap.com.br/login'
+const MANUAL_USUARIO_URL = 'https://claude.ai/code/artifact/4540c7af-cdde-45f7-9a49-94ab89582360'
+const DOCUMENTACAO_TECNICA_URL = 'https://claude.ai/code/artifact/2745fefc-6654-43b7-a64e-bd679a8e5067'
 
 const NAV_MODULES: { path: string; label: string; icon: string }[] = [
   { path: '/assistencia', label: 'Assistência', icon: '🎧' },
@@ -204,6 +206,26 @@ export default function AuthenticatedLayout() {
         )}
 
         <div className="hdr-right">
+          <div className="hdr-doc-links">
+            <a
+              className="hdr-doc-link"
+              href={MANUAL_USUARIO_URL}
+              target="_blank"
+              rel="noreferrer"
+              title="Manual do usuário"
+            >
+              📗 <span>Manual do usuário</span>
+            </a>
+            <a
+              className="hdr-doc-link"
+              href={DOCUMENTACAO_TECNICA_URL}
+              target="_blank"
+              rel="noreferrer"
+              title="Documentação técnica"
+            >
+              📘 <span>Documentação técnica</span>
+            </a>
+          </div>
           <div className="hdr-ava">{user?.iniciais ?? ''}</div>
           <div className="hdr-user-text">
             <div className="hdr-user-name">{user?.nome ?? ''}</div>
