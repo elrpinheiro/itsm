@@ -2,7 +2,6 @@ import { Fragment, useEffect, useRef, useState, type CSSProperties, type DragEve
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
-import { ALERT_META, ALERT_ORDER, ALERT_SUMMARY_LABEL, getAlerts, getAlertTotals } from '@/data/projectAlerts'
 import type { Project, ProjectBrandId, ProjectTheme } from '@/types'
 
 const STORAGE_KEY = 'itsm-proj-column-layout-v2'
@@ -61,8 +60,6 @@ function ProjectRow({
   onSelect: (p: Project) => void
   label?: string
 }) {
-  const alerts = getAlerts(project.id)
-  const positions = ['pos-tl', 'pos-tr', 'pos-bl', 'pos-br']
   return (
     <button
       className="proj-row"
@@ -75,43 +72,10 @@ function ProjectRow({
           <span className="proj-row-avatar-clip">
             <img src={project.logo} alt={project.nome} />
           </span>
-          {alerts.map(({ kind, count }, i) => {
-            const meta = ALERT_META[kind]
-            return (
-              <span
-                key={kind}
-                className={`proj-alert-badge ${meta.className} ${positions[i]}`}
-                title={`${meta.label}: ${count} chamado${count > 1 ? 's' : ''}`}
-              >
-                {count}
-              </span>
-            )
-          })}
         </span>
       </span>
       <span className="proj-row-cidade">{label ?? project.cidade}</span>
     </button>
-  )
-}
-
-function AlertsSummaryLegend({ projectIds }: { projectIds: string[] }) {
-  const totals = getAlertTotals(projectIds)
-  return (
-    <div className="proj-alerts-summary">
-      <div className="proj-alerts-summary-title">Resumo de alertas — todos os projetos</div>
-      <div className="proj-alerts-summary-grid">
-        {ALERT_ORDER.map((kind) => {
-          const meta = ALERT_META[kind]
-          return (
-            <div className="proj-alerts-summary-item" key={kind}>
-              <span className={`proj-alerts-summary-dot ${meta.className}`} />
-              <b>{totals[kind]}</b>
-              <span>{ALERT_SUMMARY_LABEL[kind]}</span>
-            </div>
-          )
-        })}
-      </div>
-    </div>
   )
 }
 
@@ -392,8 +356,6 @@ export default function ProjectSelectionScreen() {
           </div>
         </div>
       </div>
-
-      <AlertsSummaryLegend projectIds={allProjects.map((p) => p.id)} />
     </div>
   )
 }
