@@ -19,6 +19,9 @@ function StatTile({ color, bg, icon, label }: StatTileProps) {
 export function VtcallPlaceholder() {
   return (
     <div style={{ padding: 12, fontSize: 11 }}>
+      <span className="badge badge-amber" style={{ marginBottom: 12, display: 'inline-flex' }}>
+        ⏳ Aguardando conexão API
+      </span>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 12 }}>
         <StatTile color="#94640A" bg="#FAEEDA" icon="😐" label="NA FILA" />
         <StatTile color="#A32D2D" bg="#FCEBEB" icon="🙁" label="ABANDONOS" />
@@ -58,6 +61,9 @@ export function VtcallPlaceholder() {
 export function MktzapPlaceholder() {
   return (
     <div style={{ padding: 12, fontSize: 11 }}>
+      <span className="badge badge-amber" style={{ marginBottom: 12, display: 'inline-flex' }}>
+        ⏳ Aguardando conexão API
+      </span>
       <div style={{ fontSize: 10, color: 'var(--texto-sec)', marginBottom: 8 }}>Exibindo 0 de 0. Total 0.</div>
       <div
         style={{
