@@ -376,6 +376,34 @@ textarea {
 .sig-slot .rm:hover {
   opacity: 1;
 }
+.signed-mark {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  pointer-events: none;
+  max-width: 150px;
+}
+.signed-mark img {
+  max-width: 140px;
+  max-height: 46px;
+  object-fit: contain;
+}
+.signed-mark-fallback {
+  font-family: 'Brush Script MT', cursive;
+  font-size: 17px;
+  color: #185fa5;
+  white-space: nowrap;
+}
+.signed-mark-caption {
+  font-size: 8px;
+  color: #3a3a37;
+  border-top: 1px solid #8a8a80;
+  padding-top: 2px;
+  margin-top: 1px;
+  white-space: nowrap;
+}
 .plugin-strip {
   background: var(--tema-pale);
   border: 1px solid #b5d4f4;

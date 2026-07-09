@@ -1,8 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Signer } from '@/types'
 import { mockDocumentHash } from '@/utils/mockHash'
+import { generateSignedPdf } from '@/utils/generateSignedPdf'
+import SignedMark from '../documentos/wizard/SignedMark'
 import { formatFileSize } from './types'
 import type { UploadedFile } from './types'
+import FilePreview from './FilePreview'
 
 interface Props {
   uploaded: UploadedFile
@@ -16,6 +19,24 @@ export default function SealStep({ uploaded, signers, onNovoEnvio }: Props) {
     () => mockDocumentHash(`${uploaded.file.name}|${uploaded.file.size}|${now.toISOString()}`),
     [uploaded.file.name, uploaded.file.size, now],
   )
+  const docRef = useRef<HTMLDivElement>(null)
+  const certRef = useRef<HTMLDivElement>(null)
+  const [generating, setGenerating] = useState(false)
+
+  async function handleDownload() {
+    if (!docRef.current || !certRef.current || generating) return
+    setGenerating(true)
+    try {
+      await generateSignedPdf({
+        documentEl: docRef.current,
+        certificateEl: certRef.current,
+        hash,
+        fileName: `${uploaded.file.name.replace(/\.[^.]+$/, '').replace(/\s+/g, '_')}_selado`,
+      })
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   return (
     <div className="card" style={{ padding: 18, maxWidth: 640, margin: '0 auto' }}>
@@ -41,12 +62,20 @@ export default function SealStep({ uploaded, signers, onNovoEnvio }: Props) {
           </div>
         </div>
       </div>
+
+      <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Documento final</div>
+      <FilePreview uploaded={uploaded} ref={docRef} style={{ minHeight: 380, marginBottom: 14 }}>
+        {signers.map((s) => (
+          <SignedMark key={s.id} signer={s} />
+        ))}
+      </FilePreview>
+
       <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Hash SHA-256</div>
       <div className="hash-box" style={{ marginBottom: 14 }}>
         {hash}
       </div>
       <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Manifesto de evidências</div>
-      <div style={{ background: 'var(--fundo)', borderRadius: 8, padding: '12px 15px', marginBottom: 15 }}>
+      <div ref={certRef} style={{ background: 'var(--fundo)', borderRadius: 8, padding: '12px 15px', marginBottom: 15 }}>
         <div className="manifest-row">
           <span className="manifest-key">Arquivo</span>
           <span className="manifest-val">{uploaded.file.name}</span>
@@ -69,6 +98,10 @@ export default function SealStep({ uploaded, signers, onNovoEnvio }: Props) {
           <span className="manifest-key">IP · Geolocalização</span>
           <span className="manifest-val">191.187.42.115 · -23.3054, -45.9668 (±8 m)</span>
         </div>
+        <div className="manifest-row">
+          <span className="manifest-key">Hash SHA-256</span>
+          <span className="manifest-val">{hash}</span>
+        </div>
         {signers.map((s, i) => (
           <div className="manifest-row" key={s.id}>
             <span className="manifest-key">Assinante {i + 1}</span>
@@ -84,16 +117,8 @@ export default function SealStep({ uploaded, signers, onNovoEnvio }: Props) {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <button
-          className="btn btn-primary"
-          style={{ fontSize: 12 }}
-          onClick={() =>
-            alert(
-              'No sistema real: baixa o PDF/A selado com assinaturas nas posições definidas + página de manifesto.',
-            )
-          }
-        >
-          ⬇ Baixar PDF selado
+        <button className="btn btn-primary" style={{ fontSize: 12 }} onClick={handleDownload} disabled={generating}>
+          {generating ? '⏳ Gerando PDF…' : '⬇ Baixar PDF selado'}
         </button>
         <button
           className="btn"

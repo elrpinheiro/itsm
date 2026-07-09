@@ -36,8 +36,11 @@ export default function SignStep({ signers, setSigners, currentSignerIndex, setC
   if (!signer) return null
 
   function confirm() {
+    const assinaturaDataUrl = padRef.current?.getDataURL() ?? undefined
     setSigners((prev) =>
-      prev.map((s, i) => (i === currentSignerIndex ? { ...s, nome, cpf, cargo, email, signed: true } : s)),
+      prev.map((s, i) =>
+        i === currentSignerIndex ? { ...s, nome, cpf, cargo, email, signed: true, assinaturaDataUrl } : s,
+      ),
     )
     if (currentSignerIndex < signers.length - 1) {
       setCurrentSignerIndex(currentSignerIndex + 1)

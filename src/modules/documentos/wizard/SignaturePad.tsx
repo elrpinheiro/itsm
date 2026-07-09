@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type Poin
 
 export interface SignaturePadHandle {
   clear: () => void
+  getDataURL: () => string | null
 }
 
 const SignaturePad = forwardRef<SignaturePadHandle>(function SignaturePad(_props, ref) {
@@ -31,6 +32,10 @@ const SignaturePad = forwardRef<SignaturePadHandle>(function SignaturePad(_props
       const ctx = canvas?.getContext('2d')
       if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height)
       setHasSignature(false)
+    },
+    getDataURL() {
+      if (!hasSignature || !canvasRef.current) return null
+      return canvasRef.current.toDataURL('image/png')
     },
   }))
 

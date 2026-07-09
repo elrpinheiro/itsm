@@ -54,6 +54,8 @@ export interface Signer {
   x: number
   y: number
   signed: boolean
+  /** Imagem (data URL) do traço desenhado no SignaturePad, usada para reproduzir a assinatura na posição definida no PDF selado. */
+  assinaturaDataUrl?: string
 }
 
 export type ChecklistAvaliacao = 'nao_atende' | 'atencao' | 'atende'
