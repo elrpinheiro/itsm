@@ -1,8 +1,8 @@
-import { Fragment, useEffect, useRef, useState, type CSSProperties, type DragEvent, type PointerEvent as ReactPointerEvent } from 'react'
+import { Fragment, useEffect, useRef, useState, type DragEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
-import type { Project, ProjectBrandId, ProjectTheme } from '@/types'
+import type { Project, ProjectBrandId } from '@/types'
 
 const STORAGE_KEY = 'itsm-proj-column-layout-v2'
 const WIDTHS_STORAGE_KEY = 'itsm-proj-column-widths'
@@ -51,22 +51,15 @@ function loadColumnWidths(): Record<string, number> {
 
 function ProjectRow({
   project,
-  theme,
   onSelect,
   label,
 }: {
   project: Project
-  theme: ProjectTheme
   onSelect: (p: Project) => void
   label?: string
 }) {
   return (
-    <button
-      className="proj-row"
-      style={{ '--proj-accent': theme.medio, '--proj-accent-pale': theme.pale } as CSSProperties}
-      onClick={() => onSelect(project)}
-      title={project.nome}
-    >
+    <button className="proj-row" onClick={() => onSelect(project)} title={project.nome}>
       <span className="proj-row-avatar">
         <span className="proj-row-avatar-inner">
           <span className="proj-row-avatar-clip">
@@ -105,8 +98,7 @@ function MatrizSection() {
 }
 
 function MatrizRow({ project, onSelect }: { project: Project; onSelect: (p: Project) => void }) {
-  const theme = useProjectTheme(project.brandId)
-  return <ProjectRow project={project} theme={theme} onSelect={onSelect} label={project.nome} />
+  return <ProjectRow project={project} onSelect={onSelect} label={project.nome} />
 }
 
 interface BrandBlockProps {
@@ -139,7 +131,6 @@ function BrandBlock({ brandId, colId, dragPosition, onDragStart, onDragEnd, onDr
     >
       <div
         className="proj-column-header"
-        style={{ borderBottomColor: theme.medio }}
         draggable
         onDragStart={onDragStart(brandId)}
         onDragEnd={onDragEnd}
@@ -156,7 +147,7 @@ function BrandBlock({ brandId, colId, dragPosition, onDragStart, onDragEnd, onDr
       </div>
       <div className="proj-column-list">
         {projects.map((project) => (
-          <ProjectRow key={project.id} project={project} theme={theme} onSelect={handleSelect} />
+          <ProjectRow key={project.id} project={project} onSelect={handleSelect} />
         ))}
         {projects.length === 0 && <div className="proj-column-empty">Nenhum projeto cadastrado ainda.</div>}
       </div>
