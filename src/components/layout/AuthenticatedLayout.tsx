@@ -17,6 +17,7 @@ const NAV_MODULES: { path: string; label: string; icon: string }[] = [
   { path: '/ativos', label: 'Ativos', icon: '💻' },
   { path: '/documentos', label: 'Central de Documentos', icon: '📁' },
   { path: '/base-conhecimento', label: 'Base de Conhecimento', icon: '📚' },
+  { path: '/assinatura-digital', label: 'Assinatura Digital', icon: '✍️' },
 ]
 
 const PANELS_MIN_WIDTH = 280

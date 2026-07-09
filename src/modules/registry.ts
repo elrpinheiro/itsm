@@ -16,4 +16,5 @@ export const MODULES: ModuleDef[] = [
   { key: 'ativos', path: 'ativos', label: 'Ativos', icon: '💻' },
   { key: 'docs', path: 'documentos', label: 'Central de Documentos', icon: '📁' },
   { key: 'basecon', path: 'base-conhecimento', label: 'Base de Conhecimento', icon: '📚' },
+  { key: 'assinatura', path: 'assinatura-digital', label: 'Assinatura Digital', icon: '✍️' },
 ]

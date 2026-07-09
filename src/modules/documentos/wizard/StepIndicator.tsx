@@ -8,10 +8,16 @@ const STEPS: { n: WizardStep; label: string }[] = [
   { n: 4, label: 'Selagem' },
 ]
 
-export default function StepIndicator({ step }: { step: WizardStep }) {
+interface Props {
+  step: WizardStep
+  labels?: string[]
+}
+
+export default function StepIndicator({ step, labels }: Props) {
+  const steps = labels ? STEPS.map((s, i) => ({ ...s, label: labels[i] ?? s.label })) : STEPS
   return (
     <div className="step-wrap">
-      {STEPS.map((s, i) => (
+      {steps.map((s, i) => (
         <Fragment key={s.n}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div className={`stepn${s.n < step ? ' done' : ''}${s.n === step ? ' active' : ''}`}>

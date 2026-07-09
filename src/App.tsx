@@ -13,6 +13,8 @@ import AtivosModule from '@/modules/ativos/AtivosModule'
 import DocumentosGlobalModule from '@/modules/documentos-global/DocumentosGlobalModule'
 import BaseConhecimentoModule from '@/modules/base-conhecimento/BaseConhecimentoModule'
 import BaseConhecimentoGlobalModule from '@/modules/base-conhecimento-global/BaseConhecimentoGlobalModule'
+import AssinaturaWizard from '@/modules/assinatura/AssinaturaWizard'
+import AssinaturaGlobalModule from '@/modules/assinatura-global/AssinaturaGlobalModule'
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const user = useAuthStore((s) => s.user)
@@ -51,6 +53,7 @@ export default function App() {
         <Route path="/ativos" element={<AtivosModule />} />
         <Route path="/documentos/*" element={<DocumentosGlobalModule />} />
         <Route path="/base-conhecimento" element={<BaseConhecimentoGlobalModule />} />
+        <Route path="/assinatura-digital" element={<AssinaturaGlobalModule />} />
         <Route
           path="/app"
           element={
@@ -65,6 +68,7 @@ export default function App() {
           <Route path="administracao" element={<AdministracaoModule />} />
           <Route path="ativos" element={<AtivosModule />} />
           <Route path="base-conhecimento" element={<BaseConhecimentoModule />} />
+          <Route path="assinatura-digital" element={<AssinaturaWizard />} />
         </Route>
       </Route>
       <Route path="*" element={<EntryRedirect />} />

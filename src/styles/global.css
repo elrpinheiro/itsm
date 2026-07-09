@@ -1186,6 +1186,20 @@ textarea {
   margin-bottom: 18px;
   flex-wrap: wrap;
 }
+.upload-drop {
+  border: 2px dashed var(--borda);
+  border-radius: 12px;
+  padding: 46px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--fundo);
+}
+.upload-drop:hover,
+.upload-drop.on {
+  border-color: var(--tema);
+  background: var(--tema-pale);
+}
 
 /* ===== seleção de projetos (compacta, à esquerda) ===== */
 .proj-select-wrap {
