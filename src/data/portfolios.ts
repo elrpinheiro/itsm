@@ -35,7 +35,7 @@ export const PORTFOLIOS: Portfolio[] = [
   },
   {
     id: 'mudancas',
-    nome: 'Gestão de Mudanças (GMUD)',
+    nome: 'Habilitação de Mudanças',
     icon: '🔄',
     bg: '#E8ECFB',
     desc: 'Controle de mudanças de TIC: janela de execução, etapas de rollback e escopo da mudança.',

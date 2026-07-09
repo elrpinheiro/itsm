@@ -4,7 +4,6 @@ import { FORMATACAO_PROCESSOS } from './templateForms/formatacaoProcessos'
 import { MOBILIZACAO_CONFIGURACAO } from './templateForms/mobilizacaoChecklist'
 import { GMUD_ETAPAS } from './templateForms/gmudEtapas'
 import { AVALIACAO_META, AVALIACAO_ORDER } from './templateForms/avaliacaoOptions'
-import { VISIBILIDADE_LEGEND } from './templateForms/mudancaVisibilidade'
 
 function Kv({ label, value }: { label: string; value?: string }) {
   return (
@@ -430,27 +429,6 @@ export function renderPreviewBody(
           <div className="doc-txt">{data.escopo || ''}</div>
           <div className="doc-sec">Informações adicionais</div>
           <div className="doc-txt">{data.infoAdicionais || ''}</div>
-          <div className="doc-sec">Legenda — Tipos de Mudança</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 9.5, marginBottom: 4 }}>
-            <tbody>
-              {VISIBILIDADE_LEGEND.map((item) => (
-                <tr key={item.label}>
-                  <td style={{ ...cellStyle, fontWeight: 700, width: 150, verticalAlign: 'top' }}>{item.label}</td>
-                  <td style={{ ...cellStyle, verticalAlign: 'top', lineHeight: 1.5 }}>
-                    <div>
-                      <b>Características:</b> {item.caracteristicas}
-                    </div>
-                    <div>
-                      <b>Aprovação:</b> {item.aprovacao}
-                    </div>
-                    <div>
-                      <b>Exemplo:</b> {item.exemplo}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </>
       )
     default:

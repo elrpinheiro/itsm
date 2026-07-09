@@ -26,7 +26,14 @@ export default function FerramentasModule() {
       <div className="mod-page-body">
         <Routes>
           <Route index element={<Navigate to="documentos" replace />} />
-          <Route path="documentos/*" element={<DocumentosModule />} />
+          <Route
+            path="documentos/*"
+            element={
+              <div className="main-content">
+                <DocumentosModule />
+              </div>
+            }
+          />
           <Route path="base-conhecimento" element={<BaseConhecimentoModule />} />
         </Routes>
       </div>
