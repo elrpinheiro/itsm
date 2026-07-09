@@ -62,7 +62,7 @@ export default function App() {
             </RequireProject>
           }
         >
-          <Route index element={<Navigate to="documentos" replace />} />
+          <Route index element={<Navigate to="assistencia" replace />} />
           <Route path="documentos/*" element={<DocumentosModule />} />
           <Route path="assistencia" element={<AssistenciaModule />} />
           <Route path="administracao" element={<AdministracaoModule />} />
