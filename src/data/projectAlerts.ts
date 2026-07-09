@@ -19,6 +19,14 @@ export const ALERT_META: Record<AlertKind, { className: string; label: string }>
   semInteracao: { className: 'azul', label: 'Sem interação há mais de 24h' },
 }
 
+/** Texto usado na legenda de totais no rodapé da tela de projetos: "{quantidade} <texto>". */
+export const ALERT_SUMMARY_LABEL: Record<AlertKind, string> = {
+  slaEstourado: 'com SLA estourado',
+  novo: 'novos chamados / sem atribuição',
+  pendente: 'pendentes / com SLA pausado',
+  semInteracao: 'sem interação há mais de 24h',
+}
+
 /** Ordem fixa de exibição dos badges em torno do logo (canto a canto). */
 export const ALERT_ORDER: AlertKind[] = ['slaEstourado', 'novo', 'pendente', 'semInteracao']
 
@@ -43,4 +51,15 @@ export function getAlerts(id: string): { kind: AlertKind; count: number }[] {
   const alert = PROJECT_ALERTS[id]
   if (!alert) return []
   return ALERT_ORDER.map((kind) => ({ kind, count: alert[kind] ?? 0 })).filter((a) => a.count > 0)
+}
+
+/** Soma, por categoria, os alertas de uma lista de projetos — usado na legenda de totais. */
+export function getAlertTotals(projectIds: string[]): Record<AlertKind, number> {
+  const totals: Record<AlertKind, number> = { slaEstourado: 0, novo: 0, pendente: 0, semInteracao: 0 }
+  for (const id of projectIds) {
+    const alert = PROJECT_ALERTS[id]
+    if (!alert) continue
+    for (const kind of ALERT_ORDER) totals[kind] += alert[kind] ?? 0
+  }
+  return totals
 }

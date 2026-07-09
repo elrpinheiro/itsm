@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState, type CSSProperties, type DragEve
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
-import { ALERT_META, getAlerts } from '@/data/projectAlerts'
+import { ALERT_META, ALERT_ORDER, ALERT_SUMMARY_LABEL, getAlerts, getAlertTotals } from '@/data/projectAlerts'
 import type { Project, ProjectBrandId, ProjectTheme } from '@/types'
 
 const STORAGE_KEY = 'itsm-proj-column-layout-v2'
@@ -91,6 +91,27 @@ function ProjectRow({
       </span>
       <span className="proj-row-cidade">{label ?? project.cidade}</span>
     </button>
+  )
+}
+
+function AlertsSummaryLegend({ projectIds }: { projectIds: string[] }) {
+  const totals = getAlertTotals(projectIds)
+  return (
+    <div className="proj-alerts-summary">
+      <div className="proj-alerts-summary-title">Resumo de alertas — todos os projetos</div>
+      <div className="proj-alerts-summary-grid">
+        {ALERT_ORDER.map((kind) => {
+          const meta = ALERT_META[kind]
+          return (
+            <div className="proj-alerts-summary-item" key={kind}>
+              <span className={`proj-alerts-summary-dot ${meta.className}`} />
+              <b>{totals[kind]}</b>
+              <span>{ALERT_SUMMARY_LABEL[kind]}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }
 
@@ -371,6 +392,8 @@ export default function ProjectSelectionScreen() {
           </div>
         </div>
       </div>
+
+      <AlertsSummaryLegend projectIds={allProjects.map((p) => p.id)} />
     </div>
   )
 }
