@@ -11,8 +11,8 @@ export interface ModuleDef {
 }
 
 export const MODULES: ModuleDef[] = [
-  { key: 'docs', path: 'documentos', label: 'Central de Documentos', icon: '📁' },
   { key: 'assist', path: 'assistencia', label: 'Assistência', icon: '🎧' },
   { key: 'admin', path: 'administracao', label: 'Administração', icon: '⚙️' },
   { key: 'ativos', path: 'ativos', label: 'Ativos', icon: '💻' },
+  { key: 'docs', path: 'documentos', label: 'Central de Documentos', icon: '📁' },
 ]
