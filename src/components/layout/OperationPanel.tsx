@@ -42,6 +42,14 @@ export default function OperationPanel({
   onDragHandlePointerDown,
   onHideToEdge,
 }: Props) {
+  if (minimized && !popped) {
+    return (
+      <button className="op-panel-mini" onClick={onToggleMinimize} title={`Mostrar ${title}`}>
+        <img src={logo} alt={title} />
+      </button>
+    )
+  }
+
   return (
     <div
       className={`op-panel${minimized ? ' minimized' : ''}`}

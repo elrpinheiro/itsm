@@ -53,8 +53,8 @@ export default function AuthenticatedLayout() {
 
   const [poppedVtcall, setPoppedVtcall] = useState(false)
   const [poppedMktzap, setPoppedMktzap] = useState(false)
-  const [minimizedVtcall, setMinimizedVtcall] = useState(false)
-  const [minimizedMktzap, setMinimizedMktzap] = useState(false)
+  const [minimizedVtcall, setMinimizedVtcall] = useState(true)
+  const [minimizedMktzap, setMinimizedMktzap] = useState(true)
   const [edgeVtcall, setEdgeVtcall] = useState(false)
   const [edgeMktzap, setEdgeMktzap] = useState(false)
   const [posVtcall, setPosVtcall] = useState<FloatPos>({ x: 60, y: 90 })
@@ -132,6 +132,8 @@ export default function AuthenticatedLayout() {
   const insideApp = location.pathname.startsWith('/app') && !!project
   const currentModule = NAV_MODULES.find((m) => location.pathname.startsWith(m.path))
   const dockedCount = (poppedVtcall ? 0 : 1) + (poppedMktzap ? 0 : 1)
+  const hasFullDockedPanel = (!poppedVtcall && !minimizedVtcall) || (!poppedMktzap && !minimizedMktzap)
+  const compactDock = dockedCount > 0 && !hasFullDockedPanel
 
   const edgeHiddenTabs = [
     poppedVtcall && edgeVtcall ? { which: 'vtcall' as const, logo: vtcallLogo, title: 'Mostrar Vtcall' } : null,
@@ -215,8 +217,8 @@ export default function AuthenticatedLayout() {
         </div>
         {dockedCount > 0 && (
           <>
-            <div className="op-divider-v" onPointerDown={startWidthDrag} title="Arraste para redimensionar" />
-            <div className="op-panels" style={{ width: panelsWidth }} ref={panelsRef}>
+            {!compactDock && <div className="op-divider-v" onPointerDown={startWidthDrag} title="Arraste para redimensionar" />}
+            <div className={`op-panels${compactDock ? ' compact' : ''}`} style={{ width: compactDock ? 68 : panelsWidth }} ref={panelsRef}>
               {!poppedVtcall && (
                 <OperationPanel
                   title="Vtcall"

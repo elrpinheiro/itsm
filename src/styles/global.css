@@ -907,6 +907,12 @@ textarea {
   background: #fff;
   min-width: 260px;
 }
+.op-panels.compact {
+  min-width: 0;
+  background: transparent;
+  align-items: center;
+  padding-top: 8px;
+}
 .op-divider-h {
   height: 6px;
   flex-shrink: 0;
@@ -995,6 +1001,29 @@ textarea {
 }
 .op-panel.minimized .op-panel-header {
   border-bottom: none;
+}
+.op-panel-mini {
+  width: 52px;
+  height: 52px;
+  margin: 0 0 10px;
+  border: none;
+  border-radius: 14px;
+  background: var(--tema-escuro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+.op-panel-mini img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 50%;
+  padding: 3px;
 }
 .op-panel-body {
   flex: 1;
