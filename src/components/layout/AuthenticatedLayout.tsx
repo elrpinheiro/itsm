@@ -117,6 +117,21 @@ export default function AuthenticatedLayout() {
     dragRef.current = null
   }
 
+  function toggleMinimizedVtcall() {
+    setMinimizedVtcall((prev) => {
+      const next = !prev
+      if (!next) setVtcallUrl(VTCALL_URL)
+      return next
+    })
+  }
+  function toggleMinimizedMktzap() {
+    setMinimizedMktzap((prev) => {
+      const next = !prev
+      if (!next) setMktzapUrl(MKTZAP_URL)
+      return next
+    })
+  }
+
   function restoreFromEdge(which: 'vtcall' | 'mktzap') {
     const y = Math.min(Math.max((which === 'vtcall' ? posVtcall.y : posMktzap.y), 0), window.innerHeight - 44)
     const x = Math.max(0, window.innerWidth - FLOAT_WIDTH - 24)
@@ -191,15 +206,6 @@ export default function AuthenticatedLayout() {
         )}
 
         <div className="hdr-right">
-          <div className="op-actions">
-            <span className="op-actions-label">Entrar em Operação</span>
-            <button className={`op-btn${vtcallUrl ? ' on' : ''}`} onClick={() => setVtcallUrl(VTCALL_URL)}>
-              <img src={vtcallLogo} alt="" /> <span>Vtcall</span>
-            </button>
-            <button className={`op-btn${mktzapUrl ? ' on' : ''}`} onClick={() => setMktzapUrl(MKTZAP_URL)}>
-              <img src={whatsappLogo} alt="" /> <span>MKTZAP</span>
-            </button>
-          </div>
           <div className="hdr-ava">{user?.iniciais ?? ''}</div>
           <div className="hdr-user-text">
             <div className="hdr-user-name">{user?.nome ?? ''}</div>
@@ -231,7 +237,7 @@ export default function AuthenticatedLayout() {
                   popped={false}
                   onTogglePop={() => setPoppedVtcall(true)}
                   minimized={minimizedVtcall}
-                  onToggleMinimize={() => setMinimizedVtcall((v) => !v)}
+                  onToggleMinimize={toggleMinimizedVtcall}
                 />
               )}
               {dockedCount === 2 && !minimizedVtcall && !minimizedMktzap && (
@@ -249,7 +255,7 @@ export default function AuthenticatedLayout() {
                   popped={false}
                   onTogglePop={() => setPoppedMktzap(true)}
                   minimized={minimizedMktzap}
-                  onToggleMinimize={() => setMinimizedMktzap((v) => !v)}
+                  onToggleMinimize={toggleMinimizedMktzap}
                 />
               )}
             </div>
@@ -269,7 +275,7 @@ export default function AuthenticatedLayout() {
             popped
             onTogglePop={() => setPoppedVtcall(false)}
             minimized={minimizedVtcall}
-            onToggleMinimize={() => setMinimizedVtcall((v) => !v)}
+            onToggleMinimize={toggleMinimizedVtcall}
             onDragHandlePointerDown={(e) => startFloatDrag('vtcall', e)}
             onHideToEdge={() => setEdgeVtcall(true)}
           />
@@ -287,7 +293,7 @@ export default function AuthenticatedLayout() {
             popped
             onTogglePop={() => setPoppedMktzap(false)}
             minimized={minimizedMktzap}
-            onToggleMinimize={() => setMinimizedMktzap((v) => !v)}
+            onToggleMinimize={toggleMinimizedMktzap}
             onDragHandlePointerDown={(e) => startFloatDrag('mktzap', e)}
             onHideToEdge={() => setEdgeMktzap(true)}
           />

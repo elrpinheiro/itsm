@@ -776,66 +776,6 @@ textarea {
   flex-shrink: 0;
 }
 
-/* ===== "Entrar em Operação" (Vtcall/MKTZAP) ===== */
-.op-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 12px;
-  margin-left: 4px;
-  border-left: 1px solid rgba(255, 255, 255, 0.18);
-  flex-shrink: 0;
-}
-.hdr-right .op-actions {
-  border-left: none;
-  margin-left: 0;
-  padding-left: 0;
-  padding-right: 12px;
-  margin-right: 4px;
-  border-right: 1px solid rgba(255, 255, 255, 0.18);
-}
-.op-actions-label {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 10.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-.op-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  border-radius: 99px;
-  padding: 5px 12px 5px 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-  transition: background 0.12s;
-}
-.op-btn img {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  object-fit: contain;
-  background: #fff;
-  padding: 2px;
-  flex-shrink: 0;
-}
-.op-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-.op-btn.on {
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--tema-texto);
-  border-color: #fff;
-}
-
 /* ===== módulos fixos (Assistência / Administração / Ativos) ===== */
 .hdr-nav {
   display: flex;
@@ -1053,11 +993,6 @@ textarea {
   margin-bottom: 4px;
   opacity: 0.6;
 }
-@media (max-width: 1100px) {
-  .op-actions-label {
-    display: none;
-  }
-}
 @media (max-width: 900px) {
   .op-body {
     flex-direction: column;
@@ -1081,9 +1016,6 @@ textarea {
 }
 @media (max-width: 760px) {
   .hdr-project-text {
-    display: none;
-  }
-  .op-btn span {
     display: none;
   }
   .hdr-nav-btn span:not(.ic) {
@@ -1116,12 +1048,6 @@ textarea {
   }
   .hdr-back-btn span {
     display: none;
-  }
-  .op-actions {
-    padding-left: 8px;
-  }
-  .op-btn {
-    padding: 5px;
   }
   .hdr-user-text {
     display: none;
