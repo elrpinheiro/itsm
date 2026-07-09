@@ -25,6 +25,9 @@ const SPLIT_MAX = 80
 
 const FLOAT_WIDTH = 340
 const FLOAT_EDGE_THRESHOLD = 40
+const EDGE_TAB_HEIGHT = 58
+const EDGE_TAB_GAP = 8
+const EDGE_TAB_BASE_Y = 90
 
 type DragMode =
   | { kind: 'width'; startX: number; startWidth: number }
@@ -130,6 +133,11 @@ export default function AuthenticatedLayout() {
   const currentModule = NAV_MODULES.find((m) => location.pathname.startsWith(m.path))
   const dockedCount = (poppedVtcall ? 0 : 1) + (poppedMktzap ? 0 : 1)
 
+  const edgeHiddenTabs = [
+    poppedVtcall && edgeVtcall ? { which: 'vtcall' as const, logo: vtcallLogo, title: 'Mostrar Vtcall' } : null,
+    poppedMktzap && edgeMktzap ? { which: 'mktzap' as const, logo: whatsappLogo, title: 'Mostrar MKTZAP' } : null,
+  ].filter((t): t is { which: 'vtcall' | 'mktzap'; logo: string; title: string } => t !== null)
+
   return (
     <div className="op-layout" style={themeVars} onPointerMove={onDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
       <div className="hdr-top op-topbar">
@@ -165,18 +173,20 @@ export default function AuthenticatedLayout() {
           </div>
         )}
 
-        <nav className="hdr-nav">
-          {NAV_MODULES.map((m) => (
-            <button
-              key={m.path}
-              className={`hdr-nav-btn${location.pathname.startsWith(m.path) ? ' on' : ''}`}
-              onClick={() => navigate(m.path)}
-            >
-              <span className="ic">{m.icon}</span>
-              <span>{m.label}</span>
-            </button>
-          ))}
-        </nav>
+        {!insideApp && (
+          <nav className="hdr-nav">
+            {NAV_MODULES.map((m) => (
+              <button
+                key={m.path}
+                className={`hdr-nav-btn${location.pathname.startsWith(m.path) ? ' on' : ''}`}
+                onClick={() => navigate(m.path)}
+              >
+                <span className="ic">{m.icon}</span>
+                <span>{m.label}</span>
+              </button>
+            ))}
+          </nav>
+        )}
 
         <div className="hdr-right">
           <div className="op-actions">
@@ -263,17 +273,6 @@ export default function AuthenticatedLayout() {
           />
         </div>
       )}
-      {poppedVtcall && edgeVtcall && (
-        <button
-          className="floating-edge-tab"
-          style={{ top: Math.min(Math.max(posVtcall.y, 0), window.innerHeight - 64) }}
-          onClick={() => restoreFromEdge('vtcall')}
-          title="Mostrar Vtcall"
-        >
-          <img src={vtcallLogo} alt="Vtcall" />
-        </button>
-      )}
-
       {poppedMktzap && !edgeMktzap && (
         <div className="floating-panel" style={{ left: posMktzap.x, top: posMktzap.y, width: FLOAT_WIDTH }}>
           <OperationPanel
@@ -292,16 +291,17 @@ export default function AuthenticatedLayout() {
           />
         </div>
       )}
-      {poppedMktzap && edgeMktzap && (
+      {edgeHiddenTabs.map((tab, i) => (
         <button
+          key={tab.which}
           className="floating-edge-tab"
-          style={{ top: Math.min(Math.max(posMktzap.y, 0), window.innerHeight - 64) }}
-          onClick={() => restoreFromEdge('mktzap')}
-          title="Mostrar MKTZAP"
+          style={{ top: EDGE_TAB_BASE_Y + i * (EDGE_TAB_HEIGHT + EDGE_TAB_GAP) }}
+          onClick={() => restoreFromEdge(tab.which)}
+          title={tab.title}
         >
-          <img src={whatsappLogo} alt="MKTZAP" />
+          <img src={tab.logo} alt={tab.title} />
         </button>
-      )}
+      ))}
     </div>
   )
 }

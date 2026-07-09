@@ -1389,15 +1389,15 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
+  width: 50px;
   flex-shrink: 0;
   background: var(--proj-accent-pale, var(--fundo));
   border-radius: 8px 0 0 8px;
 }
 .proj-row-avatar-inner {
   position: relative;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
 }
 .proj-row-avatar-clip {
@@ -1433,14 +1433,12 @@ textarea {
 }
 .proj-alert-badge {
   position: absolute;
-  top: -3px;
-  right: -3px;
   z-index: 2;
-  min-width: 15px;
-  height: 15px;
+  min-width: 14px;
+  height: 14px;
   padding: 0 3px;
   border-radius: 99px;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
   color: #fff;
   display: flex;
@@ -1448,11 +1446,34 @@ textarea {
   justify-content: center;
   border: 1.5px solid #fff;
   line-height: 1;
+  cursor: help;
 }
-.proj-alert-badge.atencao {
+.proj-alert-badge.pos-tl {
+  top: -4px;
+  left: -4px;
+}
+.proj-alert-badge.pos-tr {
+  top: -4px;
+  right: -4px;
+}
+.proj-alert-badge.pos-bl {
+  bottom: -4px;
+  left: -4px;
+}
+.proj-alert-badge.pos-br {
+  bottom: -4px;
+  right: -4px;
+}
+.proj-alert-badge.verde {
+  background: #16a34a;
+}
+.proj-alert-badge.laranja {
   background: #f59e0b;
 }
-.proj-alert-badge.critico {
+.proj-alert-badge.azul {
+  background: #2563eb;
+}
+.proj-alert-badge.vermelho {
   background: #dc2626;
   animation: proj-alert-pulse 1.6s ease-in-out infinite;
 }
@@ -1603,6 +1624,7 @@ textarea {
 .sec-layout {
   flex: 1;
   min-height: 0;
+  height: 100%;
   display: flex;
 }
 .sec-sidebar {
@@ -1748,6 +1770,40 @@ textarea {
 .mod-catalog-sub {
   font-size: 12.5px;
   font-weight: 600;
+}
+.catalog-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.catalog-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.catalog-item:hover {
+  border-color: var(--tema);
+  box-shadow: 0 2px 8px rgba(13, 43, 94, 0.08);
+}
+.catalog-item-icon {
+  font-size: 18px;
+  width: 26px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.catalog-item-label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 @media (max-width: 760px) {

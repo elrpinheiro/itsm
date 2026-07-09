@@ -36,6 +36,19 @@ export default function Step1Fill() {
             onMultiChange={updateMultiField}
             onEquipamentosChange={setEquipamentos}
           />
+          <div className="frow">
+            <label className="field-label">Link Referência</label>
+            <input
+              type="text"
+              placeholder="Ex.: link do edital, da especificação ou do produto de referência"
+              value={formData.linkReferencia ?? ''}
+              onChange={(e) => updateField('linkReferencia', e.target.value)}
+            />
+            <div className="hint-txt">
+              Use para guardar o link do edital/especificação original, para comparar com o item de referência
+              preenchido neste documento.
+            </div>
+          </div>
         </div>
       </div>
       <div>

@@ -57,6 +57,8 @@ export default function App() {
           <Route index element={<Navigate to="documentos" replace />} />
           <Route path="documentos/*" element={<DocumentosModule />} />
           <Route path="assistencia" element={<AssistenciaModule />} />
+          <Route path="administracao" element={<AdministracaoModule />} />
+          <Route path="ativos" element={<AtivosModule />} />
         </Route>
       </Route>
       <Route path="*" element={<EntryRedirect />} />

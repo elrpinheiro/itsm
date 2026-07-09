@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import SectionSidebarLayout, { type SectionSidebarItem } from '@/components/layout/SectionSidebarLayout'
+import CatalogGrid from '@/components/common/CatalogGrid'
+import { PROJECT_CATALOGS } from '@/data/catalog'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
 
 export default function FormulariosScreen() {
@@ -9,6 +11,7 @@ export default function FormulariosScreen() {
   const theme = useProjectTheme(selected?.brandId ?? 'planneta')
 
   const items: SectionSidebarItem[] = projects.map((p) => ({ key: p.id, label: `${p.nome} — ${p.cidade}`, logo: p.logo }))
+  const catalog = selected ? PROJECT_CATALOGS[selected.id] : undefined
 
   return (
     <SectionSidebarLayout title="Projetos" items={items} active={selectedId ?? ''} onSelect={setSelectedId}>
@@ -24,17 +27,21 @@ export default function FormulariosScreen() {
                 </div>
               </div>
             </div>
-            <div className="empty-box" style={{ marginTop: 20 }}>
-              <div style={{ fontSize: 34, marginBottom: 10 }}>📋</div>
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Catálogo ainda não configurado</div>
-              <div style={{ fontSize: 12.5, color: 'var(--texto-sec)', lineHeight: 1.6 }}>
-                O catálogo de formulários de atendimento para <b>{selected.nome}</b> será cadastrado em breve — cada
-                projeto/matriz terá o seu próprio, de acordo com os serviços que oferece.
+            {catalog ? (
+              <CatalogGrid items={catalog} />
+            ) : (
+              <div className="empty-box" style={{ marginTop: 20 }}>
+                <div style={{ fontSize: 34, marginBottom: 10 }}>📋</div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Catálogo ainda não configurado</div>
+                <div style={{ fontSize: 12.5, color: 'var(--texto-sec)', lineHeight: 1.6 }}>
+                  O catálogo de formulários de atendimento para <b>{selected.nome}</b> será cadastrado em breve — cada
+                  projeto/matriz terá o seu próprio, de acordo com os serviços que oferece.
+                </div>
+                <span className="badge badge-amber" style={{ marginTop: 14 }}>
+                  Em breve
+                </span>
               </div>
-              <span className="badge badge-amber" style={{ marginTop: 14 }}>
-                Em breve
-              </span>
-            </div>
+            )}
           </div>
         ) : (
           <div className="empty-box">Selecione um projeto para ver o catálogo de formulários.</div>

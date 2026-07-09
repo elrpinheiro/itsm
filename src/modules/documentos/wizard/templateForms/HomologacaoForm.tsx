@@ -3,19 +3,19 @@ import type { TemplateFormProps } from './types'
 import type { ChecklistItem } from '@/types'
 
 const LINHAS_PADRAO = 13
-const DEFAULT_ROWS: ChecklistItem[] = Array.from({ length: LINHAS_PADRAO }, () => ({ descricao: '' }))
+const DEFAULT_ROWS: ChecklistItem[] = Array.from({ length: LINHAS_PADRAO }, () => ({ descricao: '', referencia: '' }))
 
 export default function HomologacaoForm({ data, checklist, onChange, onChecklistChange }: TemplateFormProps) {
   const rows = checklist.length > 0 ? checklist : DEFAULT_ROWS
 
-  function updateRow(index: number, descricao: string) {
-    onChecklistChange(rows.map((row, i) => (i === index ? { descricao } : row)))
+  function updateRow(index: number, patch: Partial<ChecklistItem>) {
+    onChecklistChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)))
   }
   function removeRow(index: number) {
     onChecklistChange(rows.filter((_, i) => i !== index))
   }
   function addRow() {
-    onChecklistChange([...rows, { descricao: '' }])
+    onChecklistChange([...rows, { descricao: '', referencia: '' }])
   }
 
   return (
@@ -33,15 +33,28 @@ export default function HomologacaoForm({ data, checklist, onChange, onChecklist
       />
       <div className="frow">
         <label className="field-label">Checklist de especificações</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 4 }}>
+          <span className="field-label" style={{ margin: 0 }}>
+            Especificação do edital
+          </span>
+          <span className="field-label" style={{ margin: 0 }}>
+            Especificações do ITEM (Referência)
+          </span>
+        </div>
         <div>
           {rows.map((row, i) => (
             <div className="eq-row" key={i}>
-              <span style={{ color: 'var(--verde)', fontSize: 14, flexShrink: 0 }}>✔</span>
               <input
                 type="text"
                 value={row.descricao}
-                placeholder={`Descritivo do item ${i + 1}`}
-                onChange={(e) => updateRow(i, e.target.value)}
+                placeholder={`Especificação exigida no edital — item ${i + 1}`}
+                onChange={(e) => updateRow(i, { descricao: e.target.value })}
+              />
+              <input
+                type="text"
+                value={row.referencia ?? ''}
+                placeholder="Especificação do item de referência escolhido"
+                onChange={(e) => updateRow(i, { referencia: e.target.value })}
               />
               {rows.length > 1 && (
                 <span className="x" onClick={() => removeRow(i)}>

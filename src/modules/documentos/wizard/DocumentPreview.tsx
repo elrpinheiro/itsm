@@ -20,6 +20,12 @@ const DocumentPreview = forwardRef<HTMLDivElement, Props>(function DocumentPrevi
         <img src={brand.logo} alt={brand.nome} className="doc-logo" />
       </div>
       <div className="doc-body">
+        {formData.linkReferencia && (
+          <div className="doc-kv">
+            <b>Link Referência:</b>
+            <span>{formData.linkReferencia}</span>
+          </div>
+        )}
         {renderPreviewBody(template.id, formData, multiData, brand, checklist, equipamentos)}
         <div style={{ height: 60 }} />
         <div className="doc-footer">{template.code}</div>

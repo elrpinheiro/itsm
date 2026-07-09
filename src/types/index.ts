@@ -58,6 +58,8 @@ export interface Signer {
 
 export interface ChecklistItem {
   descricao: string
+  /** Especificação do item de referência escolhido, para comparar lado a lado com o edital. */
+  referencia?: string
 }
 
 /** Uma linha de equipamento nos termos de entrega/devolução (permite múltiplos itens por documento). */

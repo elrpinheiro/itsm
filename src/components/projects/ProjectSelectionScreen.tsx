@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState, type CSSProperties, type DragEve
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
-import { PROJECT_ALERTS, getAlertDescription, getAlertLevel, getAlertTotal } from '@/data/projectAlerts'
+import { ALERT_META, getAlerts } from '@/data/projectAlerts'
 import type { Project, ProjectBrandId, ProjectTheme } from '@/types'
 
 const STORAGE_KEY = 'itsm-proj-column-layout-v2'
@@ -61,8 +61,8 @@ function ProjectRow({
   onSelect: (p: Project) => void
   label?: string
 }) {
-  const alert = PROJECT_ALERTS[project.id]
-  const level = getAlertLevel(alert)
+  const alerts = getAlerts(project.id)
+  const positions = ['pos-tl', 'pos-tr', 'pos-bl', 'pos-br']
   return (
     <button
       className="proj-row"
@@ -75,11 +75,18 @@ function ProjectRow({
           <span className="proj-row-avatar-clip">
             <img src={project.logo} alt={project.nome} />
           </span>
-          {level && (
-            <span className={`proj-alert-badge ${level}`} title={getAlertDescription(alert)}>
-              {getAlertTotal(alert)}
-            </span>
-          )}
+          {alerts.map(({ kind, count }, i) => {
+            const meta = ALERT_META[kind]
+            return (
+              <span
+                key={kind}
+                className={`proj-alert-badge ${meta.className} ${positions[i]}`}
+                title={`${meta.label}: ${count} chamado${count > 1 ? 's' : ''}`}
+              >
+                {count}
+              </span>
+            )
+          })}
         </span>
       </span>
       <span className="proj-row-cidade">{label ?? project.cidade}</span>

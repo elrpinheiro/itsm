@@ -193,13 +193,21 @@ export function renderPreviewBody(
           <Kv label="Item analisado" value={data.item} />
           <div className="doc-sec">Checklist de especificações</div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10, marginBottom: 4 }}>
+            <thead>
+              <tr>
+                <th style={{ ...cellStyle, textAlign: 'left', background: '#F5F4EF' }}>Especificação do edital</th>
+                <th style={{ ...cellStyle, textAlign: 'left', background: '#F5F4EF' }}>Especificações do ITEM (Referência)</th>
+              </tr>
+            </thead>
             <tbody>
-              {checklist.map((row, i) => (
-                <tr key={i}>
-                  <td style={{ ...cellStyle, width: 20, textAlign: 'center', color: 'var(--verde)' }}>✔</td>
-                  <td style={cellStyle}>{row.descricao}</td>
-                </tr>
-              ))}
+              {checklist
+                .filter((row) => row.descricao.trim() || (row.referencia ?? '').trim())
+                .map((row, i) => (
+                  <tr key={i}>
+                    <td style={cellStyle}>{row.descricao}</td>
+                    <td style={cellStyle}>{row.referencia ?? ''}</td>
+                  </tr>
+                ))}
             </tbody>
           </table>
           <div className="doc-sec">Observação</div>
