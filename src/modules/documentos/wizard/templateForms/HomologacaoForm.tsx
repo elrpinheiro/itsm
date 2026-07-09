@@ -34,49 +34,39 @@ export default function HomologacaoForm({ data, checklist, onChange, onChecklist
       />
       <div className="frow">
         <label className="field-label">Checklist de especificações</label>
-        <div className="homolog-row-spec" style={{ marginBottom: 4 }}>
-          <span className="field-label" style={{ margin: 0 }}>
-            Especificação do edital
-          </span>
-          <span className="field-label" style={{ margin: 0 }}>
-            Especificações do ITEM (Referência)
-          </span>
-        </div>
         <div>
           {rows.map((row, i) => (
-            <div className="homolog-row" key={i}>
-              <div className="homolog-row-spec">
-                <input
-                  type="text"
-                  value={row.descricao}
-                  placeholder={`Especificação exigida no edital — item ${i + 1}`}
-                  onChange={(e) => updateRow(i, { descricao: e.target.value })}
-                />
-                <input
-                  type="text"
-                  value={row.referencia ?? ''}
-                  placeholder="Especificação do item de referência escolhido"
-                  onChange={(e) => updateRow(i, { referencia: e.target.value })}
-                />
+            <div className="eq-row" key={i}>
+              <input
+                type="text"
+                value={row.descricao}
+                placeholder={`Especificação exigida no edital — item ${i + 1}`}
+                onChange={(e) => updateRow(i, { descricao: e.target.value })}
+              />
+              <input
+                type="text"
+                value={row.referencia ?? ''}
+                placeholder="Especificação do item de referência escolhido"
+                onChange={(e) => updateRow(i, { referencia: e.target.value })}
+              />
+              <div className="avaliacao-toggle">
+                {AVALIACAO_ORDER.map((kind) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    className={`avaliacao-toggle-btn${row.avaliacao === kind ? ` on ${kind}` : ''}`}
+                    title={AVALIACAO_META[kind].label}
+                    onClick={() => updateRow(i, { avaliacao: row.avaliacao === kind ? undefined : kind })}
+                  >
+                    {AVALIACAO_META[kind].icon}
+                  </button>
+                ))}
               </div>
-              <div className="homolog-row-avaliacao">
-                <select
-                  value={row.avaliacao ?? ''}
-                  onChange={(e) => updateRow(i, { avaliacao: (e.target.value || undefined) as ChecklistItem['avaliacao'] })}
-                >
-                  <option value="">Selecione a avaliação</option>
-                  {AVALIACAO_ORDER.map((kind) => (
-                    <option key={kind} value={kind}>
-                      {AVALIACAO_META[kind].icon} {AVALIACAO_META[kind].label}
-                    </option>
-                  ))}
-                </select>
-                {rows.length > 1 && (
-                  <span className="x" onClick={() => removeRow(i)}>
-                    ✕
-                  </span>
-                )}
-              </div>
+              {rows.length > 1 && (
+                <span className="x" onClick={() => removeRow(i)}>
+                  ✕
+                </span>
+              )}
             </div>
           ))}
         </div>
