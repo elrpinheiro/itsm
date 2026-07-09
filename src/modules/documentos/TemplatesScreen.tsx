@@ -73,7 +73,7 @@ export default function TemplatesScreen() {
               {t.icon}
             </div>
             <div className="tpl-name">{t.nome}</div>
-            <div className="tpl-code">{t.code}</div>
+            {t.code && <div className="tpl-code">{t.code}</div>}
             <div className="tpl-foot">
               <span className={`badge ${brand.badgeClass ?? ''}`} style={brandBadgeStyle(brand)}>
                 {brand.nome}

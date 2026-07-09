@@ -15,7 +15,7 @@ const DocumentPreview = forwardRef<HTMLDivElement, Props>(function DocumentPrevi
       <div className="doc-head" style={{ borderBottomColor: brand.cor }}>
         <div>
           <div className="doc-head-title">{template.nome.toUpperCase()}</div>
-          <div className="doc-head-code">{template.code}</div>
+          {template.code && <div className="doc-head-code">{template.code}</div>}
         </div>
         <img src={brand.logo} alt={brand.nome} className="doc-logo" />
       </div>
@@ -28,7 +28,7 @@ const DocumentPreview = forwardRef<HTMLDivElement, Props>(function DocumentPrevi
         )}
         {renderPreviewBody(template.id, formData, multiData, brand, checklist, equipamentos)}
         <div style={{ height: 60 }} />
-        <div className="doc-footer">{template.code}</div>
+        {template.code && <div className="doc-footer">{template.code}</div>}
       </div>
       {children}
     </div>

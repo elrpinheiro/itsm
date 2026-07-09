@@ -109,7 +109,8 @@ export default function DocumentWizard({ basePath = '/app/ferramentas/documentos
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 15, fontWeight: 700 }}>{template.nome}</div>
           <div style={{ fontSize: 11, color: 'var(--texto-sec)' }}>
-            {template.code} · {brand.nome}
+            {template.code ? `${template.code} · ` : ''}
+            {brand.nome}
           </div>
         </div>
         <span className={`badge ${brand.badgeClass ?? ''}`} style={brandBadgeStyle(brand)}>

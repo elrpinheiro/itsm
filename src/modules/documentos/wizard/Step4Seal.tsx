@@ -43,7 +43,8 @@ export default function Step4Seal({ onNovoDocumento }: { onNovoDocumento: () => 
         <div className="manifest-row">
           <span className="manifest-key">Documento</span>
           <span className="manifest-val">
-            {template.code} · {template.nome}
+            {template.code ? `${template.code} · ` : ''}
+            {template.nome}
           </span>
         </div>
         <div className="manifest-row">

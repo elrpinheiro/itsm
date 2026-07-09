@@ -75,7 +75,7 @@ export const TEMPLATES: TemplateDef[] = [
   },
   {
     id: 'gmud',
-    code: 'GMUD',
+    code: '',
     nome: 'Habilitação de Mudanças',
     icon: '🔄',
     iconBg: '#E8ECFB',

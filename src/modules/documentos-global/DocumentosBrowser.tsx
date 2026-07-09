@@ -66,7 +66,7 @@ export default function DocumentosBrowser() {
                     {t.icon}
                   </div>
                   <div className="tpl-name">{t.nome}</div>
-                  <div className="tpl-code">{t.code}</div>
+                  {t.code && <div className="tpl-code">{t.code}</div>}
                   <div className="tpl-foot">
                     <span className={`badge ${brand?.badgeClass ?? ''}`} style={brand ? brandBadgeStyle(brand) : undefined}>
                       {brand?.nome}
