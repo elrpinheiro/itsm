@@ -307,14 +307,20 @@ export const USUARIOS: Usuario[] = [
 
 /**
  * Estrutura alinhada à aba "Adicionar um grupo" do GLPI — flags de comportamento no chamado
- * (visível como solicitante, visível para atribuição, pode ser notificado):
- * https://help.glpi-project.org/documentation/modules/administration/groups
+ * (visível como solicitante, visível para atribuição, pode ser notificado) e vínculo com uma
+ * entidade (projeto): https://help.glpi-project.org/documentation/modules/administration/groups
  * O nº de membros não é mais um campo fixo — é calculado a partir de Usuario.grupoId.
+ *
+ * No GLPI, um grupo pertence a uma entidade e pode ser "recursivo" (visível também nas entidades
+ * filhas). Como este sistema não tem hierarquia de entidades — projetos são todos do mesmo nível —,
+ * só existe o vínculo direto (`projetoId`); não há flag de recursividade.
  */
 export interface Grupo {
   id: string
   nome: string
   descricao: string
+  /** Entidade (projeto) do grupo — funciona como um departamento daquela unidade. Sem valor = grupo global/matriz. */
+  projetoId?: string
   visivelComoSolicitante: boolean
   visivelComoAtribuicao: boolean
   podeSerNotificado: boolean
@@ -350,6 +356,15 @@ export const GRUPOS: Grupo[] = [
     nome: 'Central de Atendimento',
     descricao: 'Recepção de chamados via Vtcall e MKTZAP.',
     visivelComoSolicitante: true,
+    visivelComoAtribuicao: true,
+    podeSerNotificado: true,
+  },
+  {
+    id: 'grp-tic-osasco-eu-tenho-futuro',
+    nome: 'TIC',
+    descricao: 'Departamento de suporte técnico de TI da unidade.',
+    projetoId: 'osasco-eu-tenho-futuro',
+    visivelComoSolicitante: false,
     visivelComoAtribuicao: true,
     podeSerNotificado: true,
   },

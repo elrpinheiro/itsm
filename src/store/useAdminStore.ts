@@ -59,6 +59,7 @@ export interface AddUsuarioInput {
 export interface AddGrupoInput {
   nome: string
   descricao: string
+  projetoId?: string
   visivelComoSolicitante: boolean
   visivelComoAtribuicao: boolean
   podeSerNotificado: boolean

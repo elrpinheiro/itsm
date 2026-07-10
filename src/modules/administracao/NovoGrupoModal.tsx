@@ -1,16 +1,21 @@
 import { useState, type FormEvent } from 'react'
 import Modal from '@/components/common/Modal'
 import { useAdminStore } from '@/store/useAdminStore'
+import { useAllProjects } from '@/store/useCatalogStore'
 
 interface Props {
   onClose: () => void
+  /** Entidade (projeto) pré-selecionada quando o cadastro é aberto de dentro de um projeto específico. */
+  defaultProjetoId?: string
 }
 
-export default function NovoGrupoModal({ onClose }: Props) {
+export default function NovoGrupoModal({ onClose, defaultProjetoId }: Props) {
   const addGrupo = useAdminStore((s) => s.addGrupo)
+  const projetos = useAllProjects()
 
   const [nome, setNome] = useState('')
   const [descricao, setDescricao] = useState('')
+  const [projetoId, setProjetoId] = useState(defaultProjetoId ?? '')
   const [visivelComoSolicitante, setVisivelComoSolicitante] = useState(false)
   const [visivelComoAtribuicao, setVisivelComoAtribuicao] = useState(true)
   const [podeSerNotificado, setPodeSerNotificado] = useState(true)
@@ -20,7 +25,14 @@ export default function NovoGrupoModal({ onClose }: Props) {
     e.preventDefault()
     if (!nome.trim()) return setError('Informe o nome do grupo.')
     if (!descricao.trim()) return setError('Informe uma descrição para o grupo.')
-    addGrupo({ nome, descricao, visivelComoSolicitante, visivelComoAtribuicao, podeSerNotificado })
+    addGrupo({
+      nome,
+      descricao,
+      projetoId: projetoId || undefined,
+      visivelComoSolicitante,
+      visivelComoAtribuicao,
+      podeSerNotificado,
+    })
     onClose()
   }
 
@@ -28,8 +40,8 @@ export default function NovoGrupoModal({ onClose }: Props) {
     <Modal title="Novo grupo" onClose={onClose}>
       <form onSubmit={handleSubmit}>
         <div className="frow">
-          <label className="field-label">Nome do grupo</label>
-          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: TIC — Suporte N3" />
+          <label className="field-label">Nome do grupo (departamento)</label>
+          <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: TIC" />
         </div>
         <div className="frow">
           <label className="field-label">Descrição</label>
@@ -37,8 +49,19 @@ export default function NovoGrupoModal({ onClose }: Props) {
             type="text"
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
-            placeholder="Ex.: Chamados críticos de infraestrutura"
+            placeholder="Ex.: Suporte técnico de TI da unidade"
           />
+        </div>
+        <div className="frow">
+          <label className="field-label">Entidade (projeto)</label>
+          <select value={projetoId} onChange={(e) => setProjetoId(e.target.value)}>
+            <option value="">Sem entidade (grupo global)</option>
+            {projetos.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nome} — {p.cidade}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="frow">
           <label className="field-label">Comportamento no chamado</label>

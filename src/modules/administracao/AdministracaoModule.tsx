@@ -42,6 +42,7 @@ const USUARIOS_COLUMNS: DataTableColumn[] = [
 const GRUPOS_COLUMNS: DataTableColumn[] = [
   { key: 'nome', label: 'Nome do grupo' },
   { key: 'descricao', label: 'Descrição' },
+  { key: 'entidade', label: 'Entidade', width: '150px' },
   { key: 'membros', label: 'Membros', width: '80px' },
   { key: 'solicitante', label: 'Solicitante', width: '90px' },
   { key: 'atribuicao', label: 'Atribuição', width: '90px' },
@@ -66,6 +67,7 @@ export default function AdministracaoModule() {
   const [openModal, setOpenModal] = useState<OpenModal>(null)
   const [selectedPerfilId, setSelectedPerfilId] = useState<string | null>(null)
   const [entidadeFiltro, setEntidadeFiltro] = useState(currentProject?.id ?? '')
+  const [entidadeFiltroGrupos, setEntidadeFiltroGrupos] = useState(currentProject?.id ?? '')
 
   const perfis = useAdminStore((s) => s.perfis)
   const usuarios = useAdminStore((s) => s.usuarios)
@@ -84,6 +86,7 @@ export default function AdministracaoModule() {
   const selectedPerfil = perfis.find((p) => p.id === selectedPerfilId) ?? null
 
   const usuariosFiltrados = entidadeFiltro ? usuarios.filter((u) => u.projetoId === entidadeFiltro) : usuarios
+  const gruposFiltrados = entidadeFiltroGrupos ? grupos.filter((g) => g.projetoId === entidadeFiltroGrupos) : grupos
 
   function handleExcluirPerfil() {
     if (!selectedPerfil) return
@@ -230,10 +233,23 @@ export default function AdministracaoModule() {
 
         {active === 'grupos' && (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 Grupos
               </div>
+              <select
+                value={entidadeFiltroGrupos}
+                onChange={(e) => setEntidadeFiltroGrupos(e.target.value)}
+                style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
+                title="Filtrar por entidade (projeto)"
+              >
+                <option value="">Todas as entidades</option>
+                {projetos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nome} — {p.cidade}
+                  </option>
+                ))}
+              </select>
               {acessoAdmin.editar && (
                 <button
                   className="btn btn-primary"
@@ -244,17 +260,25 @@ export default function AdministracaoModule() {
                 </button>
               )}
             </div>
-            <DataTable
-              columns={GRUPOS_COLUMNS}
-              rows={grupos.map((g) => ({
-                nome: <b>{g.nome}</b>,
-                descricao: g.descricao,
-                membros: usuarios.filter((u) => u.grupoId === g.id).length,
-                solicitante: <Flag on={g.visivelComoSolicitante} />,
-                atribuicao: <Flag on={g.visivelComoAtribuicao} />,
-                notificacao: <Flag on={g.podeSerNotificado} />,
-              }))}
-            />
+            <div style={{ fontSize: 12, color: 'var(--texto-sec)', marginBottom: 12, maxWidth: 620 }}>
+              Grupos também funcionam como departamentos de uma unidade — por exemplo, "TIC" no projeto
+              "Eu Tenho Futuro — Osasco". Um grupo sem entidade é global (matriz).
+            </div>
+            <div className="table-scroll">
+              <DataTable
+                columns={GRUPOS_COLUMNS}
+                emptyText="Nenhum grupo nesta entidade."
+                rows={gruposFiltrados.map((g) => ({
+                  nome: <b>{g.nome}</b>,
+                  descricao: g.descricao,
+                  entidade: g.projetoId ? (projetoMap[g.projetoId] ?? '—') : 'Matriz',
+                  membros: usuarios.filter((u) => u.grupoId === g.id).length,
+                  solicitante: <Flag on={g.visivelComoSolicitante} />,
+                  atribuicao: <Flag on={g.visivelComoAtribuicao} />,
+                  notificacao: <Flag on={g.podeSerNotificado} />,
+                }))}
+              />
+            </div>
           </>
         )}
 
@@ -307,7 +331,7 @@ export default function AdministracaoModule() {
       </div>
 
       {openModal === 'usuario' && <NovoUsuarioModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
-      {openModal === 'grupo' && <NovoGrupoModal onClose={() => setOpenModal(null)} />}
+      {openModal === 'grupo' && <NovoGrupoModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
       {openModal === 'fornecedor' && <NovoFornecedorModal onClose={() => setOpenModal(null)} />}
       {openModal === 'perfil' && (
         <NovoPerfilModal

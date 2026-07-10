@@ -18,6 +18,7 @@ export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
   const usuarios = useAdminStore((s) => s.usuarios)
   const addUsuario = useAdminStore((s) => s.addUsuario)
   const projetos = useAllProjects()
+  const projetoMap = Object.fromEntries(projetos.map((p) => [p.id, `${p.nome} — ${p.cidade}`]))
 
   const [primeiroNome, setPrimeiroNome] = useState('')
   const [sobrenome, setSobrenome] = useState('')
@@ -148,6 +149,7 @@ export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
               {grupos.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.nome}
+                  {g.projetoId ? ` — ${projetoMap[g.projetoId] ?? ''}` : ' (global)'}
                 </option>
               ))}
             </select>
