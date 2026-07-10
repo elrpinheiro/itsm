@@ -10,9 +10,10 @@ interface Props {
 }
 
 /**
- * Legenda de classificação + catálogo de formulários, com a legenda funcionando como gatilho:
- * clicar numa classificação filtra o catálogo abaixo; clicar num item do catálogo abre as
- * subcategorias dele (ainda em construção — a granularidade de sub-item virá depois).
+ * Legenda de classificação + catálogo de formulários, funcionando como um fluxo de 2 escolhas:
+ * 1) selecionar o tipo de classificação (contexto do chamado, não restringe o catálogo — qualquer
+ *    item pode se aplicar a qualquer classificação); 2) selecionar o item do catálogo, que abre as
+ *    subcategorias dele (ainda em construção — a granularidade de sub-item virá depois).
  */
 export default function FormulariosCatalogo({ catalog, contextLabel }: Props) {
   const [classification, setClassification] = useState<ClassificationLabel | null>(null)
@@ -22,8 +23,6 @@ export default function FormulariosCatalogo({ catalog, contextLabel }: Props) {
     setClassification(label)
     setSelectedItem(null)
   }
-
-  const filtered = !catalog ? [] : classification ? catalog.filter((item) => item.classification === classification) : catalog
 
   return (
     <>
@@ -60,17 +59,17 @@ export default function FormulariosCatalogo({ catalog, contextLabel }: Props) {
         <>
           {classification && (
             <div className="catalog-filter-bar">
-              <span className="badge badge-blue">Filtrando por: {classification}</span>
+              <span className="badge badge-blue">Classificação selecionada: {classification}</span>
               <button type="button" onClick={() => handleSelectClassification(null)}>
-                Limpar filtro ✕
+                Trocar ✕
               </button>
             </div>
           )}
-          {filtered.length ? (
-            <CatalogGrid items={filtered} onSelect={setSelectedItem} />
+          {catalog.length ? (
+            <CatalogGrid items={catalog} onSelect={setSelectedItem} />
           ) : (
             <div className="empty-box" style={{ marginTop: 16 }}>
-              Nenhum item do catálogo classificado como <b>{classification}</b> em {contextLabel} ainda.
+              O catálogo de formulários de atendimento para <b>{contextLabel}</b> será cadastrado em breve.
             </div>
           )}
         </>

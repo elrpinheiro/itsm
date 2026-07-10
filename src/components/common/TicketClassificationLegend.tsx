@@ -56,7 +56,7 @@ export default function TicketClassificationLegend({ selected, onSelect }: Props
   return (
     <div className="itsm-legend">
       <button type="button" className="itsm-legend-toggle" onClick={() => setOpen((v) => !v)}>
-        <span>📖 Legenda — Classificação de Chamados ITSM{interactive ? ' (clique para filtrar)' : ''}</span>
+        <span>📖 Classificação de Chamados{interactive ? ' (selecione o tipo)' : ''}</span>
         <span className="ic">{open ? '▾' : '▸'}</span>
       </button>
       {open && (

@@ -3,10 +3,6 @@ export type ClassificationLabel = 'Requisição' | 'Incidente' | 'Problema' | 'H
 export interface CatalogItem {
   icon: string
   label: string
-  /** Classificação ITSM do item (Requisição/Incidente/Problema/Habilitação de Mudanças), usada para
-   * filtrar o catálogo a partir da legenda. Opcional — itens sem classificação ficam de fora de
-   * qualquer filtro até serem cadastrados (piloto: Infância Conectada, Serra Negra). */
-  classification?: ClassificationLabel
 }
 
 /**
@@ -96,19 +92,19 @@ export const PROJECT_CATALOGS: Record<string, CatalogItem[]> = {
     { icon: '🖨️', label: 'Impressora 3D' },
     { icon: '🤖', label: 'Robô explorador' },
   ],
-  // Faz Educação — Serra Negra (piloto: itens classificados para o filtro por legenda)
+  // Faz Educação — Serra Negra
   'serra-negra-infancia-conectada': [
-    { icon: '📱', label: 'iPad', classification: 'Requisição' },
-    { icon: '🤝', label: 'Empréstimo de equipamentos', classification: 'Requisição' },
-    { icon: '🖨️', label: 'Impressora', classification: 'Incidente' },
-    { icon: '📶', label: 'Internet', classification: 'Incidente' },
-    { icon: '🍎', label: 'Apple TV', classification: 'Requisição' },
-    { icon: '💬', label: 'Dúvidas/sugestões/elogios ou reclamações', classification: 'Requisição' },
-    { icon: '📢', label: 'Furto/roubo', classification: 'Incidente' },
-    { icon: '🔌', label: 'Gabinete de recarga', classification: 'Incidente' },
-    { icon: '🧴', label: 'Kit limpeza', classification: 'Requisição' },
-    { icon: '💻', label: 'Notebook', classification: 'Incidente' },
-    { icon: '📺', label: 'Smart TV', classification: 'Incidente' },
+    { icon: '📱', label: 'iPad' },
+    { icon: '🤝', label: 'Empréstimo de equipamentos' },
+    { icon: '🖨️', label: 'Impressora' },
+    { icon: '📶', label: 'Internet' },
+    { icon: '🍎', label: 'Apple TV' },
+    { icon: '💬', label: 'Dúvidas/sugestões/elogios ou reclamações' },
+    { icon: '📢', label: 'Furto/roubo' },
+    { icon: '🔌', label: 'Gabinete de recarga' },
+    { icon: '🧴', label: 'Kit limpeza' },
+    { icon: '💻', label: 'Notebook' },
+    { icon: '📺', label: 'Smart TV' },
   ],
   // Faz Educação — Ubatuba
   'ubatuba-nucleo-inovacao': [
