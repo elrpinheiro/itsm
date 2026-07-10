@@ -181,8 +181,12 @@ export interface Usuario {
   projetoId?: string
   /** Default profile do GLPI. */
   perfilId: string
-  /** Default group do GLPI. */
-  grupoId?: string
+  /**
+   * Grupos do GLPI — um usuário pode pertencer a vários grupos (aba "Groups" do usuário /
+   * aba "Users" do grupo, no GLPI real). Simplificado aqui: só a lista de pertencimento, sem
+   * as flags de "gerente"/"delegado" que o GLPI tem por vínculo usuário-grupo.
+   */
+  grupoIds?: string[]
   /** Supervisor do GLPI — outro usuário do sistema. */
   supervisorId?: string
   /** Authentication do GLPI (Local ou LDAP). */
@@ -235,7 +239,6 @@ export const USUARIOS: Usuario[] = [
     categoria: 'Secretaria',
     projetoId: 'serra-negra-infancia-conectada',
     perfilId: 'self-service',
-    grupoId: undefined,
     supervisorId: 'carla-menezes',
     origem: 'Local',
     status: 'Ativo',
@@ -250,7 +253,7 @@ export const USUARIOS: Usuario[] = [
     senha: '12345678',
     cargo: 'Gestora de Projeto',
     categoria: 'Coordenação Pedagógica',
-    grupoId: 'grp-gestores',
+    grupoIds: ['grp-gestores'],
     perfilId: 'supervisor',
     origem: 'LDAP',
     status: 'Ativo',
@@ -265,7 +268,7 @@ export const USUARIOS: Usuario[] = [
     senha: '12345678',
     cargo: 'Técnico de Suporte',
     categoria: 'TI',
-    grupoId: 'grp-n1',
+    grupoIds: ['grp-n1'],
     supervisorId: 'everton-pinheiro',
     perfilId: 'technician',
     origem: 'LDAP',
@@ -281,7 +284,7 @@ export const USUARIOS: Usuario[] = [
     senha: '12345678',
     cargo: 'Atendente',
     categoria: 'TI',
-    grupoId: 'grp-central-atendimento',
+    grupoIds: ['grp-central-atendimento'],
     supervisorId: 'carla-menezes',
     perfilId: 'hotliner',
     origem: 'Local',
@@ -297,7 +300,7 @@ export const USUARIOS: Usuario[] = [
     senha: '12345678',
     cargo: 'Técnico de Suporte',
     categoria: 'TI',
-    grupoId: 'grp-n2',
+    grupoIds: ['grp-n2'],
     supervisorId: 'everton-pinheiro',
     perfilId: 'technician',
     origem: 'LDAP',
@@ -309,7 +312,7 @@ export const USUARIOS: Usuario[] = [
  * Estrutura alinhada à aba "Adicionar um grupo" do GLPI — flags de comportamento no chamado
  * (visível como solicitante, visível para atribuição, pode ser notificado) e vínculo com uma
  * entidade (projeto): https://help.glpi-project.org/documentation/modules/administration/groups
- * O nº de membros não é mais um campo fixo — é calculado a partir de Usuario.grupoId.
+ * O nº de membros não é mais um campo fixo — é calculado a partir de quem tem este grupo em Usuario.grupoIds.
  *
  * No GLPI, um grupo pertence a uma entidade e pode ser "recursivo" (visível também nas entidades
  * filhas). Como este sistema não tem hierarquia de entidades — projetos são todos do mesmo nível —,

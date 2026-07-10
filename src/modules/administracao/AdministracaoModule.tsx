@@ -7,10 +7,12 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 import PermissionMatrixEditor from './PermissionMatrixEditor'
-import NovoUsuarioModal from './NovoUsuarioModal'
+import UsuarioFormModal from './UsuarioFormModal'
 import NovoGrupoModal from './NovoGrupoModal'
 import NovoFornecedorModal from './NovoFornecedorModal'
 import NovoPerfilModal from './NovoPerfilModal'
+import GrupoMembrosPanel from './GrupoMembrosPanel'
+import type { Usuario } from '@/data/administracaoMock'
 
 type Section = 'perfis' | 'usuarios' | 'grupos' | 'fornecedores'
 type OpenModal = 'usuario' | 'grupo' | 'fornecedor' | 'perfil' | null
@@ -68,6 +70,8 @@ export default function AdministracaoModule() {
   const [selectedPerfilId, setSelectedPerfilId] = useState<string | null>(null)
   const [entidadeFiltro, setEntidadeFiltro] = useState(currentProject?.id ?? '')
   const [entidadeFiltroGrupos, setEntidadeFiltroGrupos] = useState(currentProject?.id ?? '')
+  const [selectedGrupoId, setSelectedGrupoId] = useState<string | null>(null)
+  const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null)
 
   const perfis = useAdminStore((s) => s.perfis)
   const usuarios = useAdminStore((s) => s.usuarios)
@@ -87,6 +91,7 @@ export default function AdministracaoModule() {
 
   const usuariosFiltrados = entidadeFiltro ? usuarios.filter((u) => u.projetoId === entidadeFiltro) : usuarios
   const gruposFiltrados = entidadeFiltroGrupos ? grupos.filter((g) => g.projetoId === entidadeFiltroGrupos) : grupos
+  const selectedGrupo = grupos.find((g) => g.id === selectedGrupoId) ?? null
 
   function handleExcluirPerfil() {
     if (!selectedPerfil) return
@@ -211,6 +216,9 @@ export default function AdministracaoModule() {
                   ),
                   acoes: acessoAdmin.editar ? (
                     <span style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn" style={{ fontSize: 11, padding: '4px 8px' }} onClick={() => setEditingUsuario(u)}>
+                        Editar
+                      </button>
                       <button className="btn" style={{ fontSize: 11, padding: '4px 8px' }} onClick={() => toggleUsuarioStatus(u.id)}>
                         {u.status === 'Ativo' ? 'Inativar' : 'Ativar'}
                       </button>
@@ -272,13 +280,16 @@ export default function AdministracaoModule() {
                   nome: <b>{g.nome}</b>,
                   descricao: g.descricao,
                   entidade: g.projetoId ? (projetoMap[g.projetoId] ?? '—') : 'Matriz',
-                  membros: usuarios.filter((u) => u.grupoId === g.id).length,
+                  membros: usuarios.filter((u) => u.grupoIds?.includes(g.id)).length,
                   solicitante: <Flag on={g.visivelComoSolicitante} />,
                   atribuicao: <Flag on={g.visivelComoAtribuicao} />,
                   notificacao: <Flag on={g.podeSerNotificado} />,
                 }))}
+                onRowClick={(i) => setSelectedGrupoId(gruposFiltrados[i].id)}
+                selectedIndex={selectedGrupoId ? gruposFiltrados.findIndex((g) => g.id === selectedGrupoId) : undefined}
               />
             </div>
+            {selectedGrupo && <GrupoMembrosPanel grupo={selectedGrupo} canEdit={acessoAdmin.editar} />}
           </>
         )}
 
@@ -330,7 +341,8 @@ export default function AdministracaoModule() {
         )}
       </div>
 
-      {openModal === 'usuario' && <NovoUsuarioModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
+      {openModal === 'usuario' && <UsuarioFormModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
+      {editingUsuario && <UsuarioFormModal usuario={editingUsuario} onClose={() => setEditingUsuario(null)} />}
       {openModal === 'grupo' && <NovoGrupoModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
       {openModal === 'fornecedor' && <NovoFornecedorModal onClose={() => setOpenModal(null)} />}
       {openModal === 'perfil' && (

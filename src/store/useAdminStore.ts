@@ -50,7 +50,26 @@ export interface AddUsuarioInput {
   categoria?: CategoriaUsuario
   projetoId?: string
   perfilId: string
-  grupoId?: string
+  grupoIds?: string[]
+  supervisorId?: string
+  origem: OrigemUsuario
+  comentarios?: string
+}
+
+export interface UpdateUsuarioInput {
+  primeiroNome: string
+  sobrenome: string
+  email: string
+  login: string
+  /** Deixe em branco para manter a senha atual. */
+  novaSenha?: string
+  telefone?: string
+  celular?: string
+  cargo?: string
+  categoria?: CategoriaUsuario
+  projetoId?: string
+  perfilId: string
+  grupoIds?: string[]
   supervisorId?: string
   origem: OrigemUsuario
   comentarios?: string
@@ -91,8 +110,11 @@ interface AdminState {
   grupos: Grupo[]
   fornecedores: Fornecedor[]
   addUsuario: (input: AddUsuarioInput) => void
+  updateUsuario: (id: string, input: UpdateUsuarioInput) => void
   toggleUsuarioStatus: (id: string) => void
   removeUsuario: (id: string) => AdminActionResult
+  addUsuarioToGrupo: (usuarioId: string, grupoId: string) => void
+  removeUsuarioFromGrupo: (usuarioId: string, grupoId: string) => void
   addGrupo: (input: AddGrupoInput) => void
   addFornecedor: (input: AddFornecedorInput) => void
   addPerfil: (input: AddPerfilInput) => string
@@ -138,13 +160,39 @@ export const useAdminStore = create<AdminState>()(
           categoria: input.categoria,
           projetoId: input.projetoId || undefined,
           perfilId: input.perfilId,
-          grupoId: input.grupoId || undefined,
+          grupoIds: input.grupoIds?.length ? input.grupoIds : undefined,
           supervisorId: input.supervisorId || undefined,
           origem: input.origem,
           comentarios: input.comentarios?.trim() || undefined,
           status: 'Ativo',
         }
         set((s) => ({ usuarios: [...s.usuarios, usuario] }))
+      },
+      updateUsuario: (id, input) => {
+        set((s) => ({
+          usuarios: s.usuarios.map((u) => {
+            if (u.id !== id) return u
+            return {
+              ...u,
+              primeiroNome: input.primeiroNome.trim(),
+              sobrenome: input.sobrenome.trim(),
+              nome: `${input.primeiroNome.trim()} ${input.sobrenome.trim()}`.trim(),
+              email: input.email.trim(),
+              login: input.login.trim(),
+              senha: input.novaSenha?.trim() ? input.novaSenha : u.senha,
+              telefone: input.telefone?.trim() || undefined,
+              celular: input.celular?.trim() || undefined,
+              cargo: input.cargo?.trim() || undefined,
+              categoria: input.categoria,
+              projetoId: input.projetoId || undefined,
+              perfilId: input.perfilId,
+              grupoIds: input.grupoIds?.length ? input.grupoIds : undefined,
+              supervisorId: input.supervisorId || undefined,
+              origem: input.origem,
+              comentarios: input.comentarios?.trim() || undefined,
+            }
+          }),
+        }))
       },
       toggleUsuarioStatus: (id) => {
         set((s) => ({
@@ -154,6 +202,22 @@ export const useAdminStore = create<AdminState>()(
       removeUsuario: (id) => {
         set((s) => ({ usuarios: s.usuarios.filter((u) => u.id !== id) }))
         return { ok: true }
+      },
+      addUsuarioToGrupo: (usuarioId, grupoId) => {
+        set((s) => ({
+          usuarios: s.usuarios.map((u) =>
+            u.id === usuarioId && !(u.grupoIds ?? []).includes(grupoId)
+              ? { ...u, grupoIds: [...(u.grupoIds ?? []), grupoId] }
+              : u,
+          ),
+        }))
+      },
+      removeUsuarioFromGrupo: (usuarioId, grupoId) => {
+        set((s) => ({
+          usuarios: s.usuarios.map((u) =>
+            u.id === usuarioId ? { ...u, grupoIds: (u.grupoIds ?? []).filter((g) => g !== grupoId) } : u,
+          ),
+        }))
       },
       addGrupo: (input) => {
         const taken = new Set(get().grupos.map((g) => g.id))
@@ -206,6 +270,6 @@ export const useAdminStore = create<AdminState>()(
         }))
       },
     }),
-    { name: 'itsm-admin-v3' },
+    { name: 'itsm-admin-v4' },
   ),
 )

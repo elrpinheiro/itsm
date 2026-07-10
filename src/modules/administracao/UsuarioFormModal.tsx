@@ -1,41 +1,52 @@
 import { useState, type CSSProperties, type FormEvent } from 'react'
 import Modal from '@/components/common/Modal'
-import { CATEGORIAS_USUARIO, type CategoriaUsuario, type OrigemUsuario } from '@/data/administracaoMock'
+import { CATEGORIAS_USUARIO, type CategoriaUsuario, type OrigemUsuario, type Usuario } from '@/data/administracaoMock'
 import { useAdminStore } from '@/store/useAdminStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 
 interface Props {
   onClose: () => void
+  /** Presente = edita este usuário; ausente = cria um novo. */
+  usuario?: Usuario
   /** Entidade (projeto) pré-selecionada quando o cadastro é aberto de dentro de um projeto específico. */
   defaultProjetoId?: string
 }
 
 const ROW2: CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }
 
-export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
+/** Formulário de usuário — serve tanto para criar quanto para editar (basta passar `usuario`).
+ * Cobre todos os campos, incluindo troca de senha e mudança de entidade/perfil/grupos, num só lugar. */
+export default function UsuarioFormModal({ onClose, usuario, defaultProjetoId }: Props) {
   const perfis = useAdminStore((s) => s.perfis)
   const grupos = useAdminStore((s) => s.grupos)
   const usuarios = useAdminStore((s) => s.usuarios)
   const addUsuario = useAdminStore((s) => s.addUsuario)
+  const updateUsuario = useAdminStore((s) => s.updateUsuario)
   const projetos = useAllProjects()
   const projetoMap = Object.fromEntries(projetos.map((p) => [p.id, `${p.nome} — ${p.cidade}`]))
 
-  const [primeiroNome, setPrimeiroNome] = useState('')
-  const [sobrenome, setSobrenome] = useState('')
-  const [email, setEmail] = useState('')
-  const [telefone, setTelefone] = useState('')
-  const [celular, setCelular] = useState('')
-  const [cargo, setCargo] = useState('')
-  const [login, setLogin] = useState('')
+  const isEdit = !!usuario
+
+  const [primeiroNome, setPrimeiroNome] = useState(usuario?.primeiroNome ?? '')
+  const [sobrenome, setSobrenome] = useState(usuario?.sobrenome ?? '')
+  const [email, setEmail] = useState(usuario?.email ?? '')
+  const [telefone, setTelefone] = useState(usuario?.telefone ?? '')
+  const [celular, setCelular] = useState(usuario?.celular ?? '')
+  const [cargo, setCargo] = useState(usuario?.cargo ?? '')
+  const [login, setLogin] = useState(usuario?.login ?? '')
   const [senha, setSenha] = useState('')
-  const [perfilId, setPerfilId] = useState(perfis[0]?.id ?? '')
-  const [origem, setOrigem] = useState<OrigemUsuario>('Local')
-  const [categoria, setCategoria] = useState<CategoriaUsuario | ''>('')
-  const [projetoId, setProjetoId] = useState(defaultProjetoId ?? '')
-  const [grupoId, setGrupoId] = useState('')
-  const [supervisorId, setSupervisorId] = useState('')
-  const [comentarios, setComentarios] = useState('')
+  const [perfilId, setPerfilId] = useState(usuario?.perfilId ?? perfis[0]?.id ?? '')
+  const [origem, setOrigem] = useState<OrigemUsuario>(usuario?.origem ?? 'Local')
+  const [categoria, setCategoria] = useState<CategoriaUsuario | ''>(usuario?.categoria ?? '')
+  const [projetoId, setProjetoId] = useState(usuario?.projetoId ?? defaultProjetoId ?? '')
+  const [grupoIds, setGrupoIds] = useState<string[]>(usuario?.grupoIds ?? [])
+  const [supervisorId, setSupervisorId] = useState(usuario?.supervisorId ?? '')
+  const [comentarios, setComentarios] = useState(usuario?.comentarios ?? '')
   const [error, setError] = useState('')
+
+  function toggleGrupo(id: string) {
+    setGrupoIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -43,8 +54,9 @@ export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
     if (!sobrenome.trim()) return setError('Informe o sobrenome.')
     if (!email.trim()) return setError('Informe o e-mail do usuário.')
     if (!login.trim()) return setError('Informe o login do usuário.')
-    if (!senha.trim()) return setError('Informe a senha do usuário.')
-    addUsuario({
+    if (!isEdit && !senha.trim()) return setError('Informe a senha do usuário.')
+
+    const dadosComuns = {
       primeiroNome,
       sobrenome,
       email,
@@ -52,20 +64,25 @@ export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
       celular: celular || undefined,
       cargo: cargo || undefined,
       login,
-      senha,
       perfilId,
       origem,
       categoria: categoria || undefined,
       projetoId: projetoId || undefined,
-      grupoId: grupoId || undefined,
+      grupoIds,
       supervisorId: supervisorId || undefined,
       comentarios: comentarios || undefined,
-    })
+    }
+
+    if (isEdit && usuario) {
+      updateUsuario(usuario.id, { ...dadosComuns, novaSenha: senha || undefined })
+    } else {
+      addUsuario({ ...dadosComuns, senha })
+    }
     onClose()
   }
 
   return (
-    <Modal title="Novo usuário" onClose={onClose}>
+    <Modal title={isEdit ? `Editar usuário — ${usuario!.nome}` : 'Novo usuário'} onClose={onClose}>
       <form onSubmit={handleSubmit}>
         <div style={ROW2}>
           <div className="frow">
@@ -103,8 +120,13 @@ export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
             <input type="text" value={login} onChange={(e) => setLogin(e.target.value)} placeholder="Ex.: ana.ferreira" />
           </div>
           <div className="frow">
-            <label className="field-label">Senha</label>
-            <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="••••••••" />
+            <label className="field-label">{isEdit ? 'Nova senha' : 'Senha'}</label>
+            <input
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              placeholder={isEdit ? 'Deixe em branco para manter' : '••••••••'}
+            />
           </div>
         </div>
         <div style={ROW2}>
@@ -143,42 +165,43 @@ export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
             </select>
           </div>
           <div className="frow">
-            <label className="field-label">Grupo padrão</label>
-            <select value={grupoId} onChange={(e) => setGrupoId(e.target.value)}>
-              <option value="">Sem grupo</option>
-              {grupos.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.nome}
-                  {g.projetoId ? ` — ${projetoMap[g.projetoId] ?? ''}` : ' (global)'}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <div style={ROW2}>
-          <div className="frow">
             <label className="field-label">Supervisor</label>
             <select value={supervisorId} onChange={(e) => setSupervisorId(e.target.value)}>
               <option value="">Sem supervisor</option>
-              {usuarios.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.nome}
-                </option>
-              ))}
+              {usuarios
+                .filter((u) => u.id !== usuario?.id)
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.nome}
+                  </option>
+                ))}
             </select>
           </div>
-          <div className="frow">
-            <label className="field-label">Origem</label>
-            <div className="radio-line">
-              <label>
-                <input type="radio" name="origem" checked={origem === 'LDAP'} onChange={() => setOrigem('LDAP')} />
-                LDAP
+        </div>
+        <div className="frow">
+          <label className="field-label">Grupos</label>
+          <div style={{ border: '1px solid var(--borda)', borderRadius: 8, padding: '8px 12px', maxHeight: 130, overflowY: 'auto' }}>
+            {grupos.length === 0 && <div style={{ fontSize: 12, color: 'var(--texto-sec)' }}>Nenhum grupo cadastrado.</div>}
+            {grupos.map((g) => (
+              <label key={g.id} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4, fontSize: 12.5 }}>
+                <input type="checkbox" checked={grupoIds.includes(g.id)} onChange={() => toggleGrupo(g.id)} style={{ width: 'auto' }} />
+                {g.nome}
+                {g.projetoId ? ` — ${projetoMap[g.projetoId] ?? ''}` : ' (global)'}
               </label>
-              <label>
-                <input type="radio" name="origem" checked={origem === 'Local'} onChange={() => setOrigem('Local')} />
-                Local
-              </label>
-            </div>
+            ))}
+          </div>
+        </div>
+        <div className="frow">
+          <label className="field-label">Origem</label>
+          <div className="radio-line">
+            <label>
+              <input type="radio" name="origem" checked={origem === 'LDAP'} onChange={() => setOrigem('LDAP')} />
+              LDAP
+            </label>
+            <label>
+              <input type="radio" name="origem" checked={origem === 'Local'} onChange={() => setOrigem('Local')} />
+              Local
+            </label>
           </div>
         </div>
         <div className="frow">
@@ -191,7 +214,7 @@ export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
             Cancelar
           </button>
           <button type="submit" className="btn btn-primary">
-            Criar usuário
+            {isEdit ? 'Salvar alterações' : 'Criar usuário'}
           </button>
         </div>
       </form>
