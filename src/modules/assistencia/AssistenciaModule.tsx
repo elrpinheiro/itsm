@@ -3,13 +3,9 @@ import { useProjectStore } from '@/store/useProjectStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useModuleAccess } from '@/store/usePermissions'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
-import FormulariosCatalogo from '@/components/common/FormulariosCatalogo'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { type Prioridade, type StatusChamado } from '@/data/chamados'
-import { PROJECT_CATALOGS } from '@/data/catalog'
-import NovoChamadoModal from './NovoChamadoModal'
-
-type Tab = 'chamados' | 'formularios'
+import NovoAtendimentoView from './NovoAtendimentoView'
 
 const COLUMNS: DataTableColumn[] = [
   { key: 'numero', label: 'Nº', width: '80px' },
@@ -38,8 +34,7 @@ export default function AssistenciaModule() {
   const user = useAuthStore((s) => s.user)
   const acesso = useModuleAccess('assistencia')
   const todosChamados = useChamadosStore((s) => s.chamados)
-  const [tab, setTab] = useState<Tab>('chamados')
-  const [novoChamadoAberto, setNovoChamadoAberto] = useState(false)
+  const [novoAtendimentoAberto, setNovoAtendimentoAberto] = useState(false)
 
   if (!project) return null
 
@@ -47,7 +42,6 @@ export default function AssistenciaModule() {
   const chamados = todosChamados.filter(
     (c) => c.projetoNome === projetoLabel && (acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email),
   )
-  const catalog = PROJECT_CATALOGS[project.id]
 
   const rows = chamados.map((c) => ({
     numero: <b>{c.numero}</b>,
@@ -68,44 +62,27 @@ export default function AssistenciaModule() {
     abertoHa: c.abertoHa,
   }))
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'chamados', label: acesso.ver === 'proprios' ? 'Meus chamados' : 'Chamados' },
-    ...(acesso.criar ? [{ key: 'formularios' as const, label: 'Formulários' }] : []),
-  ]
-
   return (
     <div className="mod-page" style={{ height: '100%' }}>
-      <div className="mod-page-tabs">
-        {tabs.map((t) => (
-          <span key={t.key} className={`chip${tab === t.key ? ' on' : ''}`} onClick={() => setTab(t.key)}>
-            {t.label}
-          </span>
-        ))}
-      </div>
       <div className="mod-page-body">
-        {tab === 'chamados' || !acesso.criar ? (
+        {novoAtendimentoAberto ? (
+          <NovoAtendimentoView project={project} onClose={() => setNovoAtendimentoAberto(false)} />
+        ) : (
           <div className="mod-scroll-area">
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 {acesso.ver === 'proprios' ? 'Meus chamados' : 'Chamados'} — {project.nome}
               </div>
               {acesso.criar && (
-                <button className="btn btn-primary" style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }} onClick={() => setNovoChamadoAberto(true)}>
-                  + Novo chamado
+                <button className="btn btn-primary" style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }} onClick={() => setNovoAtendimentoAberto(true)}>
+                  + Novo Atendimento
                 </button>
               )}
             </div>
             <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum chamado na fila para este projeto." />
           </div>
-        ) : (
-          <div className="mod-scroll-area">
-            <div className="mod-section-title">Catálogo de formulários — {project.nome}</div>
-            <FormulariosCatalogo catalog={catalog} contextLabel={project.nome} />
-          </div>
         )}
       </div>
-
-      {novoChamadoAberto && <NovoChamadoModal project={project} onClose={() => setNovoChamadoAberto(false)} />}
     </div>
   )
 }
