@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
-import CatalogGrid from '@/components/common/CatalogGrid'
-import TicketClassificationLegend from '@/components/common/TicketClassificationLegend'
+import FormulariosCatalogo from '@/components/common/FormulariosCatalogo'
 import { CHAMADOS, type Prioridade, type StatusChamado } from '@/data/chamados'
 import { PROJECT_CATALOGS } from '@/data/catalog'
 
@@ -81,21 +80,7 @@ export default function AssistenciaModule() {
         ) : (
           <div className="mod-scroll-area">
             <div className="mod-section-title">Catálogo de formulários — {project.nome}</div>
-            <TicketClassificationLegend />
-            {catalog ? (
-              <CatalogGrid items={catalog} />
-            ) : (
-              <div className="empty-box">
-                <div style={{ fontSize: 34, marginBottom: 10 }}>📋</div>
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Catálogo ainda não configurado</div>
-                <div style={{ fontSize: 12.5, color: 'var(--texto-sec)', lineHeight: 1.6 }}>
-                  O catálogo de formulários de atendimento para <b>{project.nome}</b> será cadastrado em breve.
-                </div>
-                <span className="badge badge-amber" style={{ marginTop: 14 }}>
-                  Em breve
-                </span>
-              </div>
-            )}
+            <FormulariosCatalogo catalog={catalog} contextLabel={project.nome} />
           </div>
         )}
       </div>

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import SectionSidebarLayout, { type SectionSidebarItem } from '@/components/layout/SectionSidebarLayout'
-import CatalogGrid from '@/components/common/CatalogGrid'
-import TicketClassificationLegend from '@/components/common/TicketClassificationLegend'
+import FormulariosCatalogo from '@/components/common/FormulariosCatalogo'
 import { PROJECT_CATALOGS } from '@/data/catalog'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
 
@@ -17,7 +16,6 @@ export default function FormulariosScreen() {
   return (
     <SectionSidebarLayout title="Projetos" items={items} active={selectedId ?? ''} onSelect={setSelectedId}>
       <div className="mod-scroll-area">
-        <TicketClassificationLegend />
         {selected ? (
           <div className="mod-catalog">
             <div className="mod-catalog-head">
@@ -29,21 +27,7 @@ export default function FormulariosScreen() {
                 </div>
               </div>
             </div>
-            {catalog ? (
-              <CatalogGrid items={catalog} />
-            ) : (
-              <div className="empty-box" style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 34, marginBottom: 10 }}>📋</div>
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Catálogo ainda não configurado</div>
-                <div style={{ fontSize: 12.5, color: 'var(--texto-sec)', lineHeight: 1.6 }}>
-                  O catálogo de formulários de atendimento para <b>{selected.nome}</b> será cadastrado em breve — cada
-                  projeto/matriz terá o seu próprio, de acordo com os serviços que oferece.
-                </div>
-                <span className="badge badge-amber" style={{ marginTop: 14 }}>
-                  Em breve
-                </span>
-              </div>
-            )}
+            <FormulariosCatalogo catalog={catalog} contextLabel={selected.nome} />
           </div>
         ) : (
           <div className="empty-box">Selecione um projeto para ver o catálogo de formulários.</div>
