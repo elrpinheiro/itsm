@@ -27,6 +27,7 @@ const ITEMS: SectionSidebarItem[] = [
 const PERFIS_COLUMNS: DataTableColumn[] = [
   { key: 'nome', label: 'Nome' },
   { key: 'descricao', label: 'Descrição' },
+  { key: 'entidade', label: 'Entidade', width: '150px' },
   { key: 'usuarios', label: 'Usuários', width: '90px' },
 ]
 
@@ -56,6 +57,7 @@ const FORNECEDORES_COLUMNS: DataTableColumn[] = [
   { key: 'tipo', label: 'Tipo', width: '150px' },
   { key: 'servico', label: 'Serviço' },
   { key: 'contato', label: 'Contato' },
+  { key: 'entidade', label: 'Entidade', width: '150px' },
   { key: 'local', label: 'Cidade/UF', width: '130px' },
 ]
 
@@ -70,6 +72,8 @@ export default function AdministracaoModule() {
   const [selectedPerfilId, setSelectedPerfilId] = useState<string | null>(null)
   const [entidadeFiltro, setEntidadeFiltro] = useState(currentProject?.id ?? '')
   const [entidadeFiltroGrupos, setEntidadeFiltroGrupos] = useState(currentProject?.id ?? '')
+  const [entidadeFiltroPerfis, setEntidadeFiltroPerfis] = useState(currentProject?.id ?? '')
+  const [entidadeFiltroFornecedores, setEntidadeFiltroFornecedores] = useState(currentProject?.id ?? '')
   const [selectedGrupoId, setSelectedGrupoId] = useState<string | null>(null)
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null)
 
@@ -91,6 +95,10 @@ export default function AdministracaoModule() {
 
   const usuariosFiltrados = entidadeFiltro ? usuarios.filter((u) => u.projetoId === entidadeFiltro) : usuarios
   const gruposFiltrados = entidadeFiltroGrupos ? grupos.filter((g) => g.projetoId === entidadeFiltroGrupos) : grupos
+  const perfisFiltrados = entidadeFiltroPerfis ? perfis.filter((p) => p.projetoId === entidadeFiltroPerfis) : perfis
+  const fornecedoresFiltrados = entidadeFiltroFornecedores
+    ? fornecedores.filter((f) => f.projetoId === entidadeFiltroFornecedores)
+    : fornecedores
   const selectedGrupo = grupos.find((g) => g.id === selectedGrupoId) ?? null
 
   function handleExcluirPerfil() {
@@ -118,10 +126,23 @@ export default function AdministracaoModule() {
       <div className="mod-scroll-area">
         {active === 'perfis' && (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 Perfis de acesso
               </div>
+              <select
+                value={entidadeFiltroPerfis}
+                onChange={(e) => setEntidadeFiltroPerfis(e.target.value)}
+                style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
+                title="Filtrar por entidade (projeto)"
+              >
+                <option value="">Todas as entidades</option>
+                {projetos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nome} — {p.cidade}
+                  </option>
+                ))}
+              </select>
               {acessoAdmin.editar && (
                 <button
                   className="btn btn-primary"
@@ -134,24 +155,30 @@ export default function AdministracaoModule() {
             </div>
             <div style={{ fontSize: 12, color: 'var(--texto-sec)', marginBottom: 12, maxWidth: 620 }}>
               Os 8 perfis padrão de uma instalação GLPI (Super-Admin, Admin, Supervisor, Technician, Hotliner,
-              Observer, Read-Only, Self-Service), adaptados aos módulos deste sistema. Clique num perfil para
-              ver ou ajustar o que ele pode visualizar e editar em cada módulo.
+              Observer, Read-Only, Self-Service), adaptados aos módulos deste sistema, ficam disponíveis para
+              todos os projetos. Um perfil customizado pode nascer vinculado a um projeto só, como se cada
+              unidade tivesse sua própria camada de configuração de acesso. Clique num perfil para ver ou
+              ajustar o que ele pode visualizar e editar em cada módulo.
             </div>
-            <DataTable
-              columns={PERFIS_COLUMNS}
-              rows={perfis.map((p) => ({
-                nome: (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <b>{p.nome}</b>
-                    {p.builtIn && <span className="badge badge-blue">Fábrica</span>}
-                  </span>
-                ),
-                descricao: p.descricao,
-                usuarios: usuarios.filter((u) => u.perfilId === p.id).length,
-              }))}
-              onRowClick={(i) => setSelectedPerfilId(perfis[i].id)}
-              selectedIndex={selectedPerfilId ? perfis.findIndex((p) => p.id === selectedPerfilId) : undefined}
-            />
+            <div className="table-scroll">
+              <DataTable
+                columns={PERFIS_COLUMNS}
+                emptyText="Nenhum perfil nesta entidade."
+                rows={perfisFiltrados.map((p) => ({
+                  nome: (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <b>{p.nome}</b>
+                      {p.builtIn && <span className="badge badge-blue">Fábrica</span>}
+                    </span>
+                  ),
+                  descricao: p.descricao,
+                  entidade: p.projetoId ? (projetoMap[p.projetoId] ?? '—') : 'Todos os projetos',
+                  usuarios: usuarios.filter((u) => u.perfilId === p.id).length,
+                }))}
+                onRowClick={(i) => setSelectedPerfilId(perfisFiltrados[i].id)}
+                selectedIndex={selectedPerfilId ? perfisFiltrados.findIndex((p) => p.id === selectedPerfilId) : undefined}
+              />
+            </div>
             {selectedPerfil && (
               <>
                 <PermissionMatrixEditor
@@ -295,10 +322,23 @@ export default function AdministracaoModule() {
 
         {active === 'fornecedores' && (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 Fornecedores
               </div>
+              <select
+                value={entidadeFiltroFornecedores}
+                onChange={(e) => setEntidadeFiltroFornecedores(e.target.value)}
+                style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
+                title="Filtrar por entidade (projeto)"
+              >
+                <option value="">Todas as entidades</option>
+                {projetos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nome} — {p.cidade}
+                  </option>
+                ))}
+              </select>
               {acessoAdmin.editar && (
                 <button
                   className="btn btn-primary"
@@ -309,34 +349,42 @@ export default function AdministracaoModule() {
                 </button>
               )}
             </div>
-            <DataTable
-              columns={FORNECEDORES_COLUMNS}
-              rows={fornecedores.map((f) => ({
-                empresa: (
-                  <span>
-                    <b>{f.empresa}</b>
-                    {f.site && (
-                      <>
-                        <br />
-                        <a href={f.site} target="_blank" rel="noreferrer" style={{ fontSize: 11 }}>
-                          {f.site}
-                        </a>
-                      </>
-                    )}
-                  </span>
-                ),
-                tipo: <span className="badge badge-blue">{f.tipo}</span>,
-                servico: f.servico,
-                contato: (
-                  <span>
-                    {f.email}
-                    <br />
-                    {f.telefone}
-                  </span>
-                ),
-                local: [f.cidade, f.estado].filter(Boolean).join('/') || '—',
-              }))}
-            />
+            <div style={{ fontSize: 12, color: 'var(--texto-sec)', marginBottom: 12, maxWidth: 620 }}>
+              Um fornecedor pode ser global (usado por todos os projetos) ou vinculado a uma entidade
+              específica — por exemplo, um provedor de link de internet contratado só para uma unidade.
+            </div>
+            <div className="table-scroll">
+              <DataTable
+                columns={FORNECEDORES_COLUMNS}
+                emptyText="Nenhum fornecedor nesta entidade."
+                rows={fornecedoresFiltrados.map((f) => ({
+                  empresa: (
+                    <span>
+                      <b>{f.empresa}</b>
+                      {f.site && (
+                        <>
+                          <br />
+                          <a href={f.site} target="_blank" rel="noreferrer" style={{ fontSize: 11 }}>
+                            {f.site}
+                          </a>
+                        </>
+                      )}
+                    </span>
+                  ),
+                  tipo: <span className="badge badge-blue">{f.tipo}</span>,
+                  servico: f.servico,
+                  contato: (
+                    <span>
+                      {f.email}
+                      <br />
+                      {f.telefone}
+                    </span>
+                  ),
+                  entidade: f.projetoId ? (projetoMap[f.projetoId] ?? '—') : 'Todos os projetos',
+                  local: [f.cidade, f.estado].filter(Boolean).join('/') || '—',
+                }))}
+              />
+            </div>
           </>
         )}
       </div>
@@ -344,10 +392,11 @@ export default function AdministracaoModule() {
       {openModal === 'usuario' && <UsuarioFormModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
       {editingUsuario && <UsuarioFormModal usuario={editingUsuario} onClose={() => setEditingUsuario(null)} />}
       {openModal === 'grupo' && <NovoGrupoModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
-      {openModal === 'fornecedor' && <NovoFornecedorModal onClose={() => setOpenModal(null)} />}
+      {openModal === 'fornecedor' && <NovoFornecedorModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
       {openModal === 'perfil' && (
         <NovoPerfilModal
           onClose={() => setOpenModal(null)}
+          defaultProjetoId={currentProject?.id}
           onCreated={(id) => {
             setOpenModal(null)
             setActive('perfis')

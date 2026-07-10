@@ -95,11 +95,13 @@ export interface AddFornecedorInput {
   cidade?: string
   estado?: string
   comentarios?: string
+  projetoId?: string
 }
 
 export interface AddPerfilInput {
   nome: string
   descricao: string
+  projetoId?: string
 }
 
 export type AdminActionResult = { ok: true } | { ok: false; error: string }
@@ -240,6 +242,7 @@ export const useAdminStore = create<AdminState>()(
           cidade: input.cidade?.trim() || undefined,
           estado: input.estado?.trim() || undefined,
           comentarios: input.comentarios?.trim() || undefined,
+          projetoId: input.projetoId || undefined,
         }
         set((s) => ({ fornecedores: [...s.fornecedores, fornecedor] }))
       },
@@ -250,6 +253,7 @@ export const useAdminStore = create<AdminState>()(
           id,
           nome: input.nome.trim(),
           descricao: input.descricao.trim(),
+          projetoId: input.projetoId || undefined,
           permissoes: PERMISSAO_EM_BRANCO,
         }
         set((s) => ({ perfis: [...s.perfis, perfil] }))
@@ -270,6 +274,6 @@ export const useAdminStore = create<AdminState>()(
         }))
       },
     }),
-    { name: 'itsm-admin-v4' },
+    { name: 'itsm-admin-v5' },
   ),
 )

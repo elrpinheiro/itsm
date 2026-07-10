@@ -2,15 +2,19 @@ import { useState, type CSSProperties, type FormEvent } from 'react'
 import Modal from '@/components/common/Modal'
 import { TIPOS_FORNECEDOR, type TipoFornecedor } from '@/data/administracaoMock'
 import { useAdminStore } from '@/store/useAdminStore'
+import { useAllProjects } from '@/store/useCatalogStore'
 
 interface Props {
   onClose: () => void
+  /** Entidade (projeto) pré-selecionada quando o cadastro é aberto de dentro de um projeto específico. */
+  defaultProjetoId?: string
 }
 
 const ROW2: CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }
 
-export default function NovoFornecedorModal({ onClose }: Props) {
+export default function NovoFornecedorModal({ onClose, defaultProjetoId }: Props) {
   const addFornecedor = useAdminStore((s) => s.addFornecedor)
+  const projetos = useAllProjects()
 
   const [empresa, setEmpresa] = useState('')
   const [tipo, setTipo] = useState<TipoFornecedor>(TIPOS_FORNECEDOR[0])
@@ -22,6 +26,7 @@ export default function NovoFornecedorModal({ onClose }: Props) {
   const [cidade, setCidade] = useState('')
   const [estado, setEstado] = useState('')
   const [comentarios, setComentarios] = useState('')
+  const [projetoId, setProjetoId] = useState(defaultProjetoId ?? '')
   const [error, setError] = useState('')
 
   function handleSubmit(e: FormEvent) {
@@ -41,6 +46,7 @@ export default function NovoFornecedorModal({ onClose }: Props) {
       cidade: cidade || undefined,
       estado: estado || undefined,
       comentarios: comentarios || undefined,
+      projetoId: projetoId || undefined,
     })
     onClose()
   }
@@ -95,6 +101,17 @@ export default function NovoFornecedorModal({ onClose }: Props) {
         <div className="frow">
           <label className="field-label">Endereço (opcional)</label>
           <input type="text" value={endereco} onChange={(e) => setEndereco(e.target.value)} placeholder="Rua, número, bairro" />
+        </div>
+        <div className="frow">
+          <label className="field-label">Entidade (projeto)</label>
+          <select value={projetoId} onChange={(e) => setProjetoId(e.target.value)}>
+            <option value="">Sem entidade (fornecedor global — disponível para todos os projetos)</option>
+            {projetos.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nome} — {p.cidade}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="frow">
           <label className="field-label">Comentários</label>

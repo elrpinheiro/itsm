@@ -43,6 +43,12 @@ export interface Perfil {
   descricao: string
   /** Perfil de fábrica do sistema (como o Super-Admin do GLPI) — matriz fica travada para leitura na UI. */
   builtIn?: boolean
+  /**
+   * Entidade (projeto) dona deste perfil — os 8 perfis de fábrica não têm (ficam disponíveis para
+   * todos os projetos, como no GLPI); um perfil customizado pode nascer restrito a um projeto, como
+   * se cada unidade tivesse sua própria camada de configuração de acesso.
+   */
+  projetoId?: string
   permissoes: PermissionMatrix
 }
 
@@ -394,6 +400,8 @@ export interface Fornecedor {
   cidade?: string
   estado?: string
   comentarios?: string
+  /** Entidade (projeto) — GLPI também trata fornecedor como um cadastro por entidade; sem entidade = fornecedor global, usado por qualquer projeto. */
+  projetoId?: string
 }
 
 export const FORNECEDORES: Fornecedor[] = [
@@ -428,6 +436,7 @@ export const FORNECEDORES: Fornecedor[] = [
     telefone: '(11) 4000-9012',
     cidade: 'Osasco',
     estado: 'SP',
+    projetoId: 'osasco-eu-tenho-futuro',
   },
   {
     id: 'forn-tecprint',
