@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import SectionSidebarLayout, { type SectionSidebarItem } from '@/components/layout/SectionSidebarLayout'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import { useAdminStore } from '@/store/useAdminStore'
 import { useModuleAccess } from '@/store/usePermissions'
@@ -17,11 +16,11 @@ import type { Usuario } from '@/data/administracaoMock'
 type Section = 'perfis' | 'usuarios' | 'grupos' | 'fornecedores'
 type OpenModal = 'usuario' | 'grupo' | 'fornecedor' | 'perfil' | null
 
-const ITEMS: SectionSidebarItem[] = [
-  { key: 'perfis', label: 'Perfis', icon: '🛡️' },
-  { key: 'usuarios', label: 'Usuários', icon: '👤' },
-  { key: 'grupos', label: 'Grupos', icon: '👥' },
-  { key: 'fornecedores', label: 'Fornecedores', icon: '🏢' },
+const TABS: { key: Section; label: string }[] = [
+  { key: 'perfis', label: 'Perfis' },
+  { key: 'usuarios', label: 'Usuários' },
+  { key: 'grupos', label: 'Grupos' },
+  { key: 'fornecedores', label: 'Fornecedores' },
 ]
 
 const PERFIS_COLUMNS: DataTableColumn[] = [
@@ -122,7 +121,15 @@ export default function AdministracaoModule() {
   }
 
   return (
-    <SectionSidebarLayout title="Administração" items={ITEMS} active={active} onSelect={(k) => setActive(k as Section)}>
+    <div className="mod-page" style={{ height: '100%' }}>
+      <div className="mod-page-tabs">
+        {TABS.map((t) => (
+          <span key={t.key} className={`chip${active === t.key ? ' on' : ''}`} onClick={() => setActive(t.key)}>
+            {t.label}
+          </span>
+        ))}
+      </div>
+      <div className="mod-page-body">
       <div className="mod-scroll-area">
         {active === 'perfis' && (
           <>
@@ -388,6 +395,7 @@ export default function AdministracaoModule() {
           </>
         )}
       </div>
+      </div>
 
       {openModal === 'usuario' && <UsuarioFormModal onClose={() => setOpenModal(null)} defaultProjetoId={currentProject?.id} />}
       {editingUsuario && <UsuarioFormModal usuario={editingUsuario} onClose={() => setEditingUsuario(null)} />}
@@ -404,6 +412,6 @@ export default function AdministracaoModule() {
           }}
         />
       )}
-    </SectionSidebarLayout>
+    </div>
   )
 }
