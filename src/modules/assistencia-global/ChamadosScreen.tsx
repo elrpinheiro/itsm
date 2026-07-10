@@ -1,7 +1,8 @@
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useModuleAccess } from '@/store/usePermissions'
-import { CHAMADOS, type Prioridade, type StatusChamado } from '@/data/chamados'
+import { useChamadosStore } from '@/store/useChamadosStore'
+import { type Prioridade, type StatusChamado } from '@/data/chamados'
 
 const COLUMNS: DataTableColumn[] = [
   { key: 'numero', label: 'Nº', width: '80px' },
@@ -23,12 +24,14 @@ const STATUS_CLASS: Record<StatusChamado, string> = {
   'Na fila': 'badge-amber',
   'Em atendimento': 'badge-blue',
   'Aguardando terceiro': '',
+  Fechado: 'badge-green',
 }
 
 export default function ChamadosScreen() {
   const user = useAuthStore((s) => s.user)
   const acesso = useModuleAccess('assistencia')
-  const chamados = CHAMADOS.filter((c) => acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email)
+  const todosChamados = useChamadosStore((s) => s.chamados)
+  const chamados = todosChamados.filter((c) => acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email)
 
   const naFila = chamados.filter((c) => c.status === 'Na fila').length
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento').length

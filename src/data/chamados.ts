@@ -1,5 +1,9 @@
+import type { ClassificationLabel } from './catalog'
+
 export type Prioridade = 'Baixa' | 'Média' | 'Alta' | 'Crítica'
-export type StatusChamado = 'Na fila' | 'Em atendimento' | 'Aguardando terceiro'
+export type StatusChamado = 'Na fila' | 'Em atendimento' | 'Aguardando terceiro' | 'Fechado'
+/** Canal de origem do atendimento — de onde veio o relato que virou este chamado. */
+export type OrigemAtendimento = 'Atendente' | '0800 (URA)' | 'WhatsApp'
 
 export interface Chamado {
   numero: string
@@ -8,8 +12,20 @@ export interface Chamado {
   prioridade: Prioridade
   status: StatusChamado
   abertoHa: string
-  /** E-mail de quem abriu o chamado — usado para filtrar "meus chamados" em perfis com visibilidade "próprios". */
+  /** E-mail de quem abriu o chamado (o requerente) — usado para filtrar "meus chamados" em perfis com visibilidade "próprios" e para montar o histórico do requerente. */
   solicitanteEmail?: string
+  /** Item do catálogo do projeto (ex.: "Notebook", "Internet") — sugerido pela IA a partir da descrição. */
+  categoria?: string
+  /** Requisição / Incidente / Problema / Habilitação de Mudanças — sugerido pela IA. */
+  tipoAtendimento?: ClassificationLabel
+  /** Grupo de atendimento (Administração → Grupos) escalado pela IA. */
+  grupoId?: string
+  origem?: OrigemAtendimento
+  descricao?: string
+  /** Preenchido quando o chamado é encerrado na hora ("Chamado solucionado? Sim"). */
+  acaoRealizada?: string
+  /** Números de chamados anteriores do mesmo requerente vinculados manualmente como associação (só para contabilizar recorrência). */
+  vinculados?: string[]
 }
 
 /** Fila de chamados mockada — exemplo de como a tela de Chamados fica quando populada. */
@@ -30,5 +46,38 @@ export const CHAMADOS: Chamado[] = [
     status: 'Na fila',
     abertoHa: '1h',
     solicitanteEmail: 'isadora.pinheiro@vitaebrasil.com.br',
+    categoria: 'Dúvidas/sugestões/elogios ou reclamações',
+    tipoAtendimento: 'Requisição',
+    grupoId: 'grp-central-atendimento',
+  },
+  {
+    numero: '#10201',
+    projetoNome: 'Infância Conectada — Serra Negra',
+    assunto: 'Notebook não ligava mais',
+    prioridade: 'Alta',
+    status: 'Fechado',
+    abertoHa: '32 dias',
+    solicitanteEmail: 'isadora.pinheiro@vitaebrasil.com.br',
+    categoria: 'Notebook',
+    tipoAtendimento: 'Incidente',
+    grupoId: 'grp-n2',
+    origem: 'Atendente',
+    descricao: 'Notebook não ligava mais — bateria não carregava.',
+    acaoRealizada: 'Troca de bateria realizada em bancada.',
+  },
+  {
+    numero: '#10214',
+    projetoNome: 'Infância Conectada — Serra Negra',
+    assunto: 'Notebook com tela travando',
+    prioridade: 'Alta',
+    status: 'Fechado',
+    abertoHa: '18 dias',
+    solicitanteEmail: 'isadora.pinheiro@vitaebrasil.com.br',
+    categoria: 'Notebook',
+    tipoAtendimento: 'Incidente',
+    grupoId: 'grp-n2',
+    origem: 'WhatsApp',
+    descricao: 'Notebook travando e reiniciando sozinho durante o uso.',
+    acaoRealizada: 'Reinstalação do sistema e atualização de drivers.',
   },
 ]

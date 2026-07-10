@@ -2087,3 +2087,223 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Novo chamado (fluxo assistido por IA) ===== */
+.modal-card-wide {
+  max-width: 720px;
+}
+.nc-req-search {
+  position: relative;
+}
+.nc-req-results {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+.nc-req-result {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--fundo);
+}
+.nc-req-result:last-child {
+  border-bottom: none;
+}
+.nc-req-result:hover {
+  background: var(--tema-pale);
+}
+.nc-req-result .sub {
+  font-size: 11px;
+  color: var(--texto-sec);
+}
+.nc-req-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.nc-req-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--tema-pale);
+  color: var(--tema);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.nc-req-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px 14px;
+  flex: 1;
+  min-width: 0;
+}
+.nc-req-grid .lbl {
+  font-size: 10.5px;
+  color: var(--texto-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+.nc-req-grid .val {
+  font-size: 12.5px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nc-origin-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.nc-origin-opt {
+  border: 1.5px solid var(--borda);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  background: #fff;
+  font-size: 12px;
+  text-align: left;
+}
+.nc-origin-opt .t {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nc-origin-opt .d {
+  font-size: 10.5px;
+  color: var(--texto-sec);
+  margin-top: 2px;
+}
+.nc-origin-opt.on {
+  border-color: var(--tema);
+  background: var(--tema-pale);
+}
+.nc-status-bar {
+  display: flex;
+  gap: 8px;
+}
+.nc-status-chip {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--borda);
+  background: var(--fundo);
+}
+.nc-status-chip b {
+  font-variant-numeric: tabular-nums;
+}
+.nc-hist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--fundo);
+  font-size: 12px;
+}
+.nc-hist-row:last-child {
+  border-bottom: none;
+}
+.nc-hist-row input[type='checkbox'] {
+  width: auto;
+  flex-shrink: 0;
+}
+.nc-hist-num {
+  font-family: Consolas, monospace;
+  color: var(--texto-sec);
+  width: 54px;
+  flex-shrink: 0;
+}
+.nc-hist-title {
+  flex: 1;
+}
+.nc-insight {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fdf3e0;
+  border: 1px solid #f0d698;
+  font-size: 12px;
+  color: #7a5a10;
+  line-height: 1.5;
+}
+.nc-classif-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.nc-classif-cell {
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 9px 11px;
+}
+.nc-classif-cell .lbl {
+  font-size: 10.5px;
+  color: var(--texto-sec);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.nc-ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tema);
+  background: var(--tema-pale);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+.nc-decision {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.nc-decision .opt {
+  border: 1.5px solid var(--borda);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+}
+.nc-decision .opt.chosen.yes {
+  border-color: var(--verde);
+  background: #eef7ea;
+}
+.nc-decision .opt.chosen.no {
+  border-color: #d99a2b;
+  background: #fdf3e0;
+}
+.nc-decision .opt .t {
+  font-weight: 700;
+  font-size: 13px;
+}
+.nc-decision .opt .d {
+  font-size: 11px;
+  color: var(--texto-sec);
+  margin-top: 3px;
+}

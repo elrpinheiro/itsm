@@ -4,8 +4,10 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useModuleAccess } from '@/store/usePermissions'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import FormulariosCatalogo from '@/components/common/FormulariosCatalogo'
-import { CHAMADOS, type Prioridade, type StatusChamado } from '@/data/chamados'
+import { useChamadosStore } from '@/store/useChamadosStore'
+import { type Prioridade, type StatusChamado } from '@/data/chamados'
 import { PROJECT_CATALOGS } from '@/data/catalog'
+import NovoChamadoModal from './NovoChamadoModal'
 
 type Tab = 'chamados' | 'formularios'
 
@@ -28,18 +30,21 @@ const STATUS_CLASS: Record<StatusChamado, string> = {
   'Na fila': 'badge-amber',
   'Em atendimento': 'badge-blue',
   'Aguardando terceiro': '',
+  Fechado: 'badge-green',
 }
 
 export default function AssistenciaModule() {
   const project = useProjectStore((s) => s.selectedProject)
   const user = useAuthStore((s) => s.user)
   const acesso = useModuleAccess('assistencia')
+  const todosChamados = useChamadosStore((s) => s.chamados)
   const [tab, setTab] = useState<Tab>('chamados')
+  const [novoChamadoAberto, setNovoChamadoAberto] = useState(false)
 
   if (!project) return null
 
   const projetoLabel = `${project.nome} — ${project.cidade}`
-  const chamados = CHAMADOS.filter(
+  const chamados = todosChamados.filter(
     (c) => c.projetoNome === projetoLabel && (acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email),
   )
   const catalog = PROJECT_CATALOGS[project.id]
@@ -80,8 +85,15 @@ export default function AssistenciaModule() {
       <div className="mod-page-body">
         {tab === 'chamados' || !acesso.criar ? (
           <div className="mod-scroll-area">
-            <div className="mod-section-title">
-              {acesso.ver === 'proprios' ? 'Meus chamados' : 'Chamados'} — {project.nome}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
+              <div className="mod-section-title" style={{ marginBottom: 0 }}>
+                {acesso.ver === 'proprios' ? 'Meus chamados' : 'Chamados'} — {project.nome}
+              </div>
+              {acesso.criar && (
+                <button className="btn btn-primary" style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }} onClick={() => setNovoChamadoAberto(true)}>
+                  + Novo chamado
+                </button>
+              )}
             </div>
             <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum chamado na fila para este projeto." />
           </div>
@@ -92,6 +104,8 @@ export default function AssistenciaModule() {
           </div>
         )}
       </div>
+
+      {novoChamadoAberto && <NovoChamadoModal project={project} onClose={() => setNovoChamadoAberto(false)} />}
     </div>
   )
 }

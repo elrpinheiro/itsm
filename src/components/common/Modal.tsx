@@ -4,9 +4,11 @@ interface Props {
   title: string
   onClose: () => void
   children: ReactNode
+  /** Modal mais largo (760px) — para formulários com colunas/grades que não cabem nos 420px padrão. */
+  wide?: boolean
 }
 
-export default function Modal({ title, onClose, children }: Props) {
+export default function Modal({ title, onClose, children, wide }: Props) {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -17,7 +19,7 @@ export default function Modal({ title, onClose, children }: Props) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className={`modal-card${wide ? ' modal-card-wide' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <div className="modal-title">{title}</div>
           <button className="modal-close" onClick={onClose} title="Fechar" type="button">
