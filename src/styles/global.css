@@ -1811,10 +1811,49 @@ textarea {
 .data-table tbody tr:hover {
   background: var(--fundo);
 }
+.data-table tbody tr.clickable {
+  cursor: pointer;
+}
+.data-table tbody tr.selected {
+  background: var(--tema-pale);
+}
+.data-table tbody tr.selected:hover {
+  background: var(--tema-pale);
+}
 .data-table-empty {
   text-align: center;
   color: var(--texto-sec);
   padding: 30px 14px !important;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+.perm-matrix {
+  margin-top: 16px;
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 16px;
+}
+.perm-matrix-locked {
+  font-size: 12px;
+  color: var(--texto-sec);
+  background: var(--fundo);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+.perm-table select {
+  font-size: 12px;
+  padding: 4px 7px;
+}
+.perm-table input[type='checkbox'] {
+  width: auto;
+  cursor: pointer;
+}
+.perm-table td,
+.perm-table th {
+  white-space: nowrap;
 }
 
 .mod-catalog-head {

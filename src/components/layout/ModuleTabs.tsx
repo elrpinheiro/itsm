@@ -1,15 +1,18 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { MODULES } from '@/modules/registry'
 import { TEMPLATES } from '@/data/templates'
+import { usePermissionMatrix, canSeeNavModule } from '@/store/usePermissions'
 
 export default function ModuleTabs() {
   const location = useLocation()
   const navigate = useNavigate()
   const totalTemplates = TEMPLATES.length
+  const permissionMatrix = usePermissionMatrix()
+  const visibleModules = MODULES.filter((mod) => canSeeNavModule(permissionMatrix, mod.path))
 
   return (
     <div className="hdr-modbar">
-      {MODULES.map((mod) => {
+      {visibleModules.map((mod) => {
         const active = location.pathname.startsWith(`/app/${mod.path}`)
         return (
           <div

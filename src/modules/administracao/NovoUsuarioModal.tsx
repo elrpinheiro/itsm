@@ -1,30 +1,32 @@
 import { useState, type FormEvent } from 'react'
 import Modal from '@/components/common/Modal'
-import { PERFIS, type OrigemUsuario, type Usuario } from '@/data/administracaoMock'
+import { type OrigemUsuario } from '@/data/administracaoMock'
+import { useAdminStore } from '@/store/useAdminStore'
 
 interface Props {
   onClose: () => void
-  onCreate: (usuario: Usuario) => void
 }
 
-export default function NovoUsuarioModal({ onClose, onCreate }: Props) {
+export default function NovoUsuarioModal({ onClose }: Props) {
+  const perfis = useAdminStore((s) => s.perfis)
+  const addUsuario = useAdminStore((s) => s.addUsuario)
+
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
-  const [perfil, setPerfil] = useState(PERFIS[0]?.nome ?? '')
-  const [origem, setOrigem] = useState<OrigemUsuario>('LDAP')
+  const [login, setLogin] = useState('')
+  const [senha, setSenha] = useState('')
+  const [perfilId, setPerfilId] = useState(perfis[0]?.id ?? '')
+  const [origem, setOrigem] = useState<OrigemUsuario>('Local')
   const [error, setError] = useState('')
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!nome.trim()) {
-      setError('Informe o nome do usuário.')
-      return
-    }
-    if (!email.trim()) {
-      setError('Informe o e-mail do usuário.')
-      return
-    }
-    onCreate({ nome: nome.trim(), email: email.trim(), perfil, origem, status: 'Ativo' })
+    if (!nome.trim()) return setError('Informe o nome do usuário.')
+    if (!email.trim()) return setError('Informe o e-mail do usuário.')
+    if (!login.trim()) return setError('Informe o login do usuário.')
+    if (!senha.trim()) return setError('Informe a senha do usuário.')
+    addUsuario({ nome, email, login, senha, perfilId, origem })
+    onClose()
   }
 
   return (
@@ -44,10 +46,18 @@ export default function NovoUsuarioModal({ onClose, onCreate }: Props) {
           />
         </div>
         <div className="frow">
+          <label className="field-label">Login</label>
+          <input type="text" value={login} onChange={(e) => setLogin(e.target.value)} placeholder="Ex.: ana.ferreira" />
+        </div>
+        <div className="frow">
+          <label className="field-label">Senha</label>
+          <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="••••••••" />
+        </div>
+        <div className="frow">
           <label className="field-label">Perfil</label>
-          <select value={perfil} onChange={(e) => setPerfil(e.target.value)}>
-            {PERFIS.map((p) => (
-              <option key={p.nome} value={p.nome}>
+          <select value={perfilId} onChange={(e) => setPerfilId(e.target.value)}>
+            {perfis.map((p) => (
+              <option key={p.id} value={p.id}>
                 {p.nome}
               </option>
             ))}

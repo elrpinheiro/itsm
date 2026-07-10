@@ -1,4 +1,6 @@
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useModuleAccess } from '@/store/usePermissions'
 import { CHAMADOS, type Prioridade, type StatusChamado } from '@/data/chamados'
 
 const COLUMNS: DataTableColumn[] = [
@@ -24,10 +26,14 @@ const STATUS_CLASS: Record<StatusChamado, string> = {
 }
 
 export default function ChamadosScreen() {
-  const naFila = CHAMADOS.filter((c) => c.status === 'Na fila').length
-  const emAtendimento = CHAMADOS.filter((c) => c.status === 'Em atendimento').length
+  const user = useAuthStore((s) => s.user)
+  const acesso = useModuleAccess('assistencia')
+  const chamados = CHAMADOS.filter((c) => acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email)
 
-  const rows = CHAMADOS.map((c) => ({
+  const naFila = chamados.filter((c) => c.status === 'Na fila').length
+  const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento').length
+
+  const rows = chamados.map((c) => ({
     numero: <b>{c.numero}</b>,
     projeto: c.projetoNome,
     assunto: c.assunto,
@@ -51,7 +57,7 @@ export default function ChamadosScreen() {
     <div className="mod-scroll-area">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
         <div className="mod-section-title" style={{ marginBottom: 0 }}>
-          Fila de chamados
+          {acesso.ver === 'proprios' ? 'Meus chamados' : 'Fila de chamados'}
         </div>
         <span className="badge badge-amber">{naFila} na fila</span>
         <span className="badge badge-blue">{emAtendimento} em atendimento</span>

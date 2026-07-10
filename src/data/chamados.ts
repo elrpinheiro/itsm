@@ -8,6 +8,8 @@ export interface Chamado {
   prioridade: Prioridade
   status: StatusChamado
   abertoHa: string
+  /** E-mail de quem abriu o chamado — usado para filtrar "meus chamados" em perfis com visibilidade "próprios". */
+  solicitanteEmail?: string
 }
 
 /** Fila de chamados mockada — exemplo de como a tela de Chamados fica quando populada. */
@@ -20,4 +22,13 @@ export const CHAMADOS: Chamado[] = [
   { numero: '#10236', projetoNome: 'Aedifica — São Paulo', assunto: 'Monitor com tela piscando', prioridade: 'Média', status: 'Aguardando terceiro', abertoHa: '48h' },
   { numero: '#10237', projetoNome: 'EducaTaboão — Taboão da Serra', assunto: 'Chamado de manutenção preventiva mensal', prioridade: 'Baixa', status: 'Na fila', abertoHa: '2h' },
   { numero: '#10238', projetoNome: 'Escola do Futuro — Porto Feliz', assunto: 'Roteador reiniciando sozinho', prioridade: 'Alta', status: 'Na fila', abertoHa: '9h' },
+  {
+    numero: '#10239',
+    projetoNome: 'Infância Conectada — Serra Negra',
+    assunto: 'Solicitação de acesso ao sistema educacional',
+    prioridade: 'Baixa',
+    status: 'Na fila',
+    abertoHa: '1h',
+    solicitanteEmail: 'isadora.pinheiro@vitaebrasil.com.br',
+  },
 ]

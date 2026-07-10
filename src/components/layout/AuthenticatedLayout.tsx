@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useProjectTheme } from '@/store/useCatalogStore'
+import { usePermissionMatrix, canSeeNavModule } from '@/store/usePermissions'
 import OperationPanel from './OperationPanel'
 import { VtcallPlaceholder, MktzapPlaceholder } from './operationPlaceholders'
 import vtcallLogo from '@/assets/logos/vtcall.png'
@@ -68,6 +69,8 @@ export default function AuthenticatedLayout() {
   const dragRef = useRef<DragMode | null>(null)
 
   const theme = useProjectTheme(project?.brandId ?? 'planneta')
+  const permissionMatrix = usePermissionMatrix()
+  const visibleNavModules = NAV_MODULES.filter((m) => canSeeNavModule(permissionMatrix, m.path))
   const themeVars = {
     '--tema-escuro': theme.escuro,
     '--tema': theme.medio,
@@ -192,7 +195,7 @@ export default function AuthenticatedLayout() {
 
         {!insideApp && (
           <nav className="hdr-nav">
-            {NAV_MODULES.map((m) => (
+            {visibleNavModules.map((m) => (
               <button
                 key={m.path}
                 className={`hdr-nav-btn${location.pathname.startsWith(m.path) ? ' on' : ''}`}

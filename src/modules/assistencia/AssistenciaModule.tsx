@@ -1,16 +1,13 @@
 import { useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useModuleAccess } from '@/store/usePermissions'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import FormulariosCatalogo from '@/components/common/FormulariosCatalogo'
 import { CHAMADOS, type Prioridade, type StatusChamado } from '@/data/chamados'
 import { PROJECT_CATALOGS } from '@/data/catalog'
 
 type Tab = 'chamados' | 'formularios'
-
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'chamados', label: 'Chamados' },
-  { key: 'formularios', label: 'Formulários' },
-]
 
 const COLUMNS: DataTableColumn[] = [
   { key: 'numero', label: 'Nº', width: '80px' },
@@ -35,12 +32,16 @@ const STATUS_CLASS: Record<StatusChamado, string> = {
 
 export default function AssistenciaModule() {
   const project = useProjectStore((s) => s.selectedProject)
+  const user = useAuthStore((s) => s.user)
+  const acesso = useModuleAccess('assistencia')
   const [tab, setTab] = useState<Tab>('chamados')
 
   if (!project) return null
 
   const projetoLabel = `${project.nome} — ${project.cidade}`
-  const chamados = CHAMADOS.filter((c) => c.projetoNome === projetoLabel)
+  const chamados = CHAMADOS.filter(
+    (c) => c.projetoNome === projetoLabel && (acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email),
+  )
   const catalog = PROJECT_CATALOGS[project.id]
 
   const rows = chamados.map((c) => ({
@@ -62,19 +63,26 @@ export default function AssistenciaModule() {
     abertoHa: c.abertoHa,
   }))
 
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'chamados', label: acesso.ver === 'proprios' ? 'Meus chamados' : 'Chamados' },
+    ...(acesso.criar ? [{ key: 'formularios' as const, label: 'Formulários' }] : []),
+  ]
+
   return (
     <div className="mod-page" style={{ height: '100%' }}>
       <div className="mod-page-tabs">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <span key={t.key} className={`chip${tab === t.key ? ' on' : ''}`} onClick={() => setTab(t.key)}>
             {t.label}
           </span>
         ))}
       </div>
       <div className="mod-page-body">
-        {tab === 'chamados' ? (
+        {tab === 'chamados' || !acesso.criar ? (
           <div className="mod-scroll-area">
-            <div className="mod-section-title">Chamados — {project.nome}</div>
+            <div className="mod-section-title">
+              {acesso.ver === 'proprios' ? 'Meus chamados' : 'Chamados'} — {project.nome}
+            </div>
             <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum chamado na fila para este projeto." />
           </div>
         ) : (

@@ -10,9 +10,11 @@ interface Props {
   columns: DataTableColumn[]
   rows: Record<string, ReactNode>[]
   emptyText?: string
+  onRowClick?: (index: number) => void
+  selectedIndex?: number
 }
 
-export default function DataTable({ columns, rows, emptyText }: Props) {
+export default function DataTable({ columns, rows, emptyText, onRowClick, selectedIndex }: Props) {
   return (
     <div className="data-table-wrap">
       <table className="data-table">
@@ -34,7 +36,11 @@ export default function DataTable({ columns, rows, emptyText }: Props) {
             </tr>
           ) : (
             rows.map((row, i) => (
-              <tr key={i}>
+              <tr
+                key={i}
+                className={`${onRowClick ? 'clickable' : ''}${selectedIndex === i ? ' selected' : ''}`}
+                onClick={onRowClick ? () => onRowClick(i) : undefined}
+              >
                 {columns.map((c) => (
                   <td key={c.key}>{row[c.key]}</td>
                 ))}
