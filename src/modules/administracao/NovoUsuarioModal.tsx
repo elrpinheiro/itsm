@@ -6,11 +6,13 @@ import { useAllProjects } from '@/store/useCatalogStore'
 
 interface Props {
   onClose: () => void
+  /** Entidade (projeto) pré-selecionada quando o cadastro é aberto de dentro de um projeto específico. */
+  defaultProjetoId?: string
 }
 
 const ROW2: CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }
 
-export default function NovoUsuarioModal({ onClose }: Props) {
+export default function NovoUsuarioModal({ onClose, defaultProjetoId }: Props) {
   const perfis = useAdminStore((s) => s.perfis)
   const grupos = useAdminStore((s) => s.grupos)
   const usuarios = useAdminStore((s) => s.usuarios)
@@ -28,7 +30,7 @@ export default function NovoUsuarioModal({ onClose }: Props) {
   const [perfilId, setPerfilId] = useState(perfis[0]?.id ?? '')
   const [origem, setOrigem] = useState<OrigemUsuario>('Local')
   const [categoria, setCategoria] = useState<CategoriaUsuario | ''>('')
-  const [projetoId, setProjetoId] = useState('')
+  const [projetoId, setProjetoId] = useState(defaultProjetoId ?? '')
   const [grupoId, setGrupoId] = useState('')
   const [supervisorId, setSupervisorId] = useState('')
   const [comentarios, setComentarios] = useState('')
@@ -129,9 +131,9 @@ export default function NovoUsuarioModal({ onClose }: Props) {
         </div>
         <div style={ROW2}>
           <div className="frow">
-            <label className="field-label">Localização (unidade/projeto)</label>
+            <label className="field-label">Entidade (projeto)</label>
             <select value={projetoId} onChange={(e) => setProjetoId(e.target.value)}>
-              <option value="">Sem localização (matriz)</option>
+              <option value="">Sem entidade (matriz)</option>
               {projetos.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nome} — {p.cidade}

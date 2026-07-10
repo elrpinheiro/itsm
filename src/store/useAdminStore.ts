@@ -77,15 +77,35 @@ export interface AddFornecedorInput {
   comentarios?: string
 }
 
+export interface AddPerfilInput {
+  nome: string
+  descricao: string
+}
+
+export type AdminActionResult = { ok: true } | { ok: false; error: string }
+
 interface AdminState {
   perfis: Perfil[]
   usuarios: Usuario[]
   grupos: Grupo[]
   fornecedores: Fornecedor[]
   addUsuario: (input: AddUsuarioInput) => void
+  toggleUsuarioStatus: (id: string) => void
+  removeUsuario: (id: string) => AdminActionResult
   addGrupo: (input: AddGrupoInput) => void
   addFornecedor: (input: AddFornecedorInput) => void
+  addPerfil: (input: AddPerfilInput) => string
+  removePerfil: (id: string) => AdminActionResult
   updatePermissao: (perfilId: string, matriz: PermissionMatrix) => void
+}
+
+const PERMISSAO_EM_BRANCO: PermissionMatrix = {
+  assistencia: { ver: 'nenhum', criar: false, editar: false },
+  documentos: { ver: 'nenhum', criar: false, editar: false },
+  baseConhecimento: { ver: 'nenhum', criar: false, editar: false },
+  assinatura: { ver: 'nenhum', criar: false, editar: false },
+  administracao: { ver: 'nenhum', criar: false, editar: false },
+  ativos: { ver: 'nenhum', criar: false, editar: false },
 }
 
 /**
@@ -125,6 +145,15 @@ export const useAdminStore = create<AdminState>()(
         }
         set((s) => ({ usuarios: [...s.usuarios, usuario] }))
       },
+      toggleUsuarioStatus: (id) => {
+        set((s) => ({
+          usuarios: s.usuarios.map((u) => (u.id === id ? { ...u, status: u.status === 'Ativo' ? 'Inativo' : 'Ativo' } : u)),
+        }))
+      },
+      removeUsuario: (id) => {
+        set((s) => ({ usuarios: s.usuarios.filter((u) => u.id !== id) }))
+        return { ok: true }
+      },
       addGrupo: (input) => {
         const taken = new Set(get().grupos.map((g) => g.id))
         const id = uniqueId(`grp-${slugify(input.nome)}`, taken)
@@ -149,12 +178,33 @@ export const useAdminStore = create<AdminState>()(
         }
         set((s) => ({ fornecedores: [...s.fornecedores, fornecedor] }))
       },
+      addPerfil: (input) => {
+        const taken = new Set(get().perfis.map((p) => p.id))
+        const id = uniqueId(slugify(input.nome), taken)
+        const perfil: Perfil = {
+          id,
+          nome: input.nome.trim(),
+          descricao: input.descricao.trim(),
+          permissoes: PERMISSAO_EM_BRANCO,
+        }
+        set((s) => ({ perfis: [...s.perfis, perfil] }))
+        return id
+      },
+      removePerfil: (id) => {
+        const perfil = get().perfis.find((p) => p.id === id)
+        if (!perfil) return { ok: false, error: 'Perfil não encontrado.' }
+        if (perfil.builtIn) return { ok: false, error: 'Perfis de fábrica não podem ser excluídos.' }
+        const emUso = get().usuarios.some((u) => u.perfilId === id)
+        if (emUso) return { ok: false, error: 'Existem usuários com este perfil — troque o perfil deles antes de excluir.' }
+        set((s) => ({ perfis: s.perfis.filter((p) => p.id !== id) }))
+        return { ok: true }
+      },
       updatePermissao: (perfilId, matriz) => {
         set((s) => ({
           perfis: s.perfis.map((p) => (p.id === perfilId && !p.builtIn ? { ...p, permissoes: matriz } : p)),
         }))
       },
     }),
-    { name: 'itsm-admin-v2' },
+    { name: 'itsm-admin-v3' },
   ),
 )
