@@ -1,5 +1,5 @@
 import type { CatalogItem, ClassificationLabel } from './catalog'
-import type { Prioridade } from './chamados'
+import type { Chamado, Prioridade } from './chamados'
 
 const COMBINING_DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g')
 
@@ -89,4 +89,36 @@ export function reformularDescricao(textoBruto: string): string {
   t = t.charAt(0).toUpperCase() + t.slice(1)
   if (!/[.!?]$/.test(t)) t += '.'
   return t
+}
+
+const PALAVRAS_IRRELEVANTES = new Set([
+  'para', 'com', 'que', 'nao', 'mais', 'muito', 'esta', 'esta', 'ainda', 'depois', 'antes',
+  'sobre', 'onde', 'quando', 'porque', 'porem', 'apos', 'sendo', 'sido', 'ser', 'ter', 'houve',
+])
+
+function palavrasRelevantes(texto: string): string[] {
+  return normalizar(texto)
+    .split(/[^a-z0-9]+/)
+    .filter((p) => p.length > 3 && !PALAVRAS_IRRELEVANTES.has(p))
+}
+
+/**
+ * Cruza a descrição sendo digitada com o histórico do requerente e aponta chamados anteriores que
+ * parecem falar do mesmo problema — por sobreposição de palavras relevantes entre as duas descrições
+ * (mesma heurística determinística por palavra-chave usada em classificarAtendimento, não um embedding
+ * semântico real). Serve como "base de consulta": o atendente pode abrir o chamado apontado e ver como
+ * o caso foi resolvido da última vez.
+ */
+export function encontrarChamadosSimilares(descricaoAtual: string, historico: Chamado[]): Set<string> {
+  const palavrasAtuais = new Set(palavrasRelevantes(descricaoAtual))
+  const relacionados = new Set<string>()
+  if (!palavrasAtuais.size) return relacionados
+
+  for (const chamado of historico) {
+    const palavrasChamado = palavrasRelevantes(`${chamado.assunto} ${chamado.descricao ?? ''}`)
+    if (palavrasChamado.some((p) => palavrasAtuais.has(p))) {
+      relacionados.add(chamado.numero)
+    }
+  }
+  return relacionados
 }
