@@ -3,6 +3,7 @@ import { useAdminStore } from '@/store/useAdminStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useAllProjects } from '@/store/useCatalogStore'
+import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { classificarAtendimento, encontrarChamadosSimilares, reformularDescricao } from '@/data/classificarChamado'
 import { PROJECT_CATALOGS, type ClassificationLabel } from '@/data/catalog'
 import type { OrigemAtendimento, Prioridade, StatusChamado } from '@/data/chamados'
@@ -33,7 +34,6 @@ const STATUS_BUCKET: Record<StatusChamado, 'andamento' | 'pendente' | 'fechado'>
 }
 
 const OUTROS_CATEGORIA = [{ icon: '📋', label: 'Outros' }]
-const PRIORIDADES: Prioridade[] = ['Baixa', 'Média', 'Alta', 'Crítica']
 const TIPOS: ClassificationLabel[] = ['Requisição', 'Incidente', 'Problema', 'Habilitação de Mudanças']
 
 function iniciais(nome: string): string {
@@ -54,6 +54,8 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const chamados = useChamadosStore((s) => s.chamados)
   const addChamado = useChamadosStore((s) => s.addChamado)
   const projetos = useAllProjects()
+  const prioridadeEntries = useDropdownEntries('prioridade').filter((e) => e.ativo)
+  const origemLabels = Object.fromEntries(useDropdownEntries('origem').map((e) => [e.chave, e.label]))
 
   const [busca, setBusca] = useState('')
   const [requerenteId, setRequerenteId] = useState<string | null>(null)
@@ -296,7 +298,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
                 >
                   <div className="t">
                     <span>{o.icon}</span>
-                    {o.key}
+                    {origemLabels[o.key] ?? o.key}
                   </div>
                   <div className="d">{o.desc}</div>
                 </button>
@@ -603,9 +605,9 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
               <div className="lbl">Prioridade</div>
               <select value={prioridade} onChange={(e) => setPrioridade(e.target.value as Prioridade)}>
                 <option value="">Selecione…</option>
-                {PRIORIDADES.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
+                {prioridadeEntries.map((p) => (
+                  <option key={p.chave} value={p.chave}>
+                    {p.label}
                   </option>
                 ))}
               </select>

@@ -1839,17 +1839,6 @@ textarea {
   color: var(--texto-sec);
   padding: 30px 14px !important;
 }
-/* Faixa lateral por prioridade — mesmas cores dos badges, para leitura rápida da fila. */
-.data-table tbody tr.row-prio-critica td:first-child {
-  box-shadow: inset 3px 0 0 #a30000;
-}
-.data-table tbody tr.row-prio-alta td:first-child,
-.data-table tbody tr.row-prio-media td:first-child {
-  box-shadow: inset 3px 0 0 #633806;
-}
-.data-table tbody tr.row-prio-baixa td:first-child {
-  box-shadow: inset 3px 0 0 #0c447c;
-}
 .table-scroll {
   overflow-x: auto;
 }

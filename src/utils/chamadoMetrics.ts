@@ -1,14 +1,5 @@
 import type { Chamado, Prioridade } from '@/data/chamados'
 
-/** Prazo-alvo de SLA por prioridade, em horas — política padrão assumida (ajustável por cliente); o
- * sistema ainda não tem um cadastro de SLA por contrato, então isso serve de referência para o MVP. */
-export const SLA_TARGET_HORAS: Record<Prioridade, number> = {
-  Crítica: 4,
-  Alta: 8,
-  Média: 24,
-  Baixa: 72,
-}
-
 /** Converte o texto livre de "abertoHa" (ex.: "26h", "18 dias", "agora mesmo") em horas decorridas. */
 export function parseAbertoHaEmHoras(abertoHa: string): number {
   const dias = abertoHa.match(/(\d+)\s*dia/i)
@@ -24,11 +15,12 @@ export interface SlaResumo {
   total: number
 }
 
-/** % de chamados dentro do prazo-alvo da própria prioridade (SLA_TARGET_HORAS), considerando o tempo
- * decorrido em "abertoHa" — para chamados fechados isso é uma aproximação do tempo até a resolução. */
-export function calcularSla(chamados: Chamado[]): SlaResumo {
+/** % de chamados dentro do prazo-alvo (TTR) da própria prioridade, considerando o tempo decorrido em
+ * "abertoHa" — para chamados fechados isso é uma aproximação do tempo até a resolução. O prazo-alvo
+ * (TTR) vem de Administração → Níveis de Serviço (useSlaStore), não é mais fixo no código. */
+export function calcularSla(chamados: Chamado[], ttrPorPrioridade: Record<Prioridade, number>): SlaResumo {
   if (chamados.length === 0) return { percentual: null, foraDoPrazo: 0, total: 0 }
-  const foraDoPrazo = chamados.filter((c) => parseAbertoHaEmHoras(c.abertoHa) > SLA_TARGET_HORAS[c.prioridade]).length
+  const foraDoPrazo = chamados.filter((c) => parseAbertoHaEmHoras(c.abertoHa) > ttrPorPrioridade[c.prioridade]).length
   return {
     percentual: Math.round(((chamados.length - foraDoPrazo) / chamados.length) * 100),
     foraDoPrazo,

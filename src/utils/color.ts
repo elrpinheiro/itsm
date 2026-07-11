@@ -75,3 +75,9 @@ export function brandBadgeStyle(brand: Brand): CSSProperties | undefined {
   const { pale, texto } = derivePalette(brand.cor)
   return { background: pale, color: texto }
 }
+
+/** Estilo inline para um badge a partir de uma cor só (ex.: prioridade/status configurados em
+ * Listas Suspensas) — fundo claro derivado da cor, texto na cor cheia. */
+export function badgeStyleFromColor(cor: string): CSSProperties {
+  return { background: derivePalette(cor).pale, color: cor }
+}

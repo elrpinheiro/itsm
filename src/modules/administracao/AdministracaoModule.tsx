@@ -11,9 +11,11 @@ import NovoGrupoModal from './NovoGrupoModal'
 import NovoFornecedorModal from './NovoFornecedorModal'
 import NovoPerfilModal from './NovoPerfilModal'
 import GrupoMembrosPanel from './GrupoMembrosPanel'
+import ListasSuspensasPanel from './ListasSuspensasPanel'
+import NiveisServicoPanel from './NiveisServicoPanel'
 import type { Usuario } from '@/data/administracaoMock'
 
-type Section = 'perfis' | 'usuarios' | 'grupos' | 'fornecedores'
+type Section = 'perfis' | 'usuarios' | 'grupos' | 'fornecedores' | 'listas-suspensas' | 'niveis-servico'
 type OpenModal = 'usuario' | 'grupo' | 'fornecedor' | 'perfil' | null
 
 const TABS: { key: Section; label: string }[] = [
@@ -21,6 +23,8 @@ const TABS: { key: Section; label: string }[] = [
   { key: 'usuarios', label: 'Usuários' },
   { key: 'grupos', label: 'Grupos' },
   { key: 'fornecedores', label: 'Fornecedores' },
+  { key: 'listas-suspensas', label: 'Listas Suspensas' },
+  { key: 'niveis-servico', label: 'Níveis de Serviço' },
 ]
 
 const PERFIS_COLUMNS: DataTableColumn[] = [
@@ -394,6 +398,9 @@ export default function AdministracaoModule() {
             </div>
           </>
         )}
+
+        {active === 'listas-suspensas' && <ListasSuspensasPanel canEdit={acessoAdmin.editar} />}
+        {active === 'niveis-servico' && <NiveisServicoPanel canEdit={acessoAdmin.editar} />}
       </div>
       </div>
 

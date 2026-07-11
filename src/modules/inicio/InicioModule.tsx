@@ -4,33 +4,14 @@ import { Inbox, Activity, AlertTriangle, CheckCircle2, Timer, Smile, Plus } from
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
+import { useDropdownEntries } from '@/store/useDropdownsStore'
+import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
+import { badgeStyleFromColor } from '@/utils/color'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
-import { SLA_TARGET_HORAS, calcularSla, calcularNps } from '@/utils/chamadoMetrics'
-import type { Prioridade, StatusChamado } from '@/data/chamados'
+import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
+import type { StatusChamado } from '@/data/chamados'
 
-const SLA_TITLE = `% de chamados dentro do prazo-alvo da prioridade (Crítica ${SLA_TARGET_HORAS.Crítica}h / Alta ${SLA_TARGET_HORAS.Alta}h / Média ${SLA_TARGET_HORAS.Média}h / Baixa ${SLA_TARGET_HORAS.Baixa}h — política padrão do MVP, ajustável por contrato).`
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento. Sem envio automático de pesquisa nesta versão.'
-
-const STATUS_COLOR: Record<StatusChamado, string> = {
-  'Na fila': '#854f0b',
-  'Em atendimento': '#185fa5',
-  'Aguardando terceiro': '#8b8f83',
-  Fechado: '#3b6d11',
-}
-
-const PRIORIDADE_CLASS: Record<Prioridade, string> = {
-  Baixa: 'badge-blue',
-  Média: 'badge-amber',
-  Alta: 'badge-amber',
-  Crítica: '',
-}
-
-const PRIORIDADE_STRIPE: Record<Prioridade, string> = {
-  Baixa: 'row-prio-baixa',
-  Média: 'row-prio-media',
-  Alta: 'row-prio-alta',
-  Crítica: 'row-prio-critica',
-}
 
 const COLUMNS: DataTableColumn[] = [
   { key: 'numero', label: 'Nº', width: '80px' },
@@ -54,8 +35,15 @@ export default function InicioModule() {
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento').length
   const fechados = chamados.filter((c) => c.status === 'Fechado').length
   const criticosAbertos = chamados.filter((c) => c.prioridade === 'Crítica' && c.status !== 'Fechado').length
-  const sla = useMemo(() => calcularSla(chamados), [chamados])
+  const ttrMap = useSlaTtrMap()
+  const slaEntries = useSlaEntries()
+  const sla = useMemo(() => calcularSla(chamados, ttrMap), [chamados, ttrMap])
   const nps = useMemo(() => calcularNps(chamados), [chamados])
+  const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
+  const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
+  const slaTitle = `% de chamados dentro do prazo-alvo (TTR) da prioridade (${slaEntries
+    .map((e) => `${prioridadeMap[e.prioridade]?.label ?? e.prioridade} ${e.ttr}h`)
+    .join(' / ')} — configurável em Administração → Níveis de Serviço).`
 
   const porCategoria = useMemo(() => {
     const contagem = new Map<string, number>()
@@ -78,11 +66,15 @@ export default function InicioModule() {
     numero: <b>{c.numero}</b>,
     assunto: c.assunto,
     prioridade: (
-      <span className={`badge ${PRIORIDADE_CLASS[c.prioridade]}`} style={c.prioridade === 'Crítica' ? { background: '#fdeaea', color: '#a30000' } : undefined}>
-        {c.prioridade}
+      <span className="badge" style={badgeStyleFromColor(prioridadeMap[c.prioridade]?.cor ?? '#5f5e5a')}>
+        {prioridadeMap[c.prioridade]?.label ?? c.prioridade}
       </span>
     ),
-    status: <span style={{ color: STATUS_COLOR[c.status], fontWeight: 600, fontSize: 12 }}>{c.status}</span>,
+    status: (
+      <span style={{ color: statusMap[c.status]?.cor ?? '#5f5e5a', fontWeight: 600, fontSize: 12 }}>
+        {statusMap[c.status]?.label ?? c.status}
+      </span>
+    ),
     abertoHa: c.abertoHa,
   }))
 
@@ -129,7 +121,7 @@ export default function InicioModule() {
               <div className="inicio-kpi-num">{fechados}</div>
               <div className="inicio-kpi-lbl">Fechados</div>
             </div>
-            <div className="inicio-kpi" title={SLA_TITLE}>
+            <div className="inicio-kpi" title={slaTitle}>
               <div className="inicio-kpi-ic neutral"><Timer size={16} /></div>
               <div className="inicio-kpi-num">{sla.percentual === null ? '—' : `${sla.percentual}%`}</div>
               <div className="inicio-kpi-lbl">SLA cumprido</div>
@@ -167,7 +159,7 @@ export default function InicioModule() {
                     <PieChart>
                       <Pie data={porStatus} dataKey="total" nameKey="status" innerRadius={38} outerRadius={56} paddingAngle={2}>
                         {porStatus.map((entry) => (
-                          <Cell key={entry.status} fill={STATUS_COLOR[entry.status]} stroke="none" />
+                          <Cell key={entry.status} fill={statusMap[entry.status]?.cor ?? '#5f5e5a'} stroke="none" />
                         ))}
                       </Pie>
                       <Tooltip formatter={(v, n) => [v, n]} />
@@ -176,8 +168,8 @@ export default function InicioModule() {
                   <div className="inicio-legend">
                     {porStatus.map((entry) => (
                       <div key={entry.status} className="inicio-legend-item">
-                        <span className="sw" style={{ background: STATUS_COLOR[entry.status] }} />
-                        {entry.status} <b>{entry.total}</b>
+                        <span className="sw" style={{ background: statusMap[entry.status]?.cor ?? '#5f5e5a' }} />
+                        {statusMap[entry.status]?.label ?? entry.status} <b>{entry.total}</b>
                       </div>
                     ))}
                   </div>
@@ -193,7 +185,7 @@ export default function InicioModule() {
             <DataTable
               columns={COLUMNS}
               rows={rows}
-              rowClassName={(i) => PRIORIDADE_STRIPE[recentes[i].prioridade]}
+              rowStripeColor={(i) => prioridadeMap[recentes[i].prioridade]?.cor}
               emptyText="Nenhum chamado registrado para esta unidade ainda."
             />
           </div>

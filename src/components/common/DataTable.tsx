@@ -12,11 +12,11 @@ interface Props {
   emptyText?: string
   onRowClick?: (index: number) => void
   selectedIndex?: number
-  /** Classe extra por linha (ex.: faixa lateral colorida por prioridade) — soma-se a clickable/selected. */
-  rowClassName?: (index: number) => string
+  /** Cor da faixa lateral esquerda por linha (ex.: cor da prioridade configurada em Listas Suspensas). */
+  rowStripeColor?: (index: number) => string | undefined
 }
 
-export default function DataTable({ columns, rows, emptyText, onRowClick, selectedIndex, rowClassName }: Props) {
+export default function DataTable({ columns, rows, emptyText, onRowClick, selectedIndex, rowStripeColor }: Props) {
   return (
     <div className="data-table-wrap">
       <table className="data-table">
@@ -37,17 +37,22 @@ export default function DataTable({ columns, rows, emptyText, onRowClick, select
               </td>
             </tr>
           ) : (
-            rows.map((row, i) => (
-              <tr
-                key={i}
-                className={`${onRowClick ? 'clickable' : ''}${selectedIndex === i ? ' selected' : ''}${rowClassName ? ` ${rowClassName(i)}` : ''}`}
-                onClick={onRowClick ? () => onRowClick(i) : undefined}
-              >
-                {columns.map((c) => (
-                  <td key={c.key}>{row[c.key]}</td>
-                ))}
-              </tr>
-            ))
+            rows.map((row, i) => {
+              const stripe = rowStripeColor?.(i)
+              return (
+                <tr
+                  key={i}
+                  className={`${onRowClick ? 'clickable' : ''}${selectedIndex === i ? ' selected' : ''}`}
+                  onClick={onRowClick ? () => onRowClick(i) : undefined}
+                >
+                  {columns.map((c, ci) => (
+                    <td key={c.key} style={ci === 0 && stripe ? { boxShadow: `inset 3px 0 0 ${stripe}` } : undefined}>
+                      {row[c.key]}
+                    </td>
+                  ))}
+                </tr>
+              )
+            })
           )}
         </tbody>
       </table>
