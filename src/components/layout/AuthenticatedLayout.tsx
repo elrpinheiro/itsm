@@ -154,7 +154,14 @@ export default function AuthenticatedLayout() {
   return (
     <div className="op-layout" style={themeVars} onPointerMove={onDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
       <div className="hdr-top op-topbar">
-        <div className="hdr-mark">V</div>
+        <button
+          type="button"
+          className="hdr-mark"
+          onClick={() => navigate(project ? '/app/inicio' : '/projects')}
+          title="Ir para o início"
+        >
+          V
+        </button>
 
         {project ? (
           <div className="hdr-project">

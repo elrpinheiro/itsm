@@ -753,6 +753,7 @@ textarea {
   width: 34px;
   height: 34px;
   background: #fff;
+  border: none;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -760,7 +761,16 @@ textarea {
   color: var(--tema-escuro);
   font-weight: 700;
   font-size: 14px;
+  font-family: inherit;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.hdr-mark:hover {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+.hdr-mark:active {
+  transform: scale(0.94);
 }
 .hdr-sub {
   color: rgba(255, 255, 255, 0.5);
