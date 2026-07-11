@@ -17,6 +17,10 @@ export interface AddChamadoInput {
   /** true = "Chamado solucionado? Sim" — fecha na hora com a ação como resolução. */
   resolvidoNaHora: boolean
   acaoRealizada?: string
+  linkedId?: string
+  gravacaoUrl?: string
+  protocoloWhatsapp?: string
+  ativosVinculados?: string[]
 }
 
 interface ChamadosState {
@@ -55,6 +59,10 @@ export const useChamadosStore = create<ChamadosState>()(
           descricao: input.descricao,
           acaoRealizada: input.acaoRealizada || undefined,
           vinculados: input.vinculados.length ? input.vinculados : undefined,
+          linkedId: input.linkedId || undefined,
+          gravacaoUrl: input.gravacaoUrl || undefined,
+          protocoloWhatsapp: input.protocoloWhatsapp || undefined,
+          ativosVinculados: input.ativosVinculados?.length ? input.ativosVinculados : undefined,
         }
         set((s) => ({ chamados: [...s.chamados, chamado] }))
         return numero

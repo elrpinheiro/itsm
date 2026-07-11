@@ -26,6 +26,14 @@ export interface Chamado {
   acaoRealizada?: string
   /** Números de chamados anteriores do mesmo requerente vinculados manualmente como associação (só para contabilizar recorrência). */
   vinculados?: string[]
+  /** Linkedid informado quando a origem é 0800 (URA) — identifica a ligação na central telefônica. */
+  linkedId?: string
+  /** Referência da gravação da ligação, localizada a partir do Linkedid e anexada ao acompanhamento do chamado (simulado). */
+  gravacaoUrl?: string
+  /** Protocolo informado quando a origem é WhatsApp — usado para importar a conversa para a descrição. */
+  protocoloWhatsapp?: string
+  /** Patrimônios (Ativos) vinculados a este chamado. */
+  ativosVinculados?: string[]
 }
 
 /** Fila de chamados mockada — exemplo de como a tela de Chamados fica quando populada. */

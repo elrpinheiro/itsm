@@ -6,6 +6,8 @@ import { useAllProjects } from '@/store/useCatalogStore'
 import { classificarAtendimento, encontrarChamadosSimilares, reformularDescricao } from '@/data/classificarChamado'
 import { PROJECT_CATALOGS, type ClassificationLabel } from '@/data/catalog'
 import type { OrigemAtendimento, Prioridade, StatusChamado } from '@/data/chamados'
+import { ATIVOS_VINCULAVEIS } from '@/data/ativosMock'
+import { buscarConversaWhatsApp, buscarGravacaoURA, type GravacaoURA } from '@/data/integracaoOrigem'
 import UsuarioFormModal from '../administracao/UsuarioFormModal'
 import type { Project } from '@/types'
 
@@ -56,6 +58,12 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const [requerenteId, setRequerenteId] = useState<string | null>(null)
   const [editandoRequerente, setEditandoRequerente] = useState(false)
   const [origem, setOrigem] = useState<OrigemAtendimento>('Atendente')
+  const [linkedId, setLinkedId] = useState('')
+  const [gravacao, setGravacao] = useState<GravacaoURA | null>(null)
+  const [protocoloWhatsapp, setProtocoloWhatsapp] = useState('')
+  const [conversaImportada, setConversaImportada] = useState(false)
+  const [buscaAtivo, setBuscaAtivo] = useState('')
+  const [ativosVinculados, setAtivosVinculados] = useState<string[]>([])
   const [vinculados, setVinculados] = useState<string[]>([])
   const [descricao, setDescricao] = useState('')
   const [acaoRealizada, setAcaoRealizada] = useState('')
@@ -100,8 +108,41 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   // mesma categoria), para servirem de base de consulta — o atendente vê ali mesmo como foi resolvido antes.
   const similares = useMemo(() => encontrarChamadosSimilares(descricao, historico), [descricao, historico])
 
+  const candidatosAtivos = useMemo(() => {
+    if (!buscaAtivo.trim()) return []
+    const q = buscaAtivo.trim().toLowerCase()
+    return ATIVOS_VINCULAVEIS.filter(
+      (a) =>
+        !ativosVinculados.includes(a.patrimonio) &&
+        (a.patrimonio.toLowerCase().includes(q) || a.label.toLowerCase().includes(q) || a.tipo.toLowerCase().includes(q)),
+    ).slice(0, 6)
+  }, [buscaAtivo, ativosVinculados])
+
   function toggleVinculo(numero: string) {
     setVinculados((prev) => (prev.includes(numero) ? prev.filter((n) => n !== numero) : [...prev, numero]))
+  }
+
+  function toggleAtivoVinculado(patrimonio: string) {
+    setAtivosVinculados((prev) => (prev.includes(patrimonio) ? prev.filter((p) => p !== patrimonio) : [...prev, patrimonio]))
+  }
+
+  function handleOrigemChange(nova: OrigemAtendimento) {
+    setOrigem(nova)
+    setLinkedId('')
+    setGravacao(null)
+    setProtocoloWhatsapp('')
+    setConversaImportada(false)
+  }
+
+  function handleBuscarGravacao() {
+    setGravacao(buscarGravacaoURA(linkedId))
+  }
+
+  function handleImportarConversa() {
+    const transcricao = buscarConversaWhatsApp(protocoloWhatsapp)
+    if (!transcricao) return
+    setConversaImportada(true)
+    aplicarIA(transcricao)
   }
 
   function aplicarIA(textoBase: string) {
@@ -144,6 +185,10 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
       vinculados,
       resolvidoNaHora: solucionado,
       acaoRealizada: solucionado ? acaoRealizada : undefined,
+      linkedId: origem === '0800 (URA)' ? linkedId.trim() || undefined : undefined,
+      gravacaoUrl: origem === '0800 (URA)' ? gravacao?.url : undefined,
+      protocoloWhatsapp: origem === 'WhatsApp' ? protocoloWhatsapp.trim() || undefined : undefined,
+      ativosVinculados,
     })
     onClose()
   }
@@ -228,7 +273,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
                   key={o.key}
                   type="button"
                   className={`nc-origin-opt${origem === o.key ? ' on' : ''}`}
-                  onClick={() => setOrigem(o.key)}
+                  onClick={() => handleOrigemChange(o.key)}
                 >
                   <div className="t">
                     <span>{o.icon}</span>
@@ -238,6 +283,95 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {origem === '0800 (URA)' && (
+            <div className="frow">
+              <label className="field-label">Linkedid da ligação</label>
+              <div className="nc-lookup-row">
+                <input
+                  type="text"
+                  value={linkedId}
+                  onChange={(e) => setLinkedId(e.target.value)}
+                  placeholder="Ex.: 1783694943.75408"
+                />
+                <button type="button" className="btn" onClick={handleBuscarGravacao} disabled={!linkedId.trim()}>
+                  🎧 Buscar gravação
+                </button>
+              </div>
+              {gravacao && (
+                <div className="nc-lookup-result">
+                  ✓ Gravação localizada ({gravacao.duracao}) — anexada ao acompanhamento do chamado.
+                </div>
+              )}
+            </div>
+          )}
+
+          {origem === 'WhatsApp' && (
+            <div className="frow">
+              <label className="field-label">Protocolo da conversa</label>
+              <div className="nc-lookup-row">
+                <input
+                  type="text"
+                  value={protocoloWhatsapp}
+                  onChange={(e) => setProtocoloWhatsapp(e.target.value)}
+                  placeholder="Ex.: 2562-2143753539687"
+                />
+                <button type="button" className="btn" onClick={handleImportarConversa} disabled={!protocoloWhatsapp.trim()}>
+                  💬 Importar conversa
+                </button>
+              </div>
+              {conversaImportada && (
+                <div className="nc-lookup-result">✓ Conversa importada para a descrição abaixo, com classificação sugerida pela IA.</div>
+              )}
+            </div>
+          )}
+
+          <div className="frow">
+            <label className="field-label">
+              Vincular Itens <span className="field-label-hint">(patrimônios de Ativos)</span>
+            </label>
+            <div className="nc-req-search">
+              <input
+                type="text"
+                value={buscaAtivo}
+                onChange={(e) => setBuscaAtivo(e.target.value)}
+                placeholder="Busque por patrimônio ou modelo…"
+              />
+              {candidatosAtivos.length > 0 && (
+                <div className="nc-req-results">
+                  {candidatosAtivos.map((a) => (
+                    <div
+                      key={a.patrimonio}
+                      className="nc-req-result"
+                      onClick={() => {
+                        toggleAtivoVinculado(a.patrimonio)
+                        setBuscaAtivo('')
+                      }}
+                    >
+                      <b>{a.patrimonio}</b>
+                      <div className="sub">{a.label} · {a.tipo}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {ativosVinculados.length > 0 && (
+              <div className="nc-chip-row">
+                {ativosVinculados.map((patrimonio) => {
+                  const ativo = ATIVOS_VINCULAVEIS.find((a) => a.patrimonio === patrimonio)
+                  return (
+                    <span key={patrimonio} className="nc-item-chip">
+                      {patrimonio}
+                      {ativo ? ` — ${ativo.label}` : ''}
+                      <button type="button" onClick={() => toggleAtivoVinculado(patrimonio)}>
+                        ×
+                      </button>
+                    </span>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           <div className="frow">

@@ -94,3 +94,20 @@ export const TELEFONES: Telefone[] = [
   { numero: 'Ramal 1015', modelo: 'IP Phone Grandstream GXP1625', usuario: 'Recepção', projeto: 'ConectaOZ — Osasco' },
   { numero: '(11) 98888-1234', modelo: 'Smartphone corporativo', usuario: 'Rafael Souza', projeto: 'Central Vitae Brasil' },
 ]
+
+export interface AtivoVinculavel {
+  patrimonio: string
+  label: string
+  tipo: string
+}
+
+/** Lista única de patrimônios do módulo Ativos, usada para vincular itens a um chamado (Assistência).
+ * Licenças de software ficam de fora por não terem um patrimônio individual rastreável. */
+export const ATIVOS_VINCULAVEIS: AtivoVinculavel[] = [
+  ...COMPUTADORES.map((c) => ({ patrimonio: c.patrimonio, label: c.modelo, tipo: 'Computador' })),
+  ...DISPOSITIVOS_REDE.map((d) => ({ patrimonio: d.patrimonio, label: `${d.tipo} — ${d.modelo}`, tipo: 'Rede' })),
+  ...MONITORES.map((m) => ({ patrimonio: m.patrimonio, label: m.modelo, tipo: 'Monitor' })),
+  ...PERIFERICOS.map((p) => ({ patrimonio: p.patrimonio, label: p.item, tipo: 'Periférico' })),
+  ...IMPRESSORAS.map((i) => ({ patrimonio: i.patrimonio, label: i.modelo, tipo: 'Impressora' })),
+  ...TELEFONES.map((t) => ({ patrimonio: t.numero, label: t.modelo, tipo: 'Telefone' })),
+]
