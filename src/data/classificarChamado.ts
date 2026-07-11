@@ -3,7 +3,7 @@ import type { Chamado, Prioridade } from './chamados'
 
 const COMBINING_DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g')
 
-function normalizar(texto: string): string {
+export function normalizar(texto: string): string {
   return texto.trim().toLowerCase().normalize('NFD').replace(COMBINING_DIACRITICS, '')
 }
 

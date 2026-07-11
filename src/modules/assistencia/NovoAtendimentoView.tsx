@@ -8,6 +8,7 @@ import { PROJECT_CATALOGS, type ClassificationLabel } from '@/data/catalog'
 import type { OrigemAtendimento, Prioridade, StatusChamado } from '@/data/chamados'
 import { ATIVOS_VINCULAVEIS } from '@/data/ativosMock'
 import { buscarConversaWhatsApp, buscarGravacaoURA, type GravacaoURA } from '@/data/integracaoOrigem'
+import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
 import UsuarioFormModal from '../administracao/UsuarioFormModal'
 import type { Project } from '@/types'
 
@@ -118,6 +119,13 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   // Camada de IA sobre o histórico: aponta chamados anteriores com relato parecido (mesmo sem ser a
   // mesma categoria), para servirem de base de consulta — o atendente vê ali mesmo como foi resolvido antes.
   const similares = useMemo(() => encontrarChamadosSimilares(descricao, historico), [descricao, historico])
+
+  // Ao marcar "Chamado solucionado? Sim", sugere uma solução aplicável a partir da Base de Conhecimento
+  // (por categoria + palavra-chave da descrição) para o atendente aplicar, editar ou reformular com IA.
+  const solucaoSugerida = useMemo(
+    () => (solucionado && categoria ? buscarSolucaoSugerida(categoria, descricao) : null),
+    [solucionado, categoria, descricao],
+  )
 
   const candidatosAtivos = useMemo(() => {
     if (!buscaAtivo.trim()) return []
@@ -509,7 +517,36 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
           {solucionado && (
             <div className="frow">
               <label className="field-label">Ação realizada</label>
-              <textarea rows={2} value={acaoRealizada} onChange={(e) => setAcaoRealizada(e.target.value)} placeholder="O que foi feito para resolver?" />
+              {solucaoSugerida ? (
+                <div className="nc-kb-card">
+                  <div className="nc-kb-card-head">
+                    <span className="nc-ai-tag">✦ Base de conhecimento</span>
+                    <span className="nc-kb-card-title">{solucaoSugerida.titulo}</span>
+                  </div>
+                  <p className="nc-kb-card-text">{solucaoSugerida.solucao}</p>
+                  <button type="button" className="btn" onClick={() => setAcaoRealizada(solucaoSugerida.solucao)}>
+                    ✦ Aplicar solução da base de conhecimento
+                  </button>
+                </div>
+              ) : (
+                <div className="nc-kb-empty">Nenhum artigo relacionado encontrado na base de conhecimento — descreva a solução abaixo.</div>
+              )}
+              <textarea
+                rows={2}
+                value={acaoRealizada}
+                onChange={(e) => setAcaoRealizada(e.target.value)}
+                placeholder="O que foi feito para resolver?"
+                style={{ marginTop: 8 }}
+              />
+              <button
+                type="button"
+                className="btn"
+                style={{ marginTop: 8 }}
+                onClick={() => setAcaoRealizada(reformularDescricao(acaoRealizada))}
+                disabled={!acaoRealizada.trim()}
+              >
+                ✦ Reformular com IA
+              </button>
             </div>
           )}
 
