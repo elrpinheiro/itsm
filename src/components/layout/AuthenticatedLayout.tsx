@@ -163,9 +163,7 @@ export default function AuthenticatedLayout() {
               <div className="hdr-project-name">{project.nome}</div>
               <div className="hdr-sub">{project.cidade}</div>
             </div>
-            <button className="hdr-back-btn" onClick={() => navigate('/projects')} title="Voltar à seleção de projetos">
-              ← <span>Projetos</span>
-            </button>
+            <ProjectPickerDropdown label="Projetos" showArrow />
           </div>
         ) : (
           <div className="hdr-project hdr-project-empty">
