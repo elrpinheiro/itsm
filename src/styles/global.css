@@ -1051,12 +1051,11 @@ textarea {
 }
 .op-panel-mini {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   margin: 0 0 10px;
   border: none;
-  border-radius: 12px;
-  background: var(--tema-escuro);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1068,14 +1067,6 @@ textarea {
 }
 .op-panel-mini:hover {
   transform: translateY(-1px);
-}
-.op-panel-mini img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 50%;
-  padding: 3px;
 }
 .op-panel-mini-tip {
   position: absolute;

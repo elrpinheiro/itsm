@@ -1,9 +1,13 @@
 import type { ReactNode, PointerEvent as ReactPointerEvent } from 'react'
+import type { LucideIcon } from 'lucide-react'
 
 interface Props {
   title: string
   subtitle: string
   logo: string
+  /** Ícone e cor do botão circular flutuante (estado minimizado/docado). */
+  miniIcon: LucideIcon
+  miniColor: string
   placeholder: ReactNode
   url: string | null
   externalUrl: string
@@ -31,6 +35,8 @@ export default function OperationPanel({
   title,
   subtitle,
   logo,
+  miniIcon: MiniIcon,
+  miniColor,
   placeholder,
   url,
   externalUrl,
@@ -44,8 +50,8 @@ export default function OperationPanel({
 }: Props) {
   if (minimized && !popped) {
     return (
-      <button className="op-panel-mini" onClick={onToggleMinimize} title={`Mostrar ${title}`}>
-        <img src={logo} alt={title} />
+      <button className="op-panel-mini" style={{ background: miniColor }} onClick={onToggleMinimize} title={`Mostrar ${title}`}>
+        <MiniIcon size={22} color="#fff" strokeWidth={2} />
         <span className="op-panel-mini-tip">Entrar em Operação</span>
       </button>
     )

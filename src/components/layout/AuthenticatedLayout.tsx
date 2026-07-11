@@ -1,6 +1,6 @@
 import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { BookOpen, FileText, LogOut } from 'lucide-react'
+import { BookOpen, FileText, LogOut, Phone, MessageCircle } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useProjectTheme } from '@/store/useCatalogStore'
@@ -223,6 +223,8 @@ export default function AuthenticatedLayout() {
                   title="Vtcall"
                   subtitle="Ligações em tempo real"
                   logo={vtcallLogo}
+                  miniIcon={Phone}
+                  miniColor="var(--azul-escuro)"
                   placeholder={<VtcallPlaceholder />}
                   url={vtcallUrl}
                   externalUrl={VTCALL_URL}
@@ -241,6 +243,8 @@ export default function AuthenticatedLayout() {
                   title="MKTZAP"
                   subtitle="Atendimento via WhatsApp"
                   logo={whatsappLogo}
+                  miniIcon={MessageCircle}
+                  miniColor="var(--verde)"
                   placeholder={<MktzapPlaceholder />}
                   url={mktzapUrl}
                   externalUrl={MKTZAP_URL}
@@ -262,6 +266,8 @@ export default function AuthenticatedLayout() {
             title="Vtcall"
             subtitle="Ligações em tempo real"
             logo={vtcallLogo}
+            miniIcon={Phone}
+            miniColor="var(--azul-escuro)"
             placeholder={<VtcallPlaceholder />}
             url={vtcallUrl}
             externalUrl={VTCALL_URL}
@@ -280,6 +286,8 @@ export default function AuthenticatedLayout() {
             title="MKTZAP"
             subtitle="Atendimento via WhatsApp"
             logo={whatsappLogo}
+            miniIcon={MessageCircle}
+            miniColor="var(--verde)"
             placeholder={<MktzapPlaceholder />}
             url={mktzapUrl}
             externalUrl={MKTZAP_URL}
