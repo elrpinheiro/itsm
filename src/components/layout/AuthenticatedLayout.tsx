@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useProjectTheme } from '@/store/useCatalogStore'
 import ModuleTabs from './ModuleTabs'
+import ProjectPickerDropdown from './ProjectPickerDropdown'
 import OperationPanel from './OperationPanel'
 import { VtcallPlaceholder, MktzapPlaceholder } from './operationPlaceholders'
 import vtcallLogo from '@/assets/logos/vtcall.png'
@@ -171,9 +172,7 @@ export default function AuthenticatedLayout() {
             <div className="hdr-project-text">
               <div className="hdr-project-name">Selecione uma unidade</div>
             </div>
-            <button className="hdr-back-btn" onClick={() => navigate('/projects')} title="Ir para a seleção de projetos">
-              <span>Escolher unidade</span>
-            </button>
+            <ProjectPickerDropdown />
           </div>
         )}
 

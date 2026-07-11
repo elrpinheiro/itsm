@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import LoginScreen from '@/components/login/LoginScreen'
 import AuthenticatedLayout from '@/components/layout/AuthenticatedLayout'
-import ProjectSelectionScreen from '@/components/projects/ProjectSelectionScreen'
+import PainelGeralModule from '@/modules/painel-geral/PainelGeralModule'
 import AppShell from '@/components/layout/AppShell'
 import InicioModule from '@/modules/inicio/InicioModule'
 import AssistenciaModule from '@/modules/assistencia/AssistenciaModule'
@@ -46,7 +46,7 @@ export default function App() {
           </RequireAuth>
         }
       >
-        <Route path="/projects" element={<ProjectSelectionScreen />} />
+        <Route path="/projects" element={<PainelGeralModule />} />
         <Route path="/assistencia" element={<AssistenciaGlobalModule />} />
         <Route path="/administracao" element={<AdministracaoModule />} />
         <Route path="/ativos" element={<AtivosModule />} />
