@@ -157,8 +157,11 @@ export default function AuthenticatedLayout() {
         <button
           type="button"
           className="hdr-mark"
-          onClick={() => navigate(project ? '/app/inicio' : '/projects')}
-          title="Ir para o início"
+          onClick={() => {
+            useProjectStore.getState().clearProject()
+            navigate('/projects')
+          }}
+          title="Ver Painel Geral"
         >
           V
         </button>

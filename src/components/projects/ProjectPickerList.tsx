@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard } from 'lucide-react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
 import type { Project, ProjectBrandId } from '@/types'
@@ -54,7 +53,6 @@ function BrandGroup({ brandId, onSelect }: { brandId: ProjectBrandId; onSelect: 
 export default function ProjectPickerList({ onSelect }: { onSelect?: () => void }) {
   const navigate = useNavigate()
   const selectProject = useProjectStore((s) => s.selectProject)
-  const clearProject = useProjectStore((s) => s.clearProject)
   const allProjects = useAllProjects()
   const matrizes = allProjects.filter((p) => p.isMatriz)
   const fieldBrandIds = Array.from(new Set(allProjects.filter((p) => !p.isMatriz).map((p) => p.brandId)))
@@ -65,17 +63,8 @@ export default function ProjectPickerList({ onSelect }: { onSelect?: () => void 
     onSelect?.()
   }
 
-  function handleVerPainelGeral() {
-    clearProject()
-    navigate('/projects')
-    onSelect?.()
-  }
-
   return (
     <div className="proj-picker-list">
-      <button type="button" className="proj-picker-painel-geral" onClick={handleVerPainelGeral}>
-        <LayoutDashboard size={14} /> Ver Painel Geral
-      </button>
       {matrizes.length > 0 && (
         <div className="proj-section">
           <div className="proj-section-title">Matriz</div>

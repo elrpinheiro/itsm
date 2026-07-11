@@ -874,27 +874,6 @@ textarea {
   padding: 14px;
   z-index: 40;
 }
-.proj-picker-painel-geral {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  background: var(--fundo);
-  border: 1px solid var(--borda);
-  border-radius: 9px;
-  padding: 8px 10px;
-  margin-bottom: 12px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--texto);
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.12s;
-}
-.proj-picker-painel-geral:hover {
-  background: var(--tema-pale);
-  color: var(--tema-texto);
-}
 .proj-picker-matriz {
   display: flex;
   flex-direction: column;
