@@ -117,6 +117,7 @@ function BrandBlock({ brandId, colId, dragPosition, onDragStart, onDragEnd, onDr
   const allProjects = useAllProjects()
   const theme = useProjectTheme(brandId)
   const projects = allProjects.filter((p) => p.brandId === brandId && !p.isMatriz)
+  const [recolhido, setRecolhido] = useState(false)
 
   function handleSelect(project: Project) {
     selectProject(project)
@@ -125,7 +126,7 @@ function BrandBlock({ brandId, colId, dragPosition, onDragStart, onDragEnd, onDr
 
   return (
     <div
-      className={`proj-column${dragPosition ? ` drag-target-${dragPosition}` : ''}`}
+      className={`proj-column${dragPosition ? ` drag-target-${dragPosition}` : ''}${recolhido ? ' collapsed' : ''}`}
       onDragOver={onDragOver(colId, brandId)}
       onDrop={onDrop(colId, brandId)}
     >
@@ -134,7 +135,8 @@ function BrandBlock({ brandId, colId, dragPosition, onDragStart, onDragEnd, onDr
         draggable
         onDragStart={onDragStart(brandId)}
         onDragEnd={onDragEnd}
-        title="Arraste para mover este bloco"
+        onClick={() => setRecolhido((r) => !r)}
+        title={recolhido ? 'Clique para mostrar os projetos · arraste para mover' : 'Clique para recolher os projetos · arraste para mover'}
       >
         <span className="proj-column-grip">⠿</span>
         <img src={theme.logo} alt={theme.label} className="proj-column-logo" />
@@ -144,13 +146,16 @@ function BrandBlock({ brandId, colId, dragPosition, onDragStart, onDragEnd, onDr
             {projects.length} projeto{projects.length !== 1 ? 's' : ''}
           </div>
         </div>
+        <span className="proj-column-toggle">{recolhido ? '▸' : '▾'}</span>
       </div>
-      <div className="proj-column-list">
-        {projects.map((project) => (
-          <ProjectRow key={project.id} project={project} onSelect={handleSelect} />
-        ))}
-        {projects.length === 0 && <div className="proj-column-empty">Nenhum projeto cadastrado ainda.</div>}
-      </div>
+      {!recolhido && (
+        <div className="proj-column-list">
+          {projects.map((project) => (
+            <ProjectRow key={project.id} project={project} onSelect={handleSelect} />
+          ))}
+          {projects.length === 0 && <div className="proj-column-empty">Nenhum projeto cadastrado ainda.</div>}
+        </div>
+      )}
     </div>
   )
 }

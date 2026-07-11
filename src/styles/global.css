@@ -1468,6 +1468,17 @@ textarea {
   font-size: 10px;
   color: var(--texto-sec);
 }
+.proj-column-toggle {
+  margin-left: auto;
+  color: var(--texto-sec);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.proj-column.collapsed .proj-column-header {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
 .proj-column-list {
   display: flex;
   flex-direction: column;
@@ -2352,8 +2363,19 @@ textarea {
   border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
+  font-family: inherit;
+  color: inherit;
   border: 1px solid var(--borda);
   background: var(--fundo);
+  cursor: pointer;
+}
+.nc-status-chip:hover {
+  border-color: var(--tema);
+}
+.nc-status-chip.on {
+  border-color: var(--tema);
+  background: var(--tema-pale);
+  color: var(--tema);
 }
 .nc-status-chip b {
   font-variant-numeric: tabular-nums;

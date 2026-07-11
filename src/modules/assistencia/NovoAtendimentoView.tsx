@@ -65,6 +65,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const [buscaAtivo, setBuscaAtivo] = useState('')
   const [ativosVinculados, setAtivosVinculados] = useState<string[]>([])
   const [vinculados, setVinculados] = useState<string[]>([])
+  const [filtroHistorico, setFiltroHistorico] = useState<'andamento' | 'pendente' | 'fechado' | null>(null)
   const [descricao, setDescricao] = useState('')
   const [acaoRealizada, setAcaoRealizada] = useState('')
   const [solucionado, setSolucionado] = useState<boolean | null>(null)
@@ -96,6 +97,16 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const nAndamento = historico.filter((c) => STATUS_BUCKET[c.status] === 'andamento').length
   const nPendente = historico.filter((c) => STATUS_BUCKET[c.status] === 'pendente').length
   const nFechado = historico.filter((c) => STATUS_BUCKET[c.status] === 'fechado').length
+
+  // A barra de status filtra a lista abaixo (clique de novo no mesmo chip, ou em "Ocultar filtro", volta a mostrar tudo).
+  const historicoExibido = useMemo(
+    () => (filtroHistorico ? historico.filter((c) => STATUS_BUCKET[c.status] === filtroHistorico) : historico),
+    [historico, filtroHistorico],
+  )
+
+  function toggleFiltroHistorico(bucket: 'andamento' | 'pendente' | 'fechado') {
+    setFiltroHistorico((atual) => (atual === bucket ? null : bucket))
+  }
 
   const recorrencia = useMemo(() => {
     if (!categoria) return null
@@ -408,21 +419,50 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
 
           <div className="frow">
             <div className="nc-status-bar">
-              <div className="nc-status-chip"><b>{nAndamento}</b> Em andamento</div>
-              <div className="nc-status-chip"><b>{nPendente}</b> Pendente</div>
-              <div className="nc-status-chip"><b>{nFechado}</b> Fechado</div>
+              <button
+                type="button"
+                className={`nc-status-chip${filtroHistorico === 'andamento' ? ' on' : ''}`}
+                onClick={() => toggleFiltroHistorico('andamento')}
+              >
+                <b>{nAndamento}</b> Em andamento
+              </button>
+              <button
+                type="button"
+                className={`nc-status-chip${filtroHistorico === 'pendente' ? ' on' : ''}`}
+                onClick={() => toggleFiltroHistorico('pendente')}
+              >
+                <b>{nPendente}</b> Pendente
+              </button>
+              <button
+                type="button"
+                className={`nc-status-chip${filtroHistorico === 'fechado' ? ' on' : ''}`}
+                onClick={() => toggleFiltroHistorico('fechado')}
+              >
+                <b>{nFechado}</b> Fechado
+              </button>
             </div>
           </div>
 
           <div className="frow">
-            <label className="field-label">Histórico do requerente (marque para vincular)</label>
+            <label className="field-label">
+              Histórico do requerente (marque para vincular)
+              {filtroHistorico && (
+                <button type="button" className="nc-req-link" style={{ marginLeft: 8 }} onClick={() => setFiltroHistorico(null)}>
+                  ✕ Ocultar filtro
+                </button>
+              )}
+            </label>
             <div style={{ border: '1px solid var(--borda)', borderRadius: 8, maxHeight: 200, overflowY: 'auto' }}>
-              {historico.length === 0 && (
+              {historicoExibido.length === 0 && (
                 <div style={{ padding: '10px 12px', fontSize: 12, color: 'var(--texto-sec)' }}>
-                  {requerente ? 'Nenhum chamado anterior deste requerente.' : 'Selecione um requerente para ver o histórico.'}
+                  {!requerente
+                    ? 'Selecione um requerente para ver o histórico.'
+                    : filtroHistorico
+                      ? 'Nenhum chamado com esse status.'
+                      : 'Nenhum chamado anterior deste requerente.'}
                 </div>
               )}
-              {historico.map((c) => {
+              {historicoExibido.map((c) => {
                 const match = similares.has(c.numero)
                 return (
                   <div key={c.numero} className={`nc-hist-item${match ? ' match' : ''}`}>
