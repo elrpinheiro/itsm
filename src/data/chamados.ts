@@ -34,6 +34,8 @@ export interface Chamado {
   protocoloWhatsapp?: string
   /** Patrimônios (Ativos) vinculados a este chamado. */
   ativosVinculados?: string[]
+  /** Nota de satisfação (0–10, escala NPS) da pesquisa pós-atendimento respondida pelo requerente. Ausente = pesquisa não respondida (o sistema não tem envio automático de pesquisa nesta versão — ver 05.16 da documentação técnica). */
+  notaSatisfacao?: number
 }
 
 /** Fila de chamados mockada — exemplo de como a tela de Chamados fica quando populada. */
@@ -72,6 +74,7 @@ export const CHAMADOS: Chamado[] = [
     origem: 'Atendente',
     descricao: 'Notebook não ligava mais — bateria não carregava.',
     acaoRealizada: 'Troca de bateria realizada em bancada.',
+    notaSatisfacao: 9,
   },
   {
     numero: '#10214',
@@ -87,5 +90,6 @@ export const CHAMADOS: Chamado[] = [
     origem: 'WhatsApp',
     descricao: 'Notebook travando e reiniciando sozinho durante o uso.',
     acaoRealizada: 'Reinstalação do sistema e atualização de drivers.',
+    notaSatisfacao: 7,
   },
 ]

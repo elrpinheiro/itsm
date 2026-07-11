@@ -1,11 +1,15 @@
 import { useMemo } from 'react'
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { Inbox, Activity, AlertTriangle, CheckCircle2, Plus } from 'lucide-react'
+import { Inbox, Activity, AlertTriangle, CheckCircle2, Timer, Smile, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
+import { SLA_TARGET_HORAS, calcularSla, calcularNps } from '@/utils/chamadoMetrics'
 import type { Prioridade, StatusChamado } from '@/data/chamados'
+
+const SLA_TITLE = `% de chamados dentro do prazo-alvo da prioridade (Crítica ${SLA_TARGET_HORAS.Crítica}h / Alta ${SLA_TARGET_HORAS.Alta}h / Média ${SLA_TARGET_HORAS.Média}h / Baixa ${SLA_TARGET_HORAS.Baixa}h — política padrão do MVP, ajustável por contrato).`
+const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento. Sem envio automático de pesquisa nesta versão.'
 
 const STATUS_COLOR: Record<StatusChamado, string> = {
   'Na fila': '#854f0b',
@@ -37,7 +41,7 @@ const COLUMNS: DataTableColumn[] = [
 ]
 
 /** Painel inicial ao entrar em um projeto — indicadores e gráficos derivados dos chamados reais
- * daquela unidade (sem dado inventado: sem SLA/tendência, porque o sistema ainda não rastreia isso). */
+ * daquela unidade (sem dado inventado: KPIs de SLA e NPS deixam claro no título as premissas assumidas). */
 export default function InicioModule() {
   const project = useProjectStore((s) => s.selectedProject)
   const todosChamados = useChamadosStore((s) => s.chamados)
@@ -50,6 +54,8 @@ export default function InicioModule() {
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento').length
   const fechados = chamados.filter((c) => c.status === 'Fechado').length
   const criticosAbertos = chamados.filter((c) => c.prioridade === 'Crítica' && c.status !== 'Fechado').length
+  const sla = useMemo(() => calcularSla(chamados), [chamados])
+  const nps = useMemo(() => calcularNps(chamados), [chamados])
 
   const porCategoria = useMemo(() => {
     const contagem = new Map<string, number>()
@@ -122,6 +128,16 @@ export default function InicioModule() {
               <div className="inicio-kpi-ic good"><CheckCircle2 size={16} /></div>
               <div className="inicio-kpi-num">{fechados}</div>
               <div className="inicio-kpi-lbl">Fechados</div>
+            </div>
+            <div className="inicio-kpi" title={SLA_TITLE}>
+              <div className="inicio-kpi-ic neutral"><Timer size={16} /></div>
+              <div className="inicio-kpi-num">{sla.percentual === null ? '—' : `${sla.percentual}%`}</div>
+              <div className="inicio-kpi-lbl">SLA cumprido</div>
+            </div>
+            <div className="inicio-kpi" title={NPS_TITLE}>
+              <div className="inicio-kpi-ic good"><Smile size={16} /></div>
+              <div className="inicio-kpi-num">{nps === null ? '—' : nps.nps}</div>
+              <div className="inicio-kpi-lbl">{nps === null ? 'NPS (sem avaliações)' : `NPS (${nps.avaliados} avaliações)`}</div>
             </div>
           </div>
 

@@ -1055,7 +1055,7 @@ textarea {
   height: 52px;
   margin: 0 0 10px;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--tema-escuro);
   display: flex;
   align-items: center;
@@ -1063,7 +1063,11 @@ textarea {
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.12s;
+}
+.op-panel-mini:hover {
+  transform: translateY(-1px);
 }
 .op-panel-mini img {
   width: 32px;
@@ -1605,7 +1609,7 @@ textarea {
 /* ===== Início (dashboard por projeto) ===== */
 .inicio-kpis {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -1957,10 +1961,10 @@ textarea {
 .floating-panel {
   position: fixed;
   z-index: 60;
-  background: #fff;
+  background: var(--card);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--shadow-md);
   border: 1px solid var(--borda);
 }
 .floating-panel .op-panel {
