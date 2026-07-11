@@ -59,8 +59,8 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const [error, setError] = useState('')
 
   const [categoria, setCategoria] = useState('')
-  const [tipoAtendimento, setTipoAtendimento] = useState<ClassificationLabel>('Requisição')
-  const [prioridade, setPrioridade] = useState<Prioridade>('Média')
+  const [tipoAtendimento, setTipoAtendimento] = useState<ClassificationLabel | ''>('')
+  const [prioridade, setPrioridade] = useState<Prioridade | ''>('')
   const [grupoId, setGrupoId] = useState('')
 
   // Deriva do store (não guarda uma cópia) para refletir na hora qualquer edição feita em "Atualizar Informações do Usuário".
@@ -126,11 +126,11 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
     addChamado({
       projetoNome: projetoLabel,
       assunto: descricao,
-      prioridade,
+      prioridade: prioridade || 'Média',
       descricao,
       solicitanteEmail: requerente.email,
       categoria: categoria || 'Outros',
-      tipoAtendimento,
+      tipoAtendimento: tipoAtendimento || 'Requisição',
       grupoId: grupoId || 'grp-n1',
       origem,
       vinculados,
@@ -307,6 +307,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
             <div className="nc-classif-cell">
               <div className="lbl">Categoria</div>
               <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+                <option value="">Selecione…</option>
                 {catalog.map((item) => (
                   <option key={item.label} value={item.label}>
                     {item.icon} {item.label}
@@ -317,6 +318,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
             <div className="nc-classif-cell">
               <div className="lbl">Tipo de atendimento</div>
               <select value={tipoAtendimento} onChange={(e) => setTipoAtendimento(e.target.value as ClassificationLabel)}>
+                <option value="">Selecione…</option>
                 {TIPOS.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -327,6 +329,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
             <div className="nc-classif-cell">
               <div className="lbl">Prioridade</div>
               <select value={prioridade} onChange={(e) => setPrioridade(e.target.value as Prioridade)}>
+                <option value="">Selecione…</option>
                 {PRIORIDADES.map((p) => (
                   <option key={p} value={p}>
                     {p}
