@@ -27,7 +27,11 @@ const STATUS_CLASS: Record<StatusChamado, string> = {
   Fechado: 'badge-green',
 }
 
-export default function ChamadosScreen() {
+interface Props {
+  onNovoAtendimento: () => void
+}
+
+export default function ChamadosScreen({ onNovoAtendimento }: Props) {
   const user = useAuthStore((s) => s.user)
   const acesso = useModuleAccess('assistencia')
   const todosChamados = useChamadosStore((s) => s.chamados)
@@ -64,6 +68,11 @@ export default function ChamadosScreen() {
         </div>
         <span className="badge badge-amber">{naFila} na fila</span>
         <span className="badge badge-blue">{emAtendimento} em atendimento</span>
+        {acesso.criar && (
+          <button className="btn btn-primary" style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }} onClick={onNovoAtendimento}>
+            + Novo Atendimento
+          </button>
+        )}
       </div>
       <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum chamado na fila." />
     </div>
