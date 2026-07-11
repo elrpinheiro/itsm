@@ -5,6 +5,7 @@ import LoginScreen from '@/components/login/LoginScreen'
 import AuthenticatedLayout from '@/components/layout/AuthenticatedLayout'
 import ProjectSelectionScreen from '@/components/projects/ProjectSelectionScreen'
 import AppShell from '@/components/layout/AppShell'
+import InicioModule from '@/modules/inicio/InicioModule'
 import AssistenciaModule from '@/modules/assistencia/AssistenciaModule'
 import AssistenciaGlobalModule from '@/modules/assistencia-global/AssistenciaGlobalModule'
 import AdministracaoModule from '@/modules/administracao/AdministracaoModule'
@@ -59,7 +60,8 @@ export default function App() {
             </RequireProject>
           }
         >
-          <Route index element={<Navigate to="assistencia" replace />} />
+          <Route index element={<Navigate to="inicio" replace />} />
+          <Route path="inicio" element={<InicioModule />} />
           <Route path="ferramentas/*" element={<FerramentasModule />} />
           <Route path="assistencia" element={<AssistenciaModule />} />
           <Route path="administracao" element={<AdministracaoModule />} />

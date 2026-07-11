@@ -1,9 +1,10 @@
 import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { BookOpen, FileText, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useProjectTheme } from '@/store/useCatalogStore'
-import { usePermissionMatrix, canSeeNavModule } from '@/store/usePermissions'
+import ModuleTabs from './ModuleTabs'
 import OperationPanel from './OperationPanel'
 import { VtcallPlaceholder, MktzapPlaceholder } from './operationPlaceholders'
 import vtcallLogo from '@/assets/logos/vtcall.png'
@@ -13,14 +14,6 @@ const VTCALL_URL = 'https://vitae.vtcall.app/auth/'
 const MKTZAP_URL = 'https://mktzap.com.br/login'
 const MANUAL_USUARIO_URL = 'https://claude.ai/code/artifact/4540c7af-cdde-45f7-9a49-94ab89582360'
 const DOCUMENTACAO_TECNICA_URL = 'https://claude.ai/code/artifact/2745fefc-6654-43b7-a64e-bd679a8e5067'
-
-const NAV_MODULES: { path: string; label: string; icon: string }[] = [
-  { path: '/assistencia', label: 'Assistência', icon: '🎧' },
-  { path: '/administracao', label: 'Administração', icon: '⚙️' },
-  { path: '/ativos', label: 'Ativos', icon: '💻' },
-  { path: '/ferramentas', label: 'Ferramentas', icon: '🧰' },
-  { path: '/assinatura-digital', label: 'Assinatura Digital', icon: '✍️' },
-]
 
 const PANELS_MIN_WIDTH = 280
 const PANELS_MAX_WIDTH = 720
@@ -49,7 +42,6 @@ export default function AuthenticatedLayout() {
   const logout = useAuthStore((s) => s.logout)
   const project = useProjectStore((s) => s.selectedProject)
   const navigate = useNavigate()
-  const location = useLocation()
 
   const [vtcallUrl, setVtcallUrl] = useState<string | null>(null)
   const [mktzapUrl, setMktzapUrl] = useState<string | null>(null)
@@ -69,8 +61,6 @@ export default function AuthenticatedLayout() {
   const dragRef = useRef<DragMode | null>(null)
 
   const theme = useProjectTheme(project?.brandId ?? 'planneta')
-  const permissionMatrix = usePermissionMatrix()
-  const visibleNavModules = NAV_MODULES.filter((m) => canSeeNavModule(permissionMatrix, m.path))
   const themeVars = {
     '--tema-escuro': theme.escuro,
     '--tema': theme.medio,
@@ -151,8 +141,6 @@ export default function AuthenticatedLayout() {
     }
   }
 
-  const insideApp = location.pathname.startsWith('/app') && !!project
-  const currentModule = NAV_MODULES.find((m) => location.pathname.startsWith(m.path))
   const dockedCount = (poppedVtcall ? 0 : 1) + (poppedMktzap ? 0 : 1)
   const hasFullDockedPanel = (!poppedVtcall && !minimizedVtcall) || (!poppedMktzap && !minimizedMktzap)
   const compactDock = dockedCount > 0 && !hasFullDockedPanel
@@ -167,7 +155,7 @@ export default function AuthenticatedLayout() {
       <div className="hdr-top op-topbar">
         <div className="hdr-mark">V</div>
 
-        {insideApp && project && (
+        {project ? (
           <div className="hdr-project">
             <img src={project.logo} alt={project.nome} className="hdr-project-logo" />
             <div className="hdr-project-text">
@@ -178,34 +166,15 @@ export default function AuthenticatedLayout() {
               ← <span>Projetos</span>
             </button>
           </div>
-        )}
-
-        {currentModule && (
-          <div className="hdr-project">
-            <span className="hdr-modtitle-icon">{currentModule.icon}</span>
+        ) : (
+          <div className="hdr-project hdr-project-empty">
             <div className="hdr-project-text">
-              <div className="hdr-project-name">{currentModule.label}</div>
-              <div className="hdr-sub">Visão global</div>
+              <div className="hdr-project-name">Selecione uma unidade</div>
             </div>
-            <button className="hdr-back-btn" onClick={() => navigate('/projects')} title="Voltar à tela principal">
-              🏠 <span>Início</span>
+            <button className="hdr-back-btn" onClick={() => navigate('/projects')} title="Ir para a seleção de projetos">
+              <span>Escolher unidade</span>
             </button>
           </div>
-        )}
-
-        {!insideApp && (
-          <nav className="hdr-nav">
-            {visibleNavModules.map((m) => (
-              <button
-                key={m.path}
-                className={`hdr-nav-btn${location.pathname.startsWith(m.path) ? ' on' : ''}`}
-                onClick={() => navigate(m.path)}
-              >
-                <span className="ic">{m.icon}</span>
-                <span>{m.label}</span>
-              </button>
-            ))}
-          </nav>
         )}
 
         <div className="hdr-right">
@@ -217,7 +186,7 @@ export default function AuthenticatedLayout() {
               rel="noreferrer"
               title="Manual do usuário"
             >
-              📗 <span>Manual do usuário</span>
+              <BookOpen size={14} /> <span>Manual do usuário</span>
             </a>
             <a
               className="hdr-doc-link"
@@ -226,7 +195,7 @@ export default function AuthenticatedLayout() {
               rel="noreferrer"
               title="Documentação técnica"
             >
-              📘 <span>Documentação técnica</span>
+              <FileText size={14} /> <span>Documentação técnica</span>
             </a>
           </div>
           <div className="hdr-ava">{user?.iniciais ?? ''}</div>
@@ -234,11 +203,13 @@ export default function AuthenticatedLayout() {
             <div className="hdr-user-name">{user?.nome ?? ''}</div>
             <div className="hdr-sub">{user?.papel ?? ''}</div>
           </div>
-          <span className="hdr-logout" title="Sair" onClick={handleLogout}>
-            ⏻
-          </span>
+          <button className="hdr-logout" title="Sair" onClick={handleLogout}>
+            <LogOut size={16} />
+          </button>
         </div>
       </div>
+
+      <ModuleTabs />
 
       <div className="op-body">
         <div className="op-main">

@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useModuleAccess } from '@/store/usePermissions'
@@ -25,6 +26,13 @@ const STATUS_CLASS: Record<StatusChamado, string> = {
   'Em atendimento': 'badge-blue',
   'Aguardando terceiro': '',
   Fechado: 'badge-green',
+}
+
+const PRIORIDADE_STRIPE: Record<Prioridade, string> = {
+  Baixa: 'row-prio-baixa',
+  Média: 'row-prio-media',
+  Alta: 'row-prio-alta',
+  Crítica: 'row-prio-critica',
 }
 
 interface Props {
@@ -70,11 +78,16 @@ export default function ChamadosScreen({ onNovoAtendimento }: Props) {
         <span className="badge badge-blue">{emAtendimento} em atendimento</span>
         {acesso.criar && (
           <button className="btn btn-primary" style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }} onClick={onNovoAtendimento}>
-            + Novo Atendimento
+            <Plus size={14} /> Novo Atendimento
           </button>
         )}
       </div>
-      <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum chamado na fila." />
+      <DataTable
+        columns={COLUMNS}
+        rows={rows}
+        rowClassName={(i) => PRIORIDADE_STRIPE[chamados[i].prioridade]}
+        emptyText="Nenhum chamado na fila."
+      />
     </div>
   )
 }

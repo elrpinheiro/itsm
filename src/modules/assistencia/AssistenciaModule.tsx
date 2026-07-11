@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Plus } from 'lucide-react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useModuleAccess } from '@/store/usePermissions'
@@ -27,6 +28,13 @@ const STATUS_CLASS: Record<StatusChamado, string> = {
   'Em atendimento': 'badge-blue',
   'Aguardando terceiro': '',
   Fechado: 'badge-green',
+}
+
+const PRIORIDADE_STRIPE: Record<Prioridade, string> = {
+  Baixa: 'row-prio-baixa',
+  Média: 'row-prio-media',
+  Alta: 'row-prio-alta',
+  Crítica: 'row-prio-critica',
 }
 
 export default function AssistenciaModule() {
@@ -75,11 +83,16 @@ export default function AssistenciaModule() {
               </div>
               {acesso.criar && (
                 <button className="btn btn-primary" style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }} onClick={() => setNovoAtendimentoAberto(true)}>
-                  + Novo Atendimento
+                  <Plus size={14} /> Novo Atendimento
                 </button>
               )}
             </div>
-            <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum chamado na fila para este projeto." />
+            <DataTable
+              columns={COLUMNS}
+              rows={rows}
+              rowClassName={(i) => PRIORIDADE_STRIPE[chamados[i].prioridade]}
+              emptyText="Nenhum chamado na fila para este projeto."
+            />
           </div>
         )}
       </div>

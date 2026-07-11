@@ -3,28 +3,36 @@ import { MODULES } from '@/modules/registry'
 import { TEMPLATES } from '@/data/templates'
 import { usePermissionMatrix, canSeeNavModule } from '@/store/usePermissions'
 
+/** Barra de módulos persistente — funciona tanto dentro de um projeto (rotas /app/*) quanto na
+ * visão global (rotas na raiz), navegando para a base certa conforme a URL atual. */
 export default function ModuleTabs() {
   const location = useLocation()
   const navigate = useNavigate()
   const totalTemplates = TEMPLATES.length
   const permissionMatrix = usePermissionMatrix()
-  const visibleModules = MODULES.filter((mod) => canSeeNavModule(permissionMatrix, mod.path))
+  const insideApp = location.pathname.startsWith('/app')
+  const base = insideApp ? '/app/' : '/'
+  const visibleModules = MODULES.filter((mod) =>
+    mod.key === 'inicio' ? insideApp : canSeeNavModule(permissionMatrix, mod.path),
+  )
 
   return (
     <div className="hdr-modbar">
       {visibleModules.map((mod) => {
-        const active = location.pathname.startsWith(`/app/${mod.path}`)
+        const active = location.pathname.startsWith(`${base}${mod.path}`)
         return (
-          <div
+          <button
             key={mod.key}
+            type="button"
             className={`mod-tab${active ? ' on' : ''}`}
-            onClick={() => navigate(`/app/${mod.path}`)}
+            onClick={() => navigate(`${base}${mod.path}`)}
           >
-            <span className="ic">{mod.icon}</span> {mod.label}
-          </div>
+            <mod.icon className="ic" size={16} strokeWidth={2} />
+            <span>{mod.label}</span>
+          </button>
         )
       })}
-      {location.pathname.startsWith('/app/ferramentas/documentos') && (
+      {location.pathname.includes('ferramentas/documentos') && (
         <span className="badge badge-blue hdr-tpl-count" style={{ marginLeft: 'auto' }}>
           {totalTemplates} templates
         </span>

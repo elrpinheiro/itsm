@@ -12,9 +12,11 @@ interface Props {
   emptyText?: string
   onRowClick?: (index: number) => void
   selectedIndex?: number
+  /** Classe extra por linha (ex.: faixa lateral colorida por prioridade) — soma-se a clickable/selected. */
+  rowClassName?: (index: number) => string
 }
 
-export default function DataTable({ columns, rows, emptyText, onRowClick, selectedIndex }: Props) {
+export default function DataTable({ columns, rows, emptyText, onRowClick, selectedIndex, rowClassName }: Props) {
   return (
     <div className="data-table-wrap">
       <table className="data-table">
@@ -38,7 +40,7 @@ export default function DataTable({ columns, rows, emptyText, onRowClick, select
             rows.map((row, i) => (
               <tr
                 key={i}
-                className={`${onRowClick ? 'clickable' : ''}${selectedIndex === i ? ' selected' : ''}`}
+                className={`${onRowClick ? 'clickable' : ''}${selectedIndex === i ? ' selected' : ''}${rowClassName ? ` ${rowClassName(i)}` : ''}`}
                 onClick={onRowClick ? () => onRowClick(i) : undefined}
               >
                 {columns.map((c) => (
