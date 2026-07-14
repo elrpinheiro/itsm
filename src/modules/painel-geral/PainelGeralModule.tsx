@@ -12,6 +12,10 @@ import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento, em todas as unidades. Sem envio automático de pesquisa nesta versão.'
 
+const CHART_TOOLTIP_STYLE = { background: 'var(--card)', border: '1px solid var(--borda)', borderRadius: 8, fontSize: 12.5 }
+const CHART_TOOLTIP_LABEL_STYLE = { color: 'var(--texto)' }
+const CHART_TOOLTIP_ITEM_STYLE = { color: 'var(--texto-sec)' }
+
 const COLUMNS: DataTableColumn[] = [
   { key: 'numero', label: 'Nº', width: '80px' },
   { key: 'projeto', label: 'Projeto' },
@@ -146,7 +150,7 @@ export default function PainelGeralModule() {
                   <BarChart data={porCategoria} layout="vertical" margin={{ top: 4, right: 20, bottom: 4, left: 4 }}>
                     <XAxis type="number" allowDecimals={false} hide />
                     <YAxis type="category" dataKey="categoria" width={110} tick={{ fontSize: 12, fill: 'var(--texto-sec)' }} axisLine={false} tickLine={false} />
-                    <Tooltip cursor={{ fill: 'var(--fundo)' }} formatter={(v) => [v, 'chamados']} />
+                    <Tooltip cursor={{ fill: 'var(--fundo)' }} formatter={(v) => [v, 'chamados']} contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} itemStyle={CHART_TOOLTIP_ITEM_STYLE} />
                     <Bar dataKey="total" fill="var(--tema)" radius={[0, 5, 5, 0]} barSize={14} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -165,7 +169,7 @@ export default function PainelGeralModule() {
                           <Cell key={entry.status} fill={statusMap[entry.status]?.cor ?? '#5f5e5a'} stroke="none" />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(v, n) => [v, n]} />
+                      <Tooltip formatter={(v, n) => [v, n]} contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} itemStyle={CHART_TOOLTIP_ITEM_STYLE} />
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="inicio-legend">
@@ -190,7 +194,7 @@ export default function PainelGeralModule() {
                 <BarChart data={porUnidade} layout="vertical" margin={{ top: 4, right: 20, bottom: 4, left: 4 }}>
                   <XAxis type="number" allowDecimals={false} hide />
                   <YAxis type="category" dataKey="unidade" width={170} tick={{ fontSize: 12, fill: 'var(--texto-sec)' }} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{ fill: 'var(--fundo)' }} formatter={(v) => [v, 'chamados']} />
+                  <Tooltip cursor={{ fill: 'var(--fundo)' }} formatter={(v) => [v, 'chamados']} contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} itemStyle={CHART_TOOLTIP_ITEM_STYLE} />
                   <Bar dataKey="total" fill="var(--tema)" radius={[0, 5, 5, 0]} barSize={14} />
                 </BarChart>
               </ResponsiveContainer>

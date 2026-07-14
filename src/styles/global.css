@@ -50,6 +50,21 @@
   --shadow-sm: 0 1px 2px rgba(28, 38, 32, 0.05);
   --shadow-md: 0 8px 20px -8px rgba(28, 38, 32, 0.18);
 
+  /* Fundo claro fixo — não muda com o tema, usado para "chips" (logo, marca "V") apoiados
+     sempre sobre uma barra escura (header/tab flutuante), que também não muda com o tema. */
+  --chip-claro: #ffffff;
+
+  --azul-texto: #0c447c;
+  --verde-texto: #27500a;
+  --amarelo-texto: #633806;
+  --purple-pale: #f2ebf7;
+  --purple-texto: #5a257d;
+  /* Título de destaque sobre --fundo/--card (ex.: "Vitae ITSM" no login) — precisa mudar com o
+     tema porque --azul-escuro/--tema-escuro são fixos por marca (usados no header, sempre escuro). */
+  --titulo-acento: #0d2b5e;
+  /* Texto de ação destrutiva (ex.: "Excluir") sobre --card, sem chip de fundo próprio. */
+  --vermelho-texto: #a30000;
+
   /* Tema do shell (header, barra de módulos, botões) — sobrescrito por projeto em AppShell.
      Não usar para badges de marca de documento (Planneta/Faz), que ficam fixos nas variáveis azul/verde acima. */
   --tema-escuro: #0d2b5e;
@@ -57,6 +72,32 @@
   --tema-pale: #e6f1fb;
   --tema-texto: #0c447c;
   --tema-accento: #378add;
+}
+
+/* ===== Tema escuro — ativado via [data-theme="dark"] no <html>, alternável pelo botão
+   Claro/Escuro no cabeçalho. Redefine só as camadas neutras (fundo/superfície/texto/borda)
+   e as cores "pale" de badges — as cores de marca (azul/verde/amarelo sólidos, --tema-*
+   por projeto) ficam intactas para preservar a identidade visual de cada marca. */
+:root[data-theme='dark'] {
+  --borda: #3a3f34;
+  --texto: #ecebe2;
+  --texto-sec: #a6ab9c;
+  --muted: #6b7164;
+  --fundo: #181b15;
+  --card: #23271f;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 20px -8px rgba(0, 0, 0, 0.6);
+
+  --azul-pale: #1b3350;
+  --azul-texto: #7ec1f0;
+  --verde-pale: #24371a;
+  --verde-texto: #a8d97a;
+  --amarelo-pale: #4a3313;
+  --amarelo-texto: #e8b768;
+  --purple-pale: #3a2a47;
+  --purple-texto: #d2a6e8;
+  --titulo-acento: #7ec1f0;
+  --vermelho-texto: #f28b82;
 }
 html,
 body,
@@ -123,19 +164,19 @@ body {
 }
 .badge-blue {
   background: var(--azul-pale);
-  color: #0c447c;
+  color: var(--azul-texto);
 }
 .badge-green {
   background: var(--verde-pale);
-  color: #27500a;
+  color: var(--verde-texto);
 }
 .badge-amber {
   background: var(--amarelo-pale);
-  color: #633806;
+  color: var(--amarelo-texto);
 }
 .badge-purple {
-  background: #f2ebf7;
-  color: #5a257d;
+  background: var(--purple-pale);
+  color: var(--purple-texto);
 }
 .btn {
   padding: 8px 15px;
@@ -249,8 +290,12 @@ body {
   display: block;
   font-weight: 500;
 }
+input:not([type]),
 input[type='text'],
 input[type='password'],
+input[type='number'],
+input[type='email'],
+input[type='search'],
 textarea,
 select {
   width: 100%;
@@ -465,7 +510,7 @@ textarea {
   padding: 6px 13px;
   border-radius: 99px;
   border: 1px solid #b5d4f4;
-  background: #fff;
+  background: var(--card);
   cursor: pointer;
   font-size: 12px;
   color: var(--tema);
@@ -516,7 +561,7 @@ textarea {
 }
 .signer-num.done {
   background: var(--verde-pale);
-  color: #27500a;
+  color: var(--verde-texto);
 }
 .sig-pad {
   border: 1.5px dashed #b5d4f4;
@@ -565,7 +610,7 @@ textarea {
 }
 .stepn.done {
   background: var(--verde-pale);
-  color: #27500a;
+  color: var(--verde-texto);
   border-color: #c0dd97;
 }
 .stepl {
@@ -616,7 +661,7 @@ textarea {
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  color: #27500a;
+  color: var(--verde-texto);
   background: var(--verde-pale);
   padding: 4px 9px;
   border-radius: 99px;
@@ -656,7 +701,7 @@ textarea {
   height: 26px;
   border: 1.5px solid var(--borda);
   border-radius: 6px;
-  background: #fff;
+  background: var(--card);
   cursor: pointer;
   font-size: 12px;
   display: flex;
@@ -702,11 +747,11 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eef2f6;
+  background: var(--fundo);
   padding: 20px;
 }
 .login-card {
-  background: #fff;
+  background: var(--card);
   border-radius: 16px;
   padding: 38px 34px;
   width: 100%;
@@ -732,7 +777,7 @@ textarea {
   gap: 16px;
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px solid #eceae3;
+  border-top: 1px solid var(--borda);
 }
 .brand-row span {
   font-size: 11px;
@@ -752,7 +797,7 @@ textarea {
 .hdr-mark {
   width: 34px;
   height: 34px;
-  background: #fff;
+  background: var(--chip-claro);
   border: none;
   border-radius: 8px;
   display: flex;
@@ -811,7 +856,7 @@ textarea {
   width: auto;
   max-width: 64px;
   object-fit: contain;
-  background: #fff;
+  background: var(--chip-claro);
   border-radius: 5px;
   padding: 2px 4px;
   flex-shrink: 0;
@@ -928,6 +973,73 @@ textarea {
   background: rgba(255, 255, 255, 0.24);
 }
 
+/* ===== botão Claro/Escuro (cabeçalho e tela de login) ===== */
+.hdr-theme-toggle {
+  position: relative;
+  flex-shrink: 0;
+}
+.hdr-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.12s;
+}
+.hdr-theme-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+.hdr-theme-btn.plain {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  color: var(--texto-sec);
+}
+.hdr-theme-btn.plain:hover {
+  background: var(--fundo);
+}
+.hdr-theme-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 150px;
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  padding: 6px;
+  z-index: 40;
+}
+.hdr-theme-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--texto);
+  font-family: inherit;
+  text-align: left;
+}
+.hdr-theme-option:hover {
+  background: var(--fundo);
+}
+.hdr-theme-option.on {
+  background: var(--tema-pale);
+  color: var(--tema-texto);
+  font-weight: 600;
+}
+
 /* ===== corpo com painéis fixos ===== */
 .op-layout {
   display: flex;
@@ -961,7 +1073,7 @@ textarea {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--card);
   min-width: 260px;
 }
 .op-panels.compact {
@@ -1253,7 +1365,7 @@ textarea {
   gap: 10px;
 }
 .pf-card {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 11px;
   padding: 12px;
@@ -1315,7 +1427,7 @@ textarea {
   text-decoration: underline;
 }
 .empty-box {
-  background: #fff;
+  background: var(--card);
   border: 1.5px dashed var(--borda);
   border-radius: 14px;
   padding: 60px 30px;
@@ -1360,7 +1472,7 @@ textarea {
   border-bottom: 1px solid var(--borda);
 }
 .proj-column {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 14px;
   padding: 10px;
@@ -1450,7 +1562,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--card);
   border: 1.5px solid var(--borda);
 }
 .proj-row-avatar-clip img {
@@ -1496,7 +1608,7 @@ textarea {
   padding: 20px;
 }
 .modal-card {
-  background: #fff;
+  background: var(--card);
   border-radius: 14px;
   width: 100%;
   max-width: 420px;
@@ -1555,7 +1667,7 @@ textarea {
   border: 1px solid var(--borda);
   border-radius: 8px;
   padding: 4px;
-  background: #fff;
+  background: var(--card);
 }
 .admin-error {
   font-size: 12px;
@@ -1640,7 +1752,7 @@ textarea {
 }
 .inicio-kpi-ic.good {
   background: var(--verde-pale);
-  color: #27500a;
+  color: var(--verde-texto);
 }
 .inicio-kpi-num {
   font-family: 'Barlow Condensed', system-ui, sans-serif;
@@ -1715,7 +1827,7 @@ textarea {
 .sec-sidebar {
   width: 260px;
   flex-shrink: 0;
-  background: #fff;
+  background: var(--card);
   border-right: 1px solid var(--borda);
   display: flex;
   flex-direction: column;
@@ -1771,7 +1883,7 @@ textarea {
   height: 24px;
   object-fit: contain;
   border-radius: 5px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   flex-shrink: 0;
   padding: 2px;
@@ -1791,7 +1903,7 @@ textarea {
 }
 
 .data-table-wrap {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 12px;
   overflow: hidden;
@@ -1844,7 +1956,7 @@ textarea {
 }
 .perm-matrix {
   margin-top: 16px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 12px;
   padding: 16px;
@@ -1880,7 +1992,7 @@ textarea {
   width: auto;
   max-width: 96px;
   object-fit: contain;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 8px;
   padding: 4px 6px;
@@ -1906,7 +2018,7 @@ textarea {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 10px;
   cursor: pointer;
@@ -1983,14 +2095,14 @@ textarea {
   width: 20px;
   height: 20px;
   object-fit: contain;
-  background: #fff;
+  background: var(--chip-claro);
   border-radius: 50%;
   padding: 2px;
 }
 
 /* ===== legenda de classificação de chamados (Requisição/Incidente/Problema) ===== */
 .itsm-legend {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 12px;
   margin-bottom: 18px;
@@ -2022,7 +2134,7 @@ textarea {
   background: var(--borda);
 }
 .itsm-legend-item {
-  background: #fff;
+  background: var(--card);
   padding: 12px 14px;
   border: none;
   border-top: 3px solid var(--legend-color);
@@ -2061,7 +2173,7 @@ textarea {
 }
 .subcat-placeholder {
   margin-top: 16px;
-  background: #fff;
+  background: var(--card);
   border: 1px dashed var(--borda);
   border-radius: 12px;
   padding: 30px 20px;
@@ -2139,7 +2251,7 @@ textarea {
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 8px;
   max-height: 220px;
@@ -2280,7 +2392,7 @@ textarea {
   border-radius: 8px;
   padding: 8px 10px;
   cursor: pointer;
-  background: #fff;
+  background: var(--card);
   font-size: 12px;
   text-align: left;
 }
@@ -2320,7 +2432,7 @@ textarea {
   align-self: flex-start;
 }
 .nc-chat-bubble.note {
-  background: #fff;
+  background: var(--card);
   border: 1px dashed var(--borda);
   align-self: flex-start;
   color: var(--texto-sec);
@@ -2417,7 +2529,7 @@ textarea {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--tema);
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--tema);
   padding: 2px 6px;
   border-radius: 5px;
@@ -2493,7 +2605,7 @@ textarea {
   padding: 12px;
   text-align: center;
   cursor: pointer;
-  background: #fff;
+  background: var(--card);
 }
 .nc-decision .opt.chosen.yes {
   border-color: var(--verde);
@@ -2531,7 +2643,7 @@ textarea {
   border: 1px solid var(--borda);
   border-radius: 8px;
   padding: 9px 10px;
-  background: #fff;
+  background: var(--card);
 }
 .nc-summary-ic {
   width: 18px;

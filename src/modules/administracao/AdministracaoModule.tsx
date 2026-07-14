@@ -198,7 +198,7 @@ export default function AdministracaoModule() {
                   onChange={(matriz) => updatePermissao(selectedPerfil.id, matriz)}
                 />
                 {acessoAdmin.editar && !selectedPerfil.builtIn && (
-                  <button className="btn" style={{ fontSize: 12, marginTop: 10, color: '#a30000' }} onClick={handleExcluirPerfil}>
+                  <button className="btn" style={{ fontSize: 12, marginTop: 10, color: 'var(--vermelho-texto)' }} onClick={handleExcluirPerfil}>
                     🗑 Excluir perfil
                   </button>
                 )}
@@ -262,7 +262,7 @@ export default function AdministracaoModule() {
                       </button>
                       <button
                         className="btn"
-                        style={{ fontSize: 11, padding: '4px 8px', color: '#a30000' }}
+                        style={{ fontSize: 11, padding: '4px 8px', color: 'var(--vermelho-texto)' }}
                         onClick={() => handleExcluirUsuario(u.id, u.nome)}
                       >
                         Excluir

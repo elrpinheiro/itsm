@@ -80,12 +80,12 @@ export function SectionTitle({ children }: { children: string }) {
       style={{
         fontSize: 11,
         fontWeight: 700,
-        color: 'var(--azul-escuro)',
+        color: 'var(--titulo-acento)',
         textTransform: 'uppercase',
         letterSpacing: '.05em',
         margin: '16px 0 8px',
         paddingBottom: 4,
-        borderBottom: '1px solid #ECEAE3',
+        borderBottom: '1px solid var(--borda)',
       }}
     >
       {children}

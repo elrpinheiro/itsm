@@ -58,7 +58,7 @@ export default function GrupoMembrosPanel({ grupo, canEdit }: Props) {
                   <td>
                     <button
                       className="btn"
-                      style={{ fontSize: 11, padding: '4px 8px', color: '#a30000' }}
+                      style={{ fontSize: 11, padding: '4px 8px', color: 'var(--vermelho-texto)' }}
                       onClick={() => removeUsuarioFromGrupo(u.id, grupo.id)}
                     >
                       Remover

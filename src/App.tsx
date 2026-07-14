@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProjectStore } from '@/store/useProjectStore'
+import { useThemeStore } from '@/store/useThemeStore'
 import LoginScreen from '@/components/login/LoginScreen'
 import AuthenticatedLayout from '@/components/layout/AuthenticatedLayout'
 import PainelGeralModule from '@/modules/painel-geral/PainelGeralModule'
@@ -36,6 +38,12 @@ function EntryRedirect() {
 }
 
 export default function App() {
+  const themeMode = useThemeStore((s) => s.mode)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = themeMode
+  }, [themeMode])
+
   return (
     <Routes>
       <Route path="/login" element={<LoginScreen />} />
