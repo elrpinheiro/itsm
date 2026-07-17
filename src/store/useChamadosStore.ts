@@ -45,12 +45,13 @@ interface ChamadosState {
   /** Acompanhamento (troca com o requerente, público ou privado) — não muda o status: dá para
    * interagir com o chamado ainda "Na fila", antes de alguém assumi-lo formalmente. */
   adicionarAcompanhamento: (numero: string, input: AcompanhamentoInput) => void
-  /** Tarefa técnica agendada — vira uma nota na timeline (Processing planned do GLPI fica dentro do
-   * nosso "Em atendimento", ver comentário em StatusChamado). */
-  agendarTarefa: (numero: string, texto: string, autor: string) => void
+  /** Tarefa técnica planejada — "Processando (planejado)" no GLPI. */
+  planejarTarefa: (numero: string, texto: string, autor: string) => void
   /** Requerente indisponível ou chamado incompleto — "Aguardando terceiro" (Pending do GLPI). */
   colocarPendente: (numero: string, motivo: string, autor: string) => void
   retomarChamado: (numero: string, autor: string) => void
+  /** Reatribui o chamado para outro grupo de atendimento. */
+  reatribuirGrupo: (numero: string, grupoId: string, grupoNome: string, autor: string) => void
   /** Técnico registra a solução — vira "Solucionado", aguardando o aceite (assinatura) do requerente. */
   registrarSolucao: (numero: string, texto: string, autor: string) => void
   /** Aceite/assinatura do requerente confirmados — fecha o chamado. */
@@ -137,9 +138,15 @@ export const useChamadosStore = create<ChamadosState>()(
             texto: input.texto,
           }),
         })),
-      agendarTarefa: (numero, texto, autor) =>
+      planejarTarefa: (numero, texto, autor) =>
         set((s) => ({
-          chamados: atualizarChamado(s.chamados, numero, {}, { tipo: 'tarefa', origem: 'Atendente', publico: true, autor, texto }),
+          chamados: atualizarChamado(s.chamados, numero, { status: 'Processando (planejado)' }, {
+            tipo: 'tarefa',
+            origem: 'Atendente',
+            publico: true,
+            autor,
+            texto,
+          }),
         })),
       colocarPendente: (numero, motivo, autor) =>
         set((s) => ({
@@ -148,7 +155,7 @@ export const useChamadosStore = create<ChamadosState>()(
             origem: 'Sistema',
             publico: true,
             autor,
-            texto: `Chamado colocado em pendência: ${motivo}`,
+            texto: motivo,
           }),
         })),
       retomarChamado: (numero, autor) =>
@@ -159,6 +166,16 @@ export const useChamadosStore = create<ChamadosState>()(
             publico: true,
             autor,
             texto: `${autor} retomou o atendimento.`,
+          }),
+        })),
+      reatribuirGrupo: (numero, grupoId, grupoNome, autor) =>
+        set((s) => ({
+          chamados: atualizarChamado(s.chamados, numero, { grupoId }, {
+            tipo: 'sistema',
+            origem: 'Sistema',
+            publico: true,
+            autor,
+            texto: `Chamado reatribuído para o grupo ${grupoNome}.`,
           }),
         })),
       registrarSolucao: (numero, texto, autor) =>
@@ -190,6 +207,6 @@ export const useChamadosStore = create<ChamadosState>()(
           ),
         })),
     }),
-    { name: 'itsm-chamados-v2' },
+    { name: 'itsm-chamados-v3' },
   ),
 )

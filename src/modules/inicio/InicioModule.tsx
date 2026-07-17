@@ -36,7 +36,7 @@ export default function InicioModule() {
   const chamados = useMemo(() => todosChamados.filter((c) => c.projetoNome === projetoLabel), [todosChamados, projetoLabel])
 
   const naFila = chamados.filter((c) => c.status === 'Na fila').length
-  const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento').length
+  const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento' || c.status === 'Processando (planejado)').length
   const fechados = chamados.filter((c) => c.status === 'Fechado').length
   const criticosAbertos = chamados.filter((c) => c.prioridade === 'Crítica' && c.status !== 'Fechado').length
   const ttrMap = useSlaTtrMap()
@@ -59,7 +59,7 @@ export default function InicioModule() {
   }, [chamados])
 
   const porStatus = useMemo(() => {
-    const buckets: StatusChamado[] = ['Na fila', 'Em atendimento', 'Aguardando terceiro', 'Solucionado', 'Fechado']
+    const buckets: StatusChamado[] = ['Na fila', 'Em atendimento', 'Processando (planejado)', 'Aguardando terceiro', 'Solucionado', 'Fechado']
     return buckets
       .map((status) => ({ status, total: chamados.filter((c) => c.status === status).length }))
       .filter((b) => b.total > 0)

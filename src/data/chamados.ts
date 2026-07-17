@@ -2,13 +2,28 @@ import type { ClassificationLabel } from './catalog'
 
 export type Prioridade = 'Baixa' | 'Média' | 'Alta' | 'Crítica'
 /**
- * Ciclo de vida do chamado, alinhado ao GLPI (Assistência → Chamados → ciclo de vida):
- * Na fila (New) → Em atendimento (Processing) → [Aguardando terceiro (Pending)] → Solucionado (Solved) → Fechado (Closed).
- * Simplificação assumida: "Em atendimento" cobre tanto "Processing (assigned)" quanto "Processing
- * (planned)" do GLPI — não abrimos um status à parte só para tarefa agendada, para não multiplicar
- * as buckets de SLA/gráficos por uma distinção que não muda o que o requerente vê.
+ * Ciclo de vida do chamado — os 6 status do GLPI (Assistência → Chamados → ciclo de vida):
+ * Na fila (New) → Em atendimento (Processing assigned) → Processando (planejado) (Processing planned)
+ * → [Aguardando terceiro (Pending)] → Solucionado (Solved) → Fechado (Closed). Os rótulos exibidos
+ * (Administração → Listas Suspensas) usam a nomenclatura em português do GLPI (Novo/Processando
+ * atribuído/Processando planejado/Pendente); a chave interna abaixo é que fica fixa.
  */
-export type StatusChamado = 'Na fila' | 'Em atendimento' | 'Aguardando terceiro' | 'Solucionado' | 'Fechado'
+export type StatusChamado =
+  | 'Na fila'
+  | 'Em atendimento'
+  | 'Processando (planejado)'
+  | 'Aguardando terceiro'
+  | 'Solucionado'
+  | 'Fechado'
+/** Ordem canônica do ciclo de vida — usada pelo widget "Ciclo de vida" no detalhe do chamado. */
+export const CICLO_VIDA_ORDEM: StatusChamado[] = [
+  'Na fila',
+  'Em atendimento',
+  'Processando (planejado)',
+  'Aguardando terceiro',
+  'Solucionado',
+  'Fechado',
+]
 /** Canal de origem do atendimento — de onde veio o relato que virou este chamado. */
 export type OrigemAtendimento = 'Atendente' | '0800 (URA)' | 'WhatsApp'
 
@@ -80,7 +95,7 @@ export const CHAMADOS: Chamado[] = [
     projetoNome: 'Incluir Tecnológico — Cerquilho',
     assunto: 'Internet instável no laboratório',
     prioridade: 'Média',
-    status: 'Em atendimento',
+    status: 'Processando (planejado)',
     abertoHa: '12h',
     origem: '0800 (URA)',
     atribuidoA: 'Rafael Souza',

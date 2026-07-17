@@ -29,6 +29,7 @@ const ORIGENS: { key: OrigemAtendimento; icon: string; desc: string }[] = [
 const STATUS_BUCKET: Record<StatusChamado, 'andamento' | 'pendente' | 'fechado'> = {
   'Na fila': 'andamento',
   'Em atendimento': 'andamento',
+  'Processando (planejado)': 'andamento',
   'Aguardando terceiro': 'pendente',
   Solucionado: 'andamento',
   Fechado: 'fechado',
