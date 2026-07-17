@@ -17,9 +17,10 @@ const COLUMNS: DataTableColumn[] = [
 
 interface Props {
   onNovoAtendimento: () => void
+  onOpenChamado: (numero: string) => void
 }
 
-export default function ChamadosScreen({ onNovoAtendimento }: Props) {
+export default function ChamadosScreen({ onNovoAtendimento, onOpenChamado }: Props) {
   const user = useAuthStore((s) => s.user)
   const acesso = useModuleAccess('assistencia')
   const todosChamados = useChamadosStore((s) => s.chamados)
@@ -64,6 +65,7 @@ export default function ChamadosScreen({ onNovoAtendimento }: Props) {
       <DataTable
         columns={COLUMNS}
         rows={rows}
+        onRowClick={(i) => onOpenChamado(chamados[i].numero)}
         rowStripeColor={(i) => prioridadeMap[chamados[i].prioridade]?.cor}
         emptyText="Nenhum chamado na fila."
       />

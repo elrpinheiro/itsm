@@ -24,7 +24,8 @@ const STATUS_PADRAO: DropdownEntry[] = [
   { chave: 'Na fila', label: 'Na fila', cor: '#854f0b', ativo: true, ordem: 0 },
   { chave: 'Em atendimento', label: 'Em atendimento', cor: '#185fa5', ativo: true, ordem: 1 },
   { chave: 'Aguardando terceiro', label: 'Aguardando terceiro', cor: '#8b8f83', ativo: true, ordem: 2 },
-  { chave: 'Fechado', label: 'Fechado', cor: '#3b6d11', ativo: true, ordem: 3 },
+  { chave: 'Solucionado', label: 'Solucionado', cor: '#0f7a72', ativo: true, ordem: 3 },
+  { chave: 'Fechado', label: 'Fechado', cor: '#3b6d11', ativo: true, ordem: 4 },
 ]
 
 const ORIGEM_PADRAO: DropdownEntry[] = [
@@ -52,7 +53,7 @@ export const useDropdownsStore = create<DropdownsState>()(
       updateEntry: (tipo, chave, patch) =>
         set((s) => ({ [tipo]: s[tipo].map((e) => (e.chave === chave ? { ...e, ...patch } : e)) }) as Partial<DropdownsState>),
     }),
-    { name: 'itsm-dropdowns-v1' },
+    { name: 'itsm-dropdowns-v2' },
   ),
 )
 

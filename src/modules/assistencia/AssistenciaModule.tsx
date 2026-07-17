@@ -8,6 +8,7 @@ import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { badgeStyleFromColor } from '@/utils/color'
 import NovoAtendimentoView from './NovoAtendimentoView'
+import ChamadoDetalheView from './ChamadoDetalheView'
 
 const COLUMNS: DataTableColumn[] = [
   { key: 'numero', label: 'Nº', width: '80px' },
@@ -23,6 +24,7 @@ export default function AssistenciaModule() {
   const acesso = useModuleAccess('assistencia')
   const todosChamados = useChamadosStore((s) => s.chamados)
   const [novoAtendimentoAberto, setNovoAtendimentoAberto] = useState(false)
+  const [chamadoAberto, setChamadoAberto] = useState<string | null>(null)
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
 
@@ -54,6 +56,8 @@ export default function AssistenciaModule() {
       <div className="mod-page-body">
         {novoAtendimentoAberto ? (
           <NovoAtendimentoView project={project} onClose={() => setNovoAtendimentoAberto(false)} />
+        ) : chamadoAberto ? (
+          <ChamadoDetalheView numero={chamadoAberto} onClose={() => setChamadoAberto(null)} />
         ) : (
           <div className="mod-scroll-area">
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
@@ -69,6 +73,7 @@ export default function AssistenciaModule() {
             <DataTable
               columns={COLUMNS}
               rows={rows}
+              onRowClick={(i) => setChamadoAberto(chamados[i].numero)}
               rowStripeColor={(i) => prioridadeMap[chamados[i].prioridade]?.cor}
               emptyText="Nenhum chamado na fila para este projeto."
             />

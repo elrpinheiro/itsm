@@ -55,7 +55,7 @@ export default function PainelGeralModule() {
   }, [chamados])
 
   const porStatus = useMemo(() => {
-    const buckets: StatusChamado[] = ['Na fila', 'Em atendimento', 'Aguardando terceiro', 'Fechado']
+    const buckets: StatusChamado[] = ['Na fila', 'Em atendimento', 'Aguardando terceiro', 'Solucionado', 'Fechado']
     return buckets
       .map((status) => ({ status, total: chamados.filter((c) => c.status === status).length }))
       .filter((b) => b.total > 0)
