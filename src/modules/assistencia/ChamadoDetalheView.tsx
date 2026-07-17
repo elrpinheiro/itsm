@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FileText, MessageCircle, Wrench, CheckCircle2, Info, Paperclip, type LucideIcon } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useModuleAccess } from '@/store/usePermissions'
@@ -6,6 +6,8 @@ import { useAdminStore } from '@/store/useAdminStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { badgeStyleFromColor } from '@/utils/color'
+import { reformularDescricao } from '@/data/classificarChamado'
+import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
 import { CICLO_VIDA_ORDEM, type OrigemAtendimento, type TipoInteracao } from '@/data/chamados'
 
 interface Props {
@@ -80,6 +82,13 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
   const [novoGrupoId, setNovoGrupoId] = useState('')
   const [mostrarRejeicao, setMostrarRejeicao] = useState(false)
   const [formRejeicao, setFormRejeicao] = useState('')
+
+  // Sugestão da Base de Conhecimento ao registrar solução — mesma lógica de NovoAtendimentoView,
+  // recalculada a cada tecla para refinar entre artigos da mesma categoria pela palavra-chave.
+  const solucaoSugerida = useMemo(
+    () => (composerTipo === 'solucao' && chamado?.categoria ? buscarSolucaoSugerida(chamado.categoria, texto) : null),
+    [composerTipo, chamado?.categoria, texto],
+  )
 
   if (!chamado) {
     return (
@@ -240,6 +249,26 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
                   </>
                 )}
               </div>
+
+              {composerTipo === 'solucao' && chamado.categoria && (
+                <div style={{ marginBottom: 8 }}>
+                  {solucaoSugerida ? (
+                    <div className="nc-kb-card">
+                      <div className="nc-kb-card-head">
+                        <span className="nc-ai-tag">✦ Base de conhecimento</span>
+                        <span className="nc-kb-card-title">{solucaoSugerida.titulo}</span>
+                      </div>
+                      <p className="nc-kb-card-text">{solucaoSugerida.solucao}</p>
+                      <button type="button" className="btn" onClick={() => setTexto(solucaoSugerida.solucao)}>
+                        ✦ Aplicar solução da base de conhecimento
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="nc-kb-empty">Nenhum artigo relacionado encontrado na base de conhecimento — descreva a solução abaixo.</div>
+                  )}
+                </div>
+              )}
+
               <textarea
                 rows={2}
                 value={texto}
@@ -261,6 +290,9 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
                 )}
                 <button type="button" className="btn" disabled title="Anexos ainda não implementados nesta versão">
                   <Paperclip size={13} /> Anexar
+                </button>
+                <button type="button" className="btn" onClick={() => setTexto(reformularDescricao(texto))} disabled={!texto.trim()}>
+                  ✦ Reformular com IA
                 </button>
                 <button type="button" className="btn btn-primary" style={{ marginLeft: 'auto' }} onClick={handleAdicionar}>
                   + Adicionar
