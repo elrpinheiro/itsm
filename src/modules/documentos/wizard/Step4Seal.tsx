@@ -5,7 +5,13 @@ import DocumentPreview from './DocumentPreview'
 import SignedMark from './SignedMark'
 import PdfDownloadButton from './PdfDownloadButton'
 
-export default function Step4Seal({ onNovoDocumento }: { onNovoDocumento: () => void }) {
+interface Props {
+  onNovoDocumento: () => void
+  /** Rótulo do botão final — por padrão "↻ Novo documento"; o fluxo de OS do chamado usa um texto que reflete melhor a ação (voltar ao chamado, já fechado). */
+  finishLabel?: string
+}
+
+export default function Step4Seal({ onNovoDocumento, finishLabel = '↻ Novo documento' }: Props) {
   const { template, brand, signers } = useWizard()
   const now = useMemo(() => new Date(), [])
   const hash = useMemo(
@@ -115,7 +121,7 @@ export default function Step4Seal({ onNovoDocumento }: { onNovoDocumento: () => 
           ✉ Enviar aos signatários
         </button>
         <button className="btn" style={{ fontSize: 12, marginLeft: 'auto' }} onClick={onNovoDocumento}>
-          ↻ Novo documento
+          {finishLabel}
         </button>
       </div>
     </div>

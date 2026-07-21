@@ -21,6 +21,9 @@ export type TemplateId =
   | 'formatacao'
   | 'mobilizacao'
   | 'devolucao'
+  /** Ordem de Serviço — gerada automaticamente a partir de um chamado (Assistência), nunca preenchida
+   * manualmente. Não entra em nenhum portfólio, então não aparece na Central de Documentos. */
+  | 'os'
   | 'usb'
 
 export interface Portfolio {

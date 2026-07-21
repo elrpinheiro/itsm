@@ -11,6 +11,7 @@ import UsbForm from './UsbForm'
 import FormatacaoForm from './FormatacaoForm'
 import MobilizacaoForm from './MobilizacaoForm'
 import GmudForm from './GmudForm'
+import OsForm from './OsForm'
 
 export const TEMPLATE_FORMS: Record<TemplateId, ComponentType<TemplateFormProps>> = {
   manut: ManutencaoForm,
@@ -23,6 +24,7 @@ export const TEMPLATE_FORMS: Record<TemplateId, ComponentType<TemplateFormProps>
   formatacao: FormatacaoForm,
   mobilizacao: MobilizacaoForm,
   gmud: GmudForm,
+  os: OsForm,
 }
 
 export type { TemplateFormProps }

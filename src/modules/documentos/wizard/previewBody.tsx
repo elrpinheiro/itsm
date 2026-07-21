@@ -431,6 +431,29 @@ export function renderPreviewBody(
           <div className="doc-txt">{data.infoAdicionais || ''}</div>
         </>
       )
+    case 'os':
+      return (
+        <>
+          <div className="doc-sec">Dados do requerente</div>
+          <Kv label="Unidade" value={data.unidade} />
+          <Kv label="Requerente" value={data.requerente} />
+          {data.requerenteEmail && <Kv label="E-mail" value={data.requerenteEmail} />}
+          <div className="doc-sec">Detalhes do atendimento</div>
+          <Kv label="Chamado" value={data.numero} />
+          <Kv label="Título" value={data.titulo} />
+          <Kv label="Responsável" value={data.responsavel} />
+          {data.origem && <Kv label="Origem" value={data.origem} />}
+          {data.categoria && <Kv label="Categoria" value={data.categoria} />}
+          <Kv label="Aberto há" value={data.abertoHa} />
+          <Kv label="Emissão da OS" value={data.emissao} />
+          <div className="doc-sec">Descrição do atendimento</div>
+          <div className="doc-txt">{data.descricao || 'Sem descrição registrada.'}</div>
+          <div className="doc-sec">Acompanhamentos</div>
+          <div className="doc-txt">{data.timeline || 'Sem acompanhamentos públicos registrados.'}</div>
+          <div className="doc-sec">Solução do atendimento</div>
+          <div className="doc-txt">{data.solucao || 'Sem solução registrada.'}</div>
+        </>
+      )
     default:
       return null
   }

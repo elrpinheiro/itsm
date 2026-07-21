@@ -81,6 +81,14 @@ export const TEMPLATES: TemplateDef[] = [
     iconBg: '#E8ECFB',
     signers: [{ cargo: 'Responsável pela execução' }, { cargo: 'Aprovador da mudança' }],
   },
+  {
+    id: 'os',
+    code: 'OS',
+    nome: 'Ordem de Serviço',
+    icon: '🧾',
+    iconBg: '#EAF3DE',
+    signers: [{ cargo: 'Técnico responsável' }, { cargo: 'Requerente' }],
+  },
 ]
 
 export function getTemplateById(id: string) {
