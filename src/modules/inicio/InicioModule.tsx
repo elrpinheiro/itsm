@@ -1,13 +1,10 @@
 import { useMemo } from 'react'
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Inbox, Activity, AlertTriangle, CheckCircle2, Plus, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
-import { badgeStyleFromColor } from '@/utils/color'
-import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
@@ -17,20 +14,9 @@ import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento. Sem envio automático de pesquisa nesta versão.'
 
-const CHART_TOOLTIP_STYLE = { background: 'var(--card)', border: '1px solid var(--borda)', borderRadius: 8, fontSize: 12.5 }
-const CHART_TOOLTIP_LABEL_STYLE = { color: 'var(--texto)' }
-const CHART_TOOLTIP_ITEM_STYLE = { color: 'var(--texto-sec)' }
-
-const COLUMNS: DataTableColumn[] = [
-  { key: 'numero', label: 'Nº', width: '80px' },
-  { key: 'assunto', label: 'Assunto' },
-  { key: 'prioridade', label: 'Prioridade', width: '110px' },
-  { key: 'status', label: 'Status', width: '150px' },
-  { key: 'abertoHa', label: 'Aberto há', width: '90px' },
-]
-
-/** Painel inicial ao entrar em um projeto — indicadores e gráficos derivados dos chamados reais
- * daquela unidade (sem dado inventado: KPIs de SLA e NPS deixam claro no título as premissas assumidas). */
+/** Painel inicial ao entrar em um projeto — indicadores derivados dos chamados reais daquela
+ * unidade, na identidade visual "Mosaico" (bento/glassmorphism) usada em todo o sistema. Ver
+ * 05.29 da documentação técnica. */
 export default function InicioModule() {
   const project = useProjectStore((s) => s.selectedProject)
   const todosChamados = useChamadosStore((s) => s.chamados)
@@ -69,139 +55,140 @@ export default function InicioModule() {
       .filter((b) => b.total > 0)
   }, [chamados])
 
+  const maiorCategoria = Math.max(1, ...porCategoria.map((c) => c.total))
+
   const recentes = chamados.slice(-5).reverse()
-  const rows = recentes.map((c) => ({
-    numero: <b>{c.numero}</b>,
-    assunto: c.assunto,
-    prioridade: (
-      <span className="badge" style={badgeStyleFromColor(prioridadeMap[c.prioridade]?.cor ?? '#5f5e5a')}>
-        {prioridadeMap[c.prioridade]?.label ?? c.prioridade}
-      </span>
-    ),
-    status: (
-      <span style={{ color: statusMap[c.status]?.cor ?? '#5f5e5a', fontWeight: 600, fontSize: 12 }}>
-        {statusMap[c.status]?.label ?? c.status}
-      </span>
-    ),
-    abertoHa: c.abertoHa,
-  }))
 
   if (!project) return null
 
   return (
-    <div className="mod-page">
+    <div className="mod-page mos-page">
       <div className="mod-page-body">
         <div className="mod-scroll-area">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
-            <div>
-              <div className="mod-section-title" style={{ marginBottom: 2 }}>
-                Início — {project.nome}
+          <div className="mos">
+            <div className="mos-blob b1" />
+            <div className="mos-blob b2" />
+
+            <div className="mos-top">
+              <div>
+                <div className="mos-eyebrow">Início — {project.nome}</div>
+                <div style={{ fontSize: 12.5, color: 'var(--mos-text-dim)', marginTop: 4 }}>{project.cidade}</div>
               </div>
-              <div style={{ fontSize: 12.5, color: 'var(--texto-sec)' }}>{project.cidade}</div>
+              <button type="button" className="mos-cta" onClick={() => navigate('/app/assistencia')}>
+                <Plus size={14} /> Novo Atendimento
+              </button>
             </div>
-            <button
-              className="btn btn-primary"
-              style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }}
-              onClick={() => navigate('/app/assistencia')}
-            >
-              <Plus size={14} /> Novo Atendimento
-            </button>
-          </div>
 
-          <div className="inicio-kpis">
-            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?tab=novos')}>
-              <div className="inicio-kpi-ic neutral"><Inbox size={16} /></div>
-              <div className="inicio-kpi-num">{naFila}</div>
-              <div className="inicio-kpi-lbl">Na fila</div>
-              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
-            </button>
-            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?tab=andamento')}>
-              <div className="inicio-kpi-ic neutral"><Activity size={16} /></div>
-              <div className="inicio-kpi-num">{emAtendimento}</div>
-              <div className="inicio-kpi-lbl">Em atendimento</div>
-              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
-            </button>
-            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?prioridade=critica')}>
-              <div className="inicio-kpi-ic crit"><AlertTriangle size={16} /></div>
-              <div className="inicio-kpi-num">{criticosAbertos}</div>
-              <div className="inicio-kpi-lbl">Críticos em aberto</div>
-              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
-            </button>
-            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?tab=fechados')}>
-              <div className="inicio-kpi-ic good"><CheckCircle2 size={16} /></div>
-              <div className="inicio-kpi-num">{fechados}</div>
-              <div className="inicio-kpi-lbl">Fechados</div>
-              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
-            </button>
-          </div>
+            <div className="mos-bento">
+              <button type="button" className="mos-cell mos-k1 mos-kpi clickable" onClick={() => navigate('/app/assistencia?tab=novos')}>
+                <div className="ic"><Inbox size={16} /></div>
+                <div className="num">{naFila}</div>
+                <div className="lbl">Na fila</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
+              <button type="button" className="mos-cell mos-k2 mos-kpi clickable" onClick={() => navigate('/app/assistencia?tab=andamento')}>
+                <div className="ic"><Activity size={16} /></div>
+                <div className="num">{emAtendimento}</div>
+                <div className="lbl">Em atendimento</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
+              <button type="button" className="mos-cell mos-k3 mos-kpi clickable" onClick={() => navigate('/app/assistencia?prioridade=critica')}>
+                <div className="ic crit"><AlertTriangle size={16} /></div>
+                <div className="num">{criticosAbertos}</div>
+                <div className="lbl">Críticos em aberto</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
+              <button type="button" className="mos-cell mos-k4 mos-kpi clickable" onClick={() => navigate('/app/assistencia?tab=fechados')}>
+                <div className="ic good"><CheckCircle2 size={16} /></div>
+                <div className="num">{fechados}</div>
+                <div className="lbl">Fechados</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
 
-          <div className="inicio-quality-row">
-            <div className="inicio-panel">
-              <SlaGauge percentual={sla.percentual} foraDoPrazo={sla.foraDoPrazo} total={sla.total} title={slaTitle} />
-            </div>
-            <div className="inicio-panel">
-              <NpsMeter nps={nps} title={NPS_TITLE} />
-            </div>
-          </div>
+              <div className="mos-cell mos-sla">
+                <h3>SLA cumprido</h3>
+                <SlaGauge percentual={sla.percentual} foraDoPrazo={sla.foraDoPrazo} total={sla.total} title={slaTitle} />
+              </div>
+              <div className="mos-cell mos-nps">
+                <h3>NPS · qualidade</h3>
+                <NpsMeter nps={nps} title={NPS_TITLE} />
+              </div>
 
-          <div className="inicio-panels">
-            <div className="inicio-panel">
-              <h3>Chamados por categoria</h3>
-              {porCategoria.length === 0 ? (
-                <div className="inicio-empty">Nenhum chamado registrado para esta unidade ainda.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={Math.max(120, porCategoria.length * 34)}>
-                  <BarChart data={porCategoria} layout="vertical" margin={{ top: 4, right: 20, bottom: 4, left: 4 }}>
-                    <XAxis type="number" allowDecimals={false} hide />
-                    <YAxis type="category" dataKey="categoria" width={110} tick={{ fontSize: 12, fill: 'var(--texto-sec)' }} axisLine={false} tickLine={false} />
-                    <Tooltip cursor={{ fill: 'var(--fundo)' }} formatter={(v) => [v, 'chamados']} contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} itemStyle={CHART_TOOLTIP_ITEM_STYLE} />
-                    <Bar dataKey="total" fill="var(--tema)" radius={[0, 5, 5, 0]} barSize={14} />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-            <div className="inicio-panel">
-              <h3>Chamados por status</h3>
-              {porStatus.length === 0 ? (
-                <div className="inicio-empty">Nenhum chamado registrado para esta unidade ainda.</div>
-              ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-                  <StatusDonut
-                    data={porStatus.map((entry) => ({ key: entry.status, total: entry.total, cor: statusMap[entry.status]?.cor ?? '#5f5e5a' }))}
-                  />
-                  <div className="inicio-legend">
-                    {porStatus.map((entry) => {
-                      const tab = statusParaTab(entry.status)
-                      return (
-                        <button
-                          key={entry.status}
-                          type="button"
-                          className={`inicio-legend-item${tab ? ' clickable' : ''}`}
-                          onClick={tab ? () => navigate(`/app/assistencia?tab=${tab}`) : undefined}
-                        >
-                          <span className="sw" style={{ background: statusMap[entry.status]?.cor ?? '#5f5e5a' }} />
-                          {statusMap[entry.status]?.label ?? entry.status} <b>{entry.total}</b>
-                          {tab && <ArrowUpRight className="ic-go" size={12} />}
-                        </button>
-                      )
-                    })}
+              <div className="mos-cell mos-status">
+                <h3>Chamados por status</h3>
+                {porStatus.length === 0 ? (
+                  <div className="mos-empty">Nenhum chamado registrado para esta unidade ainda.</div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
+                    <StatusDonut
+                      data={porStatus.map((entry) => ({ key: entry.status, total: entry.total, cor: statusMap[entry.status]?.cor ?? '#5f5e5a' }))}
+                    />
+                    <div className="mos-status-legend">
+                      {porStatus.map((entry) => {
+                        const tab = statusParaTab(entry.status)
+                        return (
+                          <button
+                            key={entry.status}
+                            type="button"
+                            className={`mos-status-item${tab ? '' : ' dimmed'}`}
+                            onClick={tab ? () => navigate(`/app/assistencia?tab=${tab}`) : undefined}
+                          >
+                            <span className="sw" style={{ background: statusMap[entry.status]?.cor ?? '#5f5e5a' }} />
+                            {statusMap[entry.status]?.label ?? entry.status} <b>{entry.total}</b>
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
+                )}
+              </div>
 
-          <div style={{ marginTop: 4 }}>
-            <div className="mod-section-title" style={{ fontSize: 15, marginBottom: 10 }}>
-              Chamados recentes
+              <div className="mos-cell mos-chart cat full">
+                <h3>Chamados por categoria</h3>
+                {porCategoria.length === 0 ? (
+                  <div className="mos-empty">Nenhum chamado registrado para esta unidade ainda.</div>
+                ) : (
+                  porCategoria.map((c) => (
+                    <div key={c.categoria} className="mos-bar-row">
+                      <div className="l">{c.categoria}</div>
+                      <div className="mos-bar-track">
+                        <div className="mos-bar-fill" style={{ width: `${(c.total / maiorCategoria) * 100}%` }} />
+                      </div>
+                      <div className="v">{c.total}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="mos-cell mos-list">
+                <h3>Chamados recentes</h3>
+                {recentes.length === 0 ? (
+                  <div className="mos-empty">Nenhum chamado registrado para esta unidade ainda.</div>
+                ) : (
+                  <div className="mos-list-scroll">
+                    {recentes.map((c) => (
+                      <button
+                        key={c.numero}
+                        type="button"
+                        className="mos-list-row"
+                        onClick={() => navigate(`/app/assistencia?abrir=${encodeURIComponent(c.numero)}`)}
+                      >
+                        <span className="id">{c.numero}</span>
+                        <span className="subj">{c.assunto}</span>
+                        <span className="pr" style={{ color: prioridadeMap[c.prioridade]?.cor ?? 'var(--mos-text-dim)' }}>
+                          {prioridadeMap[c.prioridade]?.label ?? c.prioridade}
+                        </span>
+                        <span className="st">
+                          <span className="sw" style={{ background: statusMap[c.status]?.cor ?? '#5f5e5a' }} />
+                          {statusMap[c.status]?.label ?? c.status}
+                        </span>
+                        <span className="t">{c.abertoHa}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <DataTable
-              columns={COLUMNS}
-              rows={rows}
-              rowStripeColor={(i) => prioridadeMap[recentes[i].prioridade]?.cor}
-              emptyText="Nenhum chamado registrado para esta unidade ainda."
-              onRowClick={(i) => navigate(`/app/assistencia?abrir=${encodeURIComponent(recentes[i].numero)}`)}
-            />
           </div>
         </div>
       </div>

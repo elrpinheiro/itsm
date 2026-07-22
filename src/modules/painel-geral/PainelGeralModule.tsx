@@ -1,26 +1,21 @@
 import { useMemo } from 'react'
+import { Inbox, Activity, AlertTriangle, CheckCircle2, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
 import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
+import SlaGauge from '@/components/common/SlaGauge'
+import NpsMeter from '@/components/common/NpsMeter'
+import StatusDonut from '@/components/common/StatusDonut'
 import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento, em todas as unidades. Sem envio automático de pesquisa nesta versão.'
 
-function corSlaPorFaixa(pct: number): string {
-  if (pct >= 90) return 'var(--pgc-good)'
-  if (pct >= 70) return 'var(--pgc-warn)'
-  return 'var(--pgc-critical)'
-}
-
-/** Painel exibido antes de escolher um projeto — soma os chamados de todas as unidades do grupo.
- * Visual "Torre de Controle": tema escuro fixo, numerais monoespaçados tabulares e uma faixa de
- * saúde (barra segmentada) no lugar da rosquinha de status — estilo console de operação
- * (PagerDuty/Grafana/Datadog), escolhido entre 4 propostas de redesign. Ver 05.28 da documentação
- * técnica. Não fabrica tendência histórica (não há série temporal registrada no sistema) — por
- * isso, ao contrário da proposta visual original, os cartões de KPI não têm sparkline. */
+/** Painel exibido antes de escolher um projeto — soma os chamados de todas as unidades do grupo,
+ * na identidade visual "Mosaico" (bento/glassmorphism) usada em todo o sistema. Ver 05.29 da
+ * documentação técnica. */
 export default function PainelGeralModule() {
   const chamados = useChamadosStore((s) => s.chamados)
   const navigate = useNavigate()
@@ -63,195 +58,155 @@ export default function PainelGeralModule() {
     return Array.from(contagem, ([unidade, total]) => ({ unidade, total })).sort((a, b) => b.total - a.total).slice(0, 6)
   }, [chamados])
 
-  const maiorCategoria = porCategoria[0]?.total ?? 0
-  const maiorUnidade = porUnidade[0]?.total ?? 0
-  const totalStatus = porStatus.reduce((s, b) => s + b.total, 0)
+  const maiorCategoria = Math.max(1, ...porCategoria.map((c) => c.total))
+  const maiorUnidade = Math.max(1, ...porUnidade.map((u) => u.total))
 
   const recentes = chamados.slice(-5).reverse()
 
-  const slaCor = sla.percentual === null ? 'var(--pgc-text-dim)' : corSlaPorFaixa(sla.percentual)
-
   return (
-    <div className="mod-page pg-console-page">
+    <div className="mod-page mos-page">
       <div className="mod-page-body">
-        <div className="mod-scroll-area pg-console">
-          <div className="pgc-top">
-            <div className="pgc-brand">
-              <span className="pgc-dot" />
-              <span className="pgc-eyebrow">painel geral // todas as unidades</span>
-            </div>
-            <button type="button" className="pgc-cta" onClick={() => navigate('/assistencia')}>
-              ver todos os chamados →
-            </button>
-          </div>
+        <div className="mod-scroll-area">
+          <div className="mos">
+            <div className="mos-blob b1" />
+            <div className="mos-blob b2" />
 
-          <div className="pgc-tiles">
-            <button type="button" className="pgc-tile" style={{ ['--stripe' as string]: 'var(--pgc-accent)' }} onClick={() => navigate('/assistencia?tab=novos')}>
-              <div className="pgc-tile-lbl">Na fila</div>
-              <div className="pgc-tile-num pgc-mono">{String(naFila).padStart(2, '0')}</div>
-              <span className="pgc-tile-arrow">↗</span>
-            </button>
-            <button type="button" className="pgc-tile" style={{ ['--stripe' as string]: 'var(--pgc-accent)' }} onClick={() => navigate('/assistencia?tab=andamento')}>
-              <div className="pgc-tile-lbl">Em atendimento</div>
-              <div className="pgc-tile-num pgc-mono">{String(emAtendimento).padStart(2, '0')}</div>
-              <span className="pgc-tile-arrow">↗</span>
-            </button>
-            <button type="button" className="pgc-tile" style={{ ['--stripe' as string]: 'var(--pgc-critical)' }} onClick={() => navigate('/assistencia?prioridade=critica')}>
-              <div className="pgc-tile-lbl">Críticos em aberto</div>
-              <div className="pgc-tile-num pgc-mono" style={{ color: 'var(--pgc-critical)' }}>{String(criticosAbertos).padStart(2, '0')}</div>
-              <span className="pgc-tile-arrow">↗</span>
-            </button>
-            <button type="button" className="pgc-tile" style={{ ['--stripe' as string]: 'var(--pgc-good)' }} onClick={() => navigate('/assistencia?tab=fechados')}>
-              <div className="pgc-tile-lbl">Fechados</div>
-              <div className="pgc-tile-num pgc-mono" style={{ color: 'var(--pgc-good)' }}>{String(fechados).padStart(2, '0')}</div>
-              <span className="pgc-tile-arrow">↗</span>
-            </button>
-          </div>
-
-          <div className="pgc-row2">
-            <div className="pgc-card" title={slaTitle}>
-              <h3>SLA cumprido</h3>
-              <div className="pgc-gauge-row">
-                <div
-                  className="pgc-gauge"
-                  style={{ background: `conic-gradient(${slaCor} 0% ${sla.percentual ?? 0}%, var(--pgc-line) 0)` }}
-                >
-                  <div className="pgc-gauge-hole">
-                    <b className="pgc-mono">{sla.percentual === null ? '—' : `${sla.percentual}%`}</b>
-                  </div>
-                </div>
-                <div className="pgc-sub">
-                  Prazo por prioridade configurado em Administração → Níveis de Serviço.
-                  <br />
-                  {sla.total === 0 ? (
-                    'Nenhum chamado registrado ainda.'
-                  ) : (
-                    <>
-                      <b>{sla.total - sla.foraDoPrazo} de {sla.total}</b> chamados dentro do prazo.
-                    </>
-                  )}
-                </div>
+            <div className="mos-top">
+              <div>
+                <div className="mos-eyebrow">Painel Geral</div>
+                <div style={{ fontSize: 12.5, color: 'var(--mos-text-dim)', marginTop: 4 }}>Todas as unidades do grupo</div>
               </div>
+              <button type="button" className="mos-cta" onClick={() => navigate('/assistencia')}>
+                Ver todos os chamados <ArrowRight size={14} />
+              </button>
             </div>
-            <div className="pgc-card" title={NPS_TITLE}>
-              <h3>NPS · qualidade</h3>
-              {nps === null ? (
-                <div className="pgc-sub">Nenhuma avaliação registrada ainda.</div>
-              ) : (
-                <>
-                  <div className="pgc-nps-score pgc-mono">{nps.nps}</div>
-                  <div className="pgc-nps-bar">
-                    {nps.detratores > 0 && <div style={{ width: `${(nps.detratores / nps.avaliados) * 100}%`, background: 'var(--pgc-critical)' }} />}
-                    {nps.neutros > 0 && <div style={{ width: `${(nps.neutros / nps.avaliados) * 100}%`, background: 'var(--pgc-warn)' }} />}
-                    {nps.promotores > 0 && <div style={{ width: `${(nps.promotores / nps.avaliados) * 100}%`, background: 'var(--pgc-good)' }} />}
-                  </div>
-                  <div className="pgc-legend">
-                    <span><span className="sw" style={{ background: 'var(--pgc-critical)' }} />Detratores {nps.detratores}</span>
-                    <span><span className="sw" style={{ background: 'var(--pgc-warn)' }} />Neutros {nps.neutros}</span>
-                    <span><span className="sw" style={{ background: 'var(--pgc-good)' }} />Promotores {nps.promotores}</span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
 
-          <div className="pgc-card" style={{ marginBottom: 14 }}>
-            <h3>Status dos chamados — todas as unidades</h3>
-            {porStatus.length === 0 ? (
-              <div className="pgc-empty">Nenhum chamado registrado ainda.</div>
-            ) : (
-              <>
-                <div className="pgc-health-bar">
-                  {porStatus.map((entry) => {
-                    const pct = (entry.total / totalStatus) * 100
-                    return (
-                      <div
-                        key={entry.status}
-                        className="pgc-health-seg"
-                        style={{ width: `${pct}%`, background: statusMap[entry.status]?.cor ?? '#5f5e5a' }}
-                      >
-                        {pct >= 8 ? entry.total : ''}
+            <div className="mos-bento">
+              <button type="button" className="mos-cell mos-k1 mos-kpi clickable" onClick={() => navigate('/assistencia?tab=novos')}>
+                <div className="ic"><Inbox size={16} /></div>
+                <div className="num">{naFila}</div>
+                <div className="lbl">Na fila</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
+              <button type="button" className="mos-cell mos-k2 mos-kpi clickable" onClick={() => navigate('/assistencia?tab=andamento')}>
+                <div className="ic"><Activity size={16} /></div>
+                <div className="num">{emAtendimento}</div>
+                <div className="lbl">Em atendimento</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
+              <button type="button" className="mos-cell mos-k3 mos-kpi clickable" onClick={() => navigate('/assistencia?prioridade=critica')}>
+                <div className="ic crit"><AlertTriangle size={16} /></div>
+                <div className="num">{criticosAbertos}</div>
+                <div className="lbl">Críticos em aberto</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
+              <button type="button" className="mos-cell mos-k4 mos-kpi clickable" onClick={() => navigate('/assistencia?tab=fechados')}>
+                <div className="ic good"><CheckCircle2 size={16} /></div>
+                <div className="num">{fechados}</div>
+                <div className="lbl">Fechados</div>
+                <ArrowUpRight className="arrow" size={15} />
+              </button>
+
+              <div className="mos-cell mos-sla">
+                <h3>SLA cumprido</h3>
+                <SlaGauge percentual={sla.percentual} foraDoPrazo={sla.foraDoPrazo} total={sla.total} title={slaTitle} />
+              </div>
+              <div className="mos-cell mos-nps">
+                <h3>NPS · qualidade</h3>
+                <NpsMeter nps={nps} title={NPS_TITLE} />
+              </div>
+
+              <div className="mos-cell mos-status">
+                <h3>Status dos chamados — todas as unidades</h3>
+                {porStatus.length === 0 ? (
+                  <div className="mos-empty">Nenhum chamado registrado ainda.</div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
+                    <StatusDonut
+                      data={porStatus.map((entry) => ({ key: entry.status, total: entry.total, cor: statusMap[entry.status]?.cor ?? '#5f5e5a' }))}
+                    />
+                    <div className="mos-status-legend">
+                      {porStatus.map((entry) => {
+                        const tab = statusParaTab(entry.status)
+                        return (
+                          <button
+                            key={entry.status}
+                            type="button"
+                            className={`mos-status-item${tab ? '' : ' dimmed'}`}
+                            onClick={tab ? () => navigate(`/assistencia?tab=${tab}`) : undefined}
+                          >
+                            <span className="sw" style={{ background: statusMap[entry.status]?.cor ?? '#5f5e5a' }} />
+                            {statusMap[entry.status]?.label ?? entry.status} <b>{entry.total}</b>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mos-cell mos-chart cat">
+                <h3>Chamados por categoria</h3>
+                {porCategoria.length === 0 ? (
+                  <div className="mos-empty">Nenhum chamado registrado ainda.</div>
+                ) : (
+                  porCategoria.map((c) => (
+                    <div key={c.categoria} className="mos-bar-row">
+                      <div className="l">{c.categoria}</div>
+                      <div className="mos-bar-track">
+                        <div className="mos-bar-fill" style={{ width: `${(c.total / maiorCategoria) * 100}%` }} />
                       </div>
-                    )
-                  })}
-                </div>
-                <div className="pgc-health-legend">
-                  {porStatus.map((entry) => {
-                    const tab = statusParaTab(entry.status)
-                    return (
-                      <button key={entry.status} type="button" className="pgc-chip" onClick={tab ? () => navigate(`/assistencia?tab=${tab}`) : undefined}>
-                        <span className="sw" style={{ background: statusMap[entry.status]?.cor ?? '#5f5e5a' }} />
-                        {statusMap[entry.status]?.label ?? entry.status} <b className="pgc-mono">{entry.total}</b>
-                      </button>
-                    )
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="pgc-charts">
-            <div className="pgc-card">
-              <h3>Por categoria</h3>
-              {porCategoria.length === 0 ? (
-                <div className="pgc-empty">Nenhum chamado registrado ainda.</div>
-              ) : (
-                porCategoria.map((c) => (
-                  <div key={c.categoria} className="pgc-bar-row">
-                    <div className="l">{c.categoria}</div>
-                    <div className="pgc-bar-track">
-                      <div className="pgc-bar-fill" style={{ width: `${(c.total / maiorCategoria) * 100}%` }} />
+                      <div className="v">{c.total}</div>
                     </div>
-                    <div className="v pgc-mono">{c.total}</div>
-                  </div>
-                ))
-              )}
-            </div>
-            <div className="pgc-card">
-              <h3>Por unidade</h3>
-              {porUnidade.length === 0 ? (
-                <div className="pgc-empty">Nenhum chamado registrado ainda.</div>
-              ) : (
-                porUnidade.map((u) => (
-                  <div key={u.unidade} className="pgc-bar-row">
-                    <div className="l">{u.unidade}</div>
-                    <div className="pgc-bar-track">
-                      <div className="pgc-bar-fill" style={{ width: `${(u.total / maiorUnidade) * 100}%` }} />
-                    </div>
-                    <div className="v pgc-mono">{u.total}</div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="pgc-card" style={{ padding: '6px 0' }}>
-            <h3 style={{ padding: '14px 22px 0' }}>Chamados recentes</h3>
-            {recentes.length === 0 ? (
-              <div className="pgc-empty" style={{ padding: '0 22px 14px' }}>Nenhum chamado registrado ainda.</div>
-            ) : (
-              <div className="pgc-log" style={{ border: 'none' }}>
-                {recentes.map((c) => (
-                  <button
-                    key={c.numero}
-                    type="button"
-                    className="pgc-log-row"
-                    onClick={() => navigate(`/assistencia?abrir=${encodeURIComponent(c.numero)}`)}
-                  >
-                    <span className="id">{c.numero}</span>
-                    <span className="subj">{c.assunto}</span>
-                    <span className="pr" style={{ color: prioridadeMap[c.prioridade]?.cor ?? 'var(--pgc-text-dim)' }}>
-                      {prioridadeMap[c.prioridade]?.label ?? c.prioridade}
-                    </span>
-                    <span className="st">
-                      <span className="sw" style={{ background: statusMap[c.status]?.cor ?? '#5f5e5a' }} />
-                      {statusMap[c.status]?.label ?? c.status}
-                    </span>
-                    <span className="t">{c.abertoHa}</span>
-                  </button>
-                ))}
+                  ))
+                )}
               </div>
-            )}
+              <div className="mos-cell mos-chart unit">
+                <h3>Chamados por unidade</h3>
+                {porUnidade.length === 0 ? (
+                  <div className="mos-empty">Nenhum chamado registrado ainda.</div>
+                ) : (
+                  porUnidade.map((u) => (
+                    <div key={u.unidade} className="mos-bar-row">
+                      <div className="l">{u.unidade}</div>
+                      <div className="mos-bar-track">
+                        <div className="mos-bar-fill" style={{ width: `${(u.total / maiorUnidade) * 100}%` }} />
+                      </div>
+                      <div className="v">{u.total}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="mos-cell mos-list">
+                <h3>Chamados recentes</h3>
+                {recentes.length === 0 ? (
+                  <div className="mos-empty">Nenhum chamado registrado ainda.</div>
+                ) : (
+                  <div className="mos-list-scroll">
+                    {recentes.map((c) => (
+                      <button
+                        key={c.numero}
+                        type="button"
+                        className="mos-list-row"
+                        onClick={() => navigate(`/assistencia?abrir=${encodeURIComponent(c.numero)}`)}
+                      >
+                        <span className="id">{c.numero}</span>
+                        <span className="subj">{c.assunto}</span>
+                        <span className="pr" style={{ color: prioridadeMap[c.prioridade]?.cor ?? 'var(--mos-text-dim)' }}>
+                          {prioridadeMap[c.prioridade]?.label ?? c.prioridade}
+                        </span>
+                        <span className="st">
+                          <span className="sw" style={{ background: statusMap[c.status]?.cor ?? '#5f5e5a' }} />
+                          {statusMap[c.status]?.label ?? c.status}
+                        </span>
+                        <span className="t">{c.abertoHa}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
