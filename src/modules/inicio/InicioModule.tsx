@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { Inbox, Activity, AlertTriangle, CheckCircle2, Timer, Smile, Plus } from 'lucide-react'
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Inbox, Activity, AlertTriangle, CheckCircle2, Plus, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
@@ -9,6 +9,10 @@ import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
 import { badgeStyleFromColor } from '@/utils/color'
 import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
+import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
+import SlaGauge from '@/components/common/SlaGauge'
+import NpsMeter from '@/components/common/NpsMeter'
+import StatusDonut from '@/components/common/StatusDonut'
 import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento. Sem envio automático de pesquisa nesta versão.'
@@ -105,35 +109,38 @@ export default function InicioModule() {
           </div>
 
           <div className="inicio-kpis">
-            <div className="inicio-kpi">
+            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?tab=novos')}>
               <div className="inicio-kpi-ic neutral"><Inbox size={16} /></div>
               <div className="inicio-kpi-num">{naFila}</div>
               <div className="inicio-kpi-lbl">Na fila</div>
-            </div>
-            <div className="inicio-kpi">
+              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
+            </button>
+            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?tab=andamento')}>
               <div className="inicio-kpi-ic neutral"><Activity size={16} /></div>
               <div className="inicio-kpi-num">{emAtendimento}</div>
               <div className="inicio-kpi-lbl">Em atendimento</div>
-            </div>
-            <div className="inicio-kpi">
+              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
+            </button>
+            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?prioridade=critica')}>
               <div className="inicio-kpi-ic crit"><AlertTriangle size={16} /></div>
               <div className="inicio-kpi-num">{criticosAbertos}</div>
               <div className="inicio-kpi-lbl">Críticos em aberto</div>
-            </div>
-            <div className="inicio-kpi">
+              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
+            </button>
+            <button type="button" className="inicio-kpi clickable" onClick={() => navigate('/app/assistencia?tab=fechados')}>
               <div className="inicio-kpi-ic good"><CheckCircle2 size={16} /></div>
               <div className="inicio-kpi-num">{fechados}</div>
               <div className="inicio-kpi-lbl">Fechados</div>
+              <ArrowUpRight className="inicio-kpi-arrow" size={15} />
+            </button>
+          </div>
+
+          <div className="inicio-quality-row">
+            <div className="inicio-panel">
+              <SlaGauge percentual={sla.percentual} foraDoPrazo={sla.foraDoPrazo} total={sla.total} title={slaTitle} />
             </div>
-            <div className="inicio-kpi" title={slaTitle}>
-              <div className="inicio-kpi-ic neutral"><Timer size={16} /></div>
-              <div className="inicio-kpi-num">{sla.percentual === null ? '—' : `${sla.percentual}%`}</div>
-              <div className="inicio-kpi-lbl">SLA cumprido</div>
-            </div>
-            <div className="inicio-kpi" title={NPS_TITLE}>
-              <div className="inicio-kpi-ic good"><Smile size={16} /></div>
-              <div className="inicio-kpi-num">{nps === null ? '—' : nps.nps}</div>
-              <div className="inicio-kpi-lbl">{nps === null ? 'NPS (sem avaliações)' : `NPS (${nps.avaliados} avaliações)`}</div>
+            <div className="inicio-panel">
+              <NpsMeter nps={nps} title={NPS_TITLE} />
             </div>
           </div>
 
@@ -159,23 +166,25 @@ export default function InicioModule() {
                 <div className="inicio-empty">Nenhum chamado registrado para esta unidade ainda.</div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-                  <ResponsiveContainer width={120} height={120}>
-                    <PieChart>
-                      <Pie data={porStatus} dataKey="total" nameKey="status" innerRadius={38} outerRadius={56} paddingAngle={2}>
-                        {porStatus.map((entry) => (
-                          <Cell key={entry.status} fill={statusMap[entry.status]?.cor ?? '#5f5e5a'} stroke="none" />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(v, n) => [v, n]} contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} itemStyle={CHART_TOOLTIP_ITEM_STYLE} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <StatusDonut
+                    data={porStatus.map((entry) => ({ key: entry.status, total: entry.total, cor: statusMap[entry.status]?.cor ?? '#5f5e5a' }))}
+                  />
                   <div className="inicio-legend">
-                    {porStatus.map((entry) => (
-                      <div key={entry.status} className="inicio-legend-item">
-                        <span className="sw" style={{ background: statusMap[entry.status]?.cor ?? '#5f5e5a' }} />
-                        {statusMap[entry.status]?.label ?? entry.status} <b>{entry.total}</b>
-                      </div>
-                    ))}
+                    {porStatus.map((entry) => {
+                      const tab = statusParaTab(entry.status)
+                      return (
+                        <button
+                          key={entry.status}
+                          type="button"
+                          className={`inicio-legend-item${tab ? ' clickable' : ''}`}
+                          onClick={tab ? () => navigate(`/app/assistencia?tab=${tab}`) : undefined}
+                        >
+                          <span className="sw" style={{ background: statusMap[entry.status]?.cor ?? '#5f5e5a' }} />
+                          {statusMap[entry.status]?.label ?? entry.status} <b>{entry.total}</b>
+                          {tab && <ArrowUpRight className="ic-go" size={12} />}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -191,6 +200,7 @@ export default function InicioModule() {
               rows={rows}
               rowStripeColor={(i) => prioridadeMap[recentes[i].prioridade]?.cor}
               emptyText="Nenhum chamado registrado para esta unidade ainda."
+              onRowClick={(i) => navigate(`/app/assistencia?abrir=${encodeURIComponent(recentes[i].numero)}`)}
             />
           </div>
         </div>

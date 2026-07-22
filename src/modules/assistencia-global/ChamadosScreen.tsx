@@ -1,19 +1,24 @@
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useModuleAccess } from '@/store/usePermissions'
 import { useChamadosStore } from '@/store/useChamadosStore'
-import FilaChamadosList from '../assistencia/FilaChamadosList'
+import FilaChamadosList, { type FiltroTab } from '../assistencia/FilaChamadosList'
 
 interface Props {
   onNovoAtendimento: () => void
   onOpenChamado: (numero: string) => void
+  /** Aba e filtro de criticidade vindos de um KPI do Painel Geral (ex.: "?tab=novos"). */
+  initialTab?: FiltroTab
+  apenasCriticos?: boolean
+  onLimparCriticos?: () => void
 }
 
-export default function ChamadosScreen({ onNovoAtendimento, onOpenChamado }: Props) {
+export default function ChamadosScreen({ onNovoAtendimento, onOpenChamado, initialTab, apenasCriticos, onLimparCriticos }: Props) {
   const user = useAuthStore((s) => s.user)
   const acesso = useModuleAccess('assistencia')
   const todosChamados = useChamadosStore((s) => s.chamados)
-  const chamados = todosChamados.filter((c) => acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email)
+  let chamados = todosChamados.filter((c) => acesso.ver !== 'proprios' || c.solicitanteEmail === user?.email)
+  if (apenasCriticos) chamados = chamados.filter((c) => c.prioridade === 'Crítica' && c.status !== 'Fechado')
 
   return (
     <div className="mod-scroll-area">
@@ -28,7 +33,15 @@ export default function ChamadosScreen({ onNovoAtendimento, onOpenChamado }: Pro
           </button>
         )}
       </div>
-      <FilaChamadosList chamados={chamados} onOpenChamado={onOpenChamado} showProjeto />
+      {apenasCriticos && (
+        <div className="filtro-ativo-chip">
+          Mostrando: Críticos em aberto
+          <button type="button" onClick={onLimparCriticos} aria-label="Limpar filtro">
+            <X size={12} />
+          </button>
+        </div>
+      )}
+      <FilaChamadosList chamados={chamados} onOpenChamado={onOpenChamado} showProjeto initialTab={initialTab} />
     </div>
   )
 }

@@ -64,6 +64,7 @@
   --titulo-acento: #0d2b5e;
   /* Texto de ação destrutiva (ex.: "Excluir") sobre --card, sem chip de fundo próprio. */
   --vermelho-texto: #a30000;
+  --vermelho-pale: #fdeaea;
 
   /* Tema do shell (header, barra de módulos, botões) — sobrescrito por projeto em AppShell.
      Não usar para badges de marca de documento (Planneta/Faz), que ficam fixos nas variáveis azul/verde acima. */
@@ -98,6 +99,7 @@
   --purple-texto: #d2a6e8;
   --titulo-acento: #7ec1f0;
   --vermelho-texto: #f28b82;
+  --vermelho-pale: #402024;
 }
 html,
 body,
@@ -1719,19 +1721,53 @@ textarea {
   margin-bottom: 14px;
 }
 
-/* ===== Início (dashboard por projeto) ===== */
+/* ===== Início / Painel Geral (dashboards) ===== */
 .inicio-kpis {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .inicio-kpi {
+  position: relative;
   background: var(--card);
   border: 1px solid var(--borda);
   border-radius: 12px;
   padding: 14px 16px;
   box-shadow: var(--shadow-sm);
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+button.inicio-kpi {
+  cursor: default;
+  appearance: none;
+}
+.inicio-kpi.clickable {
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+.inicio-kpi.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--tema-accento);
+}
+.inicio-kpi.clickable:active {
+  transform: translateY(0);
+}
+.inicio-kpi-arrow {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  color: var(--texto-sec);
+  opacity: 0;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.inicio-kpi.clickable:hover .inicio-kpi-arrow {
+  opacity: 1;
+  transform: translate(2px, -2px);
 }
 .inicio-kpi-ic {
   width: 28px;
@@ -1747,8 +1783,8 @@ textarea {
   color: var(--tema-texto);
 }
 .inicio-kpi-ic.crit {
-  background: #fdeaea;
-  color: #a30000;
+  background: var(--vermelho-pale);
+  color: var(--vermelho-texto);
 }
 .inicio-kpi-ic.good {
   background: var(--verde-pale);
@@ -1766,6 +1802,154 @@ textarea {
   font-size: 12px;
   color: var(--texto-sec);
 }
+
+/* Linha de qualidade — SLA (gauge circular) e NPS (medidor segmentado), lado a lado */
+.inicio-quality-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.gauge-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 100%;
+}
+.gauge-ring {
+  --gauge-track: var(--borda);
+  width: 88px;
+  height: 88px;
+  min-width: 88px;
+  border-radius: 50%;
+  background: conic-gradient(var(--gauge-cor, var(--tema)) calc(var(--gauge-pct, 0) * 1%), var(--gauge-track) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gauge-ring-hole {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gauge-pct {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+}
+.gauge-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto);
+  margin-bottom: 3px;
+}
+.gauge-sub {
+  font-size: 12px;
+  color: var(--texto-sec);
+}
+.nps-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+.nps-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.nps-score {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--texto);
+  min-width: 58px;
+  font-variant-numeric: tabular-nums;
+}
+.nps-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--borda);
+}
+.nps-seg {
+  height: 100%;
+}
+.nps-seg.det {
+  background: var(--vermelho-texto);
+}
+.nps-seg.neu {
+  background: var(--amarelo);
+}
+.nps-seg.pro {
+  background: var(--verde);
+}
+.nps-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 11.5px;
+  color: var(--texto-sec);
+  flex-wrap: wrap;
+}
+.nps-legend .dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+.nps-legend .dot.det {
+  background: var(--vermelho-texto);
+}
+.nps-legend .dot.neu {
+  background: var(--amarelo);
+}
+.nps-legend .dot.pro {
+  background: var(--verde);
+}
+
+.status-donut {
+  width: 130px;
+  height: 130px;
+  min-width: 130px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.status-donut-hole {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.status-donut-total {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--texto);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.status-donut-lbl {
+  font-size: 10.5px;
+  color: var(--texto-sec);
+  margin-top: 2px;
+}
+
 .inicio-panels {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
@@ -1779,10 +1963,20 @@ textarea {
   padding: 16px 18px;
   box-shadow: var(--shadow-sm);
 }
+.inicio-panel-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
 .inicio-panel h3 {
   font-size: 14px;
   font-weight: 700;
-  margin-bottom: 14px;
+}
+.inicio-panel-total {
+  font-size: 12px;
+  color: var(--texto-sec);
+  font-variant-numeric: tabular-nums;
 }
 .inicio-empty {
   font-size: 12.5px;
@@ -1792,13 +1986,31 @@ textarea {
 .inicio-legend {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
   font-size: 12px;
 }
 .inicio-legend-item {
   display: flex;
   align-items: center;
   gap: 7px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 5px 6px;
+  border-radius: 6px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+button.inicio-legend-item {
+  cursor: default;
+}
+.inicio-legend-item.clickable {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.inicio-legend-item.clickable:hover {
+  background: var(--fundo);
 }
 .inicio-legend-item .sw {
   width: 9px;
@@ -1809,10 +2021,52 @@ textarea {
 .inicio-legend-item b {
   font-variant-numeric: tabular-nums;
 }
-@media (max-width: 900px) {
+.inicio-legend-item .ic-go {
+  margin-left: auto;
+  opacity: 0;
+  color: var(--texto-sec);
+  transition: opacity 0.12s ease;
+}
+.inicio-legend-item.clickable:hover .ic-go {
+  opacity: 1;
+}
+
+/* Chip de filtro ativo (ex.: veio de um KPI "Críticos em aberto" no dashboard) */
+.filtro-ativo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--tema-pale);
+  color: var(--tema-texto);
+  border: 1px solid var(--tema-accento);
+  border-radius: 999px;
+  padding: 5px 8px 5px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.filtro-ativo-chip button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 1100px) {
   .inicio-kpis {
     grid-template-columns: repeat(2, 1fr);
   }
+  .inicio-quality-row {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 900px) {
   .inicio-panels {
     grid-template-columns: 1fr;
   }

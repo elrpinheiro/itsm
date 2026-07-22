@@ -1,18 +1,21 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { User, Building2, Phone, MessageCircle, Keyboard } from 'lucide-react'
 import { useAdminStore } from '@/store/useAdminStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { badgeStyleFromColor } from '@/utils/color'
 import type { Chamado, OrigemAtendimento } from '@/data/chamados'
 
+export type FiltroTab = 'todos' | 'novos' | 'andamento' | 'pendentes' | 'solucionados' | 'fechados'
+
 interface Props {
   chamados: Chamado[]
   onOpenChamado: (numero: string) => void
   /** Mostra a unidade/projeto em cada card — só faz sentido na visão global (vários projetos juntos). */
   showProjeto?: boolean
+  /** Aba inicial (ex.: chegando de um KPI do dashboard com "?tab=novos") — os cliques do usuário
+   * dentro da lista continuam controlando a aba normalmente depois disso. */
+  initialTab?: FiltroTab
 }
-
-type FiltroTab = 'todos' | 'novos' | 'andamento' | 'pendentes' | 'solucionados'
 
 const TABS: { key: FiltroTab; label: string }[] = [
   { key: 'todos', label: 'Todos' },
@@ -20,6 +23,7 @@ const TABS: { key: FiltroTab; label: string }[] = [
   { key: 'andamento', label: 'Em andamento' },
   { key: 'pendentes', label: 'Pendentes' },
   { key: 'solucionados', label: 'Solucionados' },
+  { key: 'fechados', label: 'Fechados' },
 ]
 
 const ORIGEM_ICON: Record<OrigemAtendimento, typeof User> = {
@@ -28,22 +32,31 @@ const ORIGEM_ICON: Record<OrigemAtendimento, typeof User> = {
   WhatsApp: MessageCircle,
 }
 
-function statusParaTab(status: Chamado['status']): FiltroTab | null {
+export function statusParaTab(status: Chamado['status']): FiltroTab | null {
   if (status === 'Na fila') return 'novos'
   if (status === 'Em atendimento' || status === 'Processando (planejado)') return 'andamento'
   if (status === 'Aguardando terceiro') return 'pendentes'
   if (status === 'Solucionado') return 'solucionados'
+  if (status === 'Fechado') return 'fechados'
   return null
 }
 
 /** Fila de chamados em cards (não tabela) — clique em qualquer card abre o detalhe/timeline do
  * chamado. Compartilhado entre a visão por projeto e a visão global de Assistência. */
-export default function FilaChamadosList({ chamados, onOpenChamado, showProjeto = false }: Props) {
+export default function FilaChamadosList({ chamados, onOpenChamado, showProjeto = false, initialTab }: Props) {
   const usuarios = useAdminStore((s) => s.usuarios)
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
   const origemLabels = Object.fromEntries(useDropdownEntries('origem').map((e) => [e.chave, e.label]))
-  const [tab, setTab] = useState<FiltroTab>('todos')
+  const [tab, setTab] = useState<FiltroTab>(initialTab ?? 'todos')
   const [busca, setBusca] = useState('')
+
+  // Chegando de um KPI do dashboard (ex.: "Fechados"), a aba deve refletir o novo destino mesmo se
+  // a lista já estava montada — sem isso, um segundo clique no mesmo KPI a partir de outra tela não
+  // atualizaria a aba selecionada.
+  useEffect(() => {
+    if (initialTab) setTab(initialTab)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTab])
 
   const filtrados = useMemo(() => {
     let lista = chamados
