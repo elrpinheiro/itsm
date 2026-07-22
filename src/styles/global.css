@@ -84,32 +84,6 @@
   --tema-accento: #378add;
 }
 
-/* ===== Tema escuro — ativado via [data-theme="dark"] no <html>, alternável pelo botão
-   Claro/Escuro no cabeçalho. Redefine só as camadas neutras (fundo/superfície/texto/borda)
-   e as cores "pale" de badges — as cores de marca (azul/verde/amarelo sólidos, --tema-*
-   por projeto) ficam intactas para preservar a identidade visual de cada marca. */
-:root[data-theme='dark'] {
-  --borda: #3a3f34;
-  --texto: #ecebe2;
-  --texto-sec: #a6ab9c;
-  --muted: #6b7164;
-  --fundo: #181b15;
-  --card: #23271f;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 20px -8px rgba(0, 0, 0, 0.6);
-
-  --azul-pale: #1b3350;
-  --azul-texto: #7ec1f0;
-  --verde-pale: #24371a;
-  --verde-texto: #a8d97a;
-  --amarelo-pale: #4a3313;
-  --amarelo-texto: #e8b768;
-  --purple-pale: #3a2a47;
-  --purple-texto: #d2a6e8;
-  --titulo-acento: #7ec1f0;
-  --vermelho-texto: #f28b82;
-  --vermelho-pale: #402024;
-}
 html,
 body,
 #root {
@@ -982,73 +956,6 @@ textarea {
 }
 .hdr-doc-link:hover {
   background: rgba(255, 255, 255, 0.24);
-}
-
-/* ===== botão Claro/Escuro (cabeçalho e tela de login) ===== */
-.hdr-theme-toggle {
-  position: relative;
-  flex-shrink: 0;
-}
-.hdr-theme-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  color: #fff;
-  border-radius: 50%;
-  cursor: pointer;
-  flex-shrink: 0;
-  padding: 0;
-  transition: background 0.12s;
-}
-.hdr-theme-btn:hover {
-  background: rgba(255, 255, 255, 0.24);
-}
-.hdr-theme-btn.plain {
-  background: var(--card);
-  border: 1px solid var(--borda);
-  color: var(--texto-sec);
-}
-.hdr-theme-btn.plain:hover {
-  background: var(--fundo);
-}
-.hdr-theme-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 150px;
-  background: var(--card);
-  border: 1px solid var(--borda);
-  border-radius: 12px;
-  box-shadow: var(--shadow-md);
-  padding: 6px;
-  z-index: 40;
-}
-.hdr-theme-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 10px;
-  border: none;
-  background: transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12.5px;
-  color: var(--texto);
-  font-family: inherit;
-  text-align: left;
-}
-.hdr-theme-option:hover {
-  background: var(--fundo);
-}
-.hdr-theme-option.on {
-  background: var(--tema-pale);
-  color: var(--tema-texto);
-  font-weight: 600;
 }
 
 /* ===== corpo com painéis fixos ===== */

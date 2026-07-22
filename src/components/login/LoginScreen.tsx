@@ -1,7 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/useAuthStore'
-import ThemeToggle from '@/components/layout/ThemeToggle'
 
 export default function LoginScreen() {
   const login = useAuthStore((s) => s.login)
@@ -20,9 +19,6 @@ export default function LoginScreen() {
 
   return (
     <div className="login-wrap">
-      <div style={{ position: 'fixed', top: 20, right: 20 }}>
-        <ThemeToggle variant="plain" />
-      </div>
       <div className="login-card">
         <div className="login-logo">V</div>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>

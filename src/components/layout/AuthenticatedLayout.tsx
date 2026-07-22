@@ -6,7 +6,6 @@ import { useProjectStore } from '@/store/useProjectStore'
 import { useProjectTheme } from '@/store/useCatalogStore'
 import ModuleTabs from './ModuleTabs'
 import ProjectPickerDropdown from './ProjectPickerDropdown'
-import ThemeToggle from './ThemeToggle'
 import OperationPanel from './OperationPanel'
 import { VtcallPlaceholder, MktzapPlaceholder } from './operationPlaceholders'
 import vtcallLogo from '@/assets/logos/vtcall.png'
@@ -206,7 +205,6 @@ export default function AuthenticatedLayout() {
               <FileText size={14} /> <span>Documentação técnica</span>
             </a>
           </div>
-          <ThemeToggle />
           <div className="hdr-ava">{user?.iniciais ?? ''}</div>
           <div className="hdr-user-text">
             <div className="hdr-user-name">{user?.nome ?? ''}</div>
