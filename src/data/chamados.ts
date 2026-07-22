@@ -1,4 +1,5 @@
 import type { ClassificationLabel } from './catalog'
+import type { DocumentFormData, Signer } from '@/types'
 
 export type Prioridade = 'Baixa' | 'Média' | 'Alta' | 'Crítica'
 /**
@@ -30,6 +31,16 @@ export type OrigemAtendimento = 'Atendente' | '0800 (URA)' | 'WhatsApp'
 /** Tipo de evento na timeline do chamado — espelha as abas do GLPI (Acompanhamentos/Tarefas/Solução)
  * mais um tipo "sistema" para as próprias mudanças de status, que viram uma nota na timeline. */
 export type TipoInteracao = 'acompanhamento' | 'tarefa' | 'solucao' | 'sistema'
+
+/** Ordem de Serviço já selada (dupla assinatura técnico+requerente) — guarda tudo que é preciso para
+ * reexibir/baixar o mesmo documento depois, sem regerar dados (o hash e a data de selagem não podem
+ * mudar a cada consulta). Ver OsAssinaturaView, em Assistência. */
+export interface ChamadoDocumentoOs {
+  hash: string
+  seladoEm: string
+  formData: DocumentFormData
+  signers: Signer[]
+}
 
 export interface InteracaoChamado {
   id: string
@@ -83,6 +94,8 @@ export interface Chamado {
   /** Estado do aceite formal (dupla assinatura técnico+requerente) que a Assinatura Digital dispara
    * quando o chamado vira "Solucionado" — ver 05.24 da documentação técnica. Ausente antes de solucionar. */
   assinaturaStatus?: 'pendente' | 'assinada' | 'rejeitada'
+  /** Ordem de Serviço selada — presente depois que o chamado é fechado via "Gerar OS para assinatura". */
+  documentoOs?: ChamadoDocumentoOs
 }
 
 /** Fila de chamados mockada — exemplo de como a tela de Chamados fica quando populada. */

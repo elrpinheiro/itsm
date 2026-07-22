@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import {
   CHAMADOS,
   type Chamado,
+  type ChamadoDocumentoOs,
   type InteracaoChamado,
   type OrigemAtendimento,
   type Prioridade,
@@ -54,8 +55,9 @@ interface ChamadosState {
   reatribuirGrupo: (numero: string, grupoId: string, grupoNome: string, autor: string) => void
   /** Técnico registra a solução — vira "Solucionado", aguardando o aceite (assinatura) do requerente. */
   registrarSolucao: (numero: string, texto: string, autor: string) => void
-  /** Aceite/assinatura do requerente confirmados — fecha o chamado. */
-  confirmarAssinatura: (numero: string) => void
+  /** Aceite/assinatura do requerente confirmados — fecha o chamado. `documentoOs`, quando informado,
+   * fica anexado ao chamado para consulta/download posterior da Ordem de Serviço selada. */
+  confirmarAssinatura: (numero: string, documentoOs?: ChamadoDocumentoOs) => void
   /** Requerente rejeita a solução — reabre o chamado para o técnico. */
   rejeitarSolucao: (numero: string, motivo: string, autor: string) => void
 }
@@ -187,15 +189,20 @@ export const useChamadosStore = create<ChamadosState>()(
             { tipo: 'solucao', origem: 'Atendente', publico: true, autor, texto },
           ),
         })),
-      confirmarAssinatura: (numero) =>
+      confirmarAssinatura: (numero, documentoOs) =>
         set((s) => ({
-          chamados: atualizarChamado(s.chamados, numero, { status: 'Fechado', assinaturaStatus: 'assinada' }, {
-            tipo: 'sistema',
-            origem: 'Sistema',
-            publico: true,
-            autor: 'Sistema',
-            texto: 'Chamado fechado — solução validada e assinada pelo requerente.',
-          }),
+          chamados: atualizarChamado(
+            s.chamados,
+            numero,
+            { status: 'Fechado', assinaturaStatus: 'assinada', ...(documentoOs ? { documentoOs } : {}) },
+            {
+              tipo: 'sistema',
+              origem: 'Sistema',
+              publico: true,
+              autor: 'Sistema',
+              texto: 'Chamado fechado — solução validada e assinada pelo requerente.',
+            },
+          ),
         })),
       rejeitarSolucao: (numero, motivo, autor) =>
         set((s) => ({

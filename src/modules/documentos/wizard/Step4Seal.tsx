@@ -9,15 +9,21 @@ interface Props {
   onNovoDocumento: () => void
   /** Rótulo do botão final — por padrão "↻ Novo documento"; o fluxo de OS do chamado usa um texto que reflete melhor a ação (voltar ao chamado, já fechado). */
   finishLabel?: string
+  /** Hash/data-hora já calculados por quem chama (ex.: OsAssinaturaView, que precisa persistir o
+   * mesmo hash no chamado para reexibir depois) — por padrão são gerados aqui, na primeira selagem. */
+  hash?: string
+  sealedAt?: Date
 }
 
-export default function Step4Seal({ onNovoDocumento, finishLabel = '↻ Novo documento' }: Props) {
+export default function Step4Seal({ onNovoDocumento, finishLabel = '↻ Novo documento', hash: hashProp, sealedAt }: Props) {
   const { template, brand, signers } = useWizard()
-  const now = useMemo(() => new Date(), [])
-  const hash = useMemo(
-    () => mockDocumentHash(`${template.code}|${brand.id}|${now.toISOString()}`),
-    [template.code, brand.id, now],
+  const internalNow = useMemo(() => new Date(), [])
+  const now = sealedAt ?? internalNow
+  const internalHash = useMemo(
+    () => mockDocumentHash(`${template.code}|${brand.id}|${internalNow.toISOString()}`),
+    [template.code, brand.id, internalNow],
   )
+  const hash = hashProp ?? internalHash
   const docRef = useRef<HTMLDivElement>(null)
   const certRef = useRef<HTMLDivElement>(null)
 

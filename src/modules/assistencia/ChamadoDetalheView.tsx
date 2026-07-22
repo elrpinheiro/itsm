@@ -52,7 +52,8 @@ interface TimelineEntry {
  * GLPI) e ações que dirigem o status, nunca um seletor solto: assumir, planejar tarefa, reatribuir
  * grupo, registrar solução. Ao solucionar, "Gerar OS para assinatura" abre OsAssinaturaView, que monta
  * a Ordem de Serviço a partir dos dados do próprio chamado e leva à dupla assinatura (técnico +
- * requerente) do módulo de Assinatura Digital — só fecha o chamado depois de selada.
+ * requerente) do módulo de Assinatura Digital — só fecha o chamado depois de selada. A OS selada fica
+ * anexada ao chamado (card "Documentos" na sidebar) para consulta e novo download a qualquer momento.
  */
 export default function ChamadoDetalheView({ numero, onClose }: Props) {
   const user = useAuthStore((s) => s.user)
@@ -84,6 +85,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
   const [mostrarRejeicao, setMostrarRejeicao] = useState(false)
   const [formRejeicao, setFormRejeicao] = useState('')
   const [gerandoOs, setGerandoOs] = useState(false)
+  const [consultandoOs, setConsultandoOs] = useState(false)
 
   // Sugestão da Base de Conhecimento ao registrar solução — mesma lógica de NovoAtendimentoView,
   // recalculada a cada tecla para refinar entre artigos da mesma categoria pela palavra-chave.
@@ -105,6 +107,10 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
 
   if (gerandoOs) {
     return <OsAssinaturaView numero={numero} onClose={() => setGerandoOs(false)} />
+  }
+
+  if (consultandoOs) {
+    return <OsAssinaturaView numero={numero} onClose={() => setConsultandoOs(false)} modoConsulta />
   }
 
   const autor = user?.nome ?? 'Atendente'
@@ -354,6 +360,26 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
               ))}
             </div>
           </div>
+
+          {chamado.documentoOs && (
+            <div className="chd-sidebar-card">
+              <div className="chd-sidebar-title">Documentos</div>
+              <div className="chd-dados-lista">
+                <div>
+                  <span className="lbl">Ordem de Serviço</span>
+                  <span>Selada em {new Date(chamado.documentoOs.seladoEm).toLocaleDateString('pt-BR')} · dupla assinatura</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn chd-sidebar-btn"
+                style={{ marginTop: 8 }}
+                onClick={() => setConsultandoOs(true)}
+              >
+                🧾 Consultar e baixar
+              </button>
+            </div>
+          )}
 
           {podeAgir && (
             <div className="chd-sidebar-card">

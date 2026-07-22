@@ -5,6 +5,7 @@ import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { useAllBrandsMap, useAllProjects } from '@/store/useCatalogStore'
 import { getTemplateById } from '@/data/templates'
+import { mockDocumentHash } from '@/utils/mockHash'
 import { WizardContext, type WizardContextValue } from '@/modules/documentos/wizard/WizardContext'
 import DocumentPreview from '@/modules/documentos/wizard/DocumentPreview'
 import Step3Sign from '@/modules/documentos/wizard/Step3Sign'
@@ -14,6 +15,9 @@ import type { DocumentFormData, Signer } from '@/types'
 interface Props {
   numero: string
   onClose: () => void
+  /** Abre direto na consulta da OS já selada (dados e assinaturas gravados em `chamado.documentoOs`),
+   * sem os passos de revisão/assinatura — usado pelo card "Documentos" do chamado já fechado. */
+  modoConsulta?: boolean
 }
 
 const OS_TEMPLATE = getTemplateById('os')!
@@ -32,7 +36,7 @@ function buildSigners(tecnicoNome: string, requerenteNome: string): Signer[] {
  * Step3Sign/Step4Seal do wizard de documentos (mesmo hash/manifesto de evidências e PDF/A selado); ao
  * selar, fecha o chamado de fato via confirmarAssinatura.
  */
-export default function OsAssinaturaView({ numero, onClose }: Props) {
+export default function OsAssinaturaView({ numero, onClose, modoConsulta }: Props) {
   const user = useAuthStore((s) => s.user)
   const usuarios = useAdminStore((s) => s.usuarios)
   const chamado = useChamadosStore((s) => s.chamados.find((c) => c.numero === numero))
@@ -52,6 +56,12 @@ export default function OsAssinaturaView({ numero, onClose }: Props) {
 
   const [signers, setSigners] = useState<Signer[]>(() => buildSigners(chamado?.atribuidoA ?? autor, requerenteNome))
   const [currentSignerIndex, setCurrentSignerIndex] = useState(0)
+  const [seladoEm, setSeladoEm] = useState<Date | null>(null)
+
+  const hash = useMemo(
+    () => (seladoEm && brand ? mockDocumentHash(`${OS_TEMPLATE.code}|${brand.id}|${seladoEm.toISOString()}`) : ''),
+    [seladoEm, brand],
+  )
 
   const formData: DocumentFormData = useMemo(() => {
     if (!chamado) return {} as DocumentFormData
@@ -99,6 +109,43 @@ export default function OsAssinaturaView({ numero, onClose }: Props) {
     )
   }
 
+  if (modoConsulta && chamado.documentoOs) {
+    const doc = chamado.documentoOs
+    const ctxConsulta: WizardContextValue = {
+      template: OS_TEMPLATE,
+      brand,
+      step: 4,
+      setStep: () => {},
+      formData: doc.formData,
+      updateField: () => {},
+      multiData: {},
+      updateMultiField: () => {},
+      checklist: [],
+      setChecklist: () => {},
+      equipamentos: [],
+      setEquipamentos: () => {},
+      signers: doc.signers,
+      setSigners: () => {},
+      currentSignerIndex: 0,
+      setCurrentSignerIndex: () => {},
+    }
+    return (
+      <WizardContext.Provider value={ctxConsulta}>
+        <div className="mod-scroll-area">
+          <div className="chd-breadcrumb">
+            Assistência <span>›</span> Fila de chamados <span>›</span> {chamado.numero} <span>›</span> Ordem de Serviço
+          </div>
+          <Step4Seal
+            onNovoDocumento={onClose}
+            finishLabel="← Voltar ao chamado"
+            hash={doc.hash}
+            sealedAt={new Date(doc.seladoEm)}
+          />
+        </div>
+      </WizardContext.Provider>
+    )
+  }
+
   const ctx: WizardContextValue = {
     template: OS_TEMPLATE,
     brand,
@@ -119,7 +166,10 @@ export default function OsAssinaturaView({ numero, onClose }: Props) {
   }
 
   function handleSelado() {
-    confirmarAssinatura(numero)
+    confirmarAssinatura(
+      numero,
+      seladoEm ? { hash, seladoEm: seladoEm.toISOString(), formData, signers } : undefined,
+    )
     onClose()
   }
 
@@ -152,8 +202,22 @@ export default function OsAssinaturaView({ numero, onClose }: Props) {
           </>
         )}
 
-        {fase === 3 && <Step3Sign onFinish={() => setFase(4)} />}
-        {fase === 4 && <Step4Seal onNovoDocumento={handleSelado} finishLabel="✓ Fechar chamado e voltar" />}
+        {fase === 3 && (
+          <Step3Sign
+            onFinish={() => {
+              setSeladoEm(new Date())
+              setFase(4)
+            }}
+          />
+        )}
+        {fase === 4 && (
+          <Step4Seal
+            onNovoDocumento={handleSelado}
+            finishLabel="✓ Fechar chamado e voltar"
+            hash={hash}
+            sealedAt={seladoEm ?? undefined}
+          />
+        )}
       </div>
     </WizardContext.Provider>
   )
