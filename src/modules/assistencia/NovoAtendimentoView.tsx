@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useAdminStore } from '@/store/useAdminStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
@@ -10,6 +10,8 @@ import type { OrigemAtendimento, Prioridade, StatusChamado } from '@/data/chamad
 import { ATIVOS_VINCULAVEIS } from '@/data/ativosMock'
 import { buscarConversaWhatsApp, buscarGravacaoURA, type GravacaoURA } from '@/data/integracaoOrigem'
 import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
+import { DOCUMENTO_POR_CATEGORIA } from '@/data/documentosCategoria'
+import { formatFileSize, iconForFile } from '../assinatura/types'
 import UsuarioFormModal from '../administracao/UsuarioFormModal'
 import type { Project } from '@/types'
 
@@ -80,6 +82,21 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const [tipoAtendimento, setTipoAtendimento] = useState<ClassificationLabel | ''>('')
   const [prioridade, setPrioridade] = useState<Prioridade | ''>('')
   const [grupoId, setGrupoId] = useState('')
+  const [anexo, setAnexo] = useState<File | null>(null)
+  const anexoInputRef = useRef<HTMLInputElement>(null)
+
+  const documentoCategoria = categoria ? DOCUMENTO_POR_CATEGORIA[categoria] : undefined
+
+  function handleCategoriaChange(nova: string) {
+    setCategoria((atual) => {
+      if (atual !== nova) setAnexo(null)
+      return nova
+    })
+  }
+
+  function handleAnexoChange(file: File | undefined) {
+    if (file) setAnexo(file)
+  }
 
   // Deriva do store (não guarda uma cópia) para refletir na hora qualquer edição feita em "Atualizar Informações do Usuário".
   const requerente = useMemo(() => usuarios.find((u) => u.id === requerenteId) ?? null, [usuarios, requerenteId])
@@ -172,7 +189,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
     const limpo = reformularDescricao(textoBase)
     setDescricao(limpo)
     const sugestao = classificarAtendimento(limpo, catalogBruto)
-    setCategoria(sugestao.categoria)
+    handleCategoriaChange(sugestao.categoria)
     setTipoAtendimento(sugestao.tipoAtendimento)
     setPrioridade(sugestao.prioridade)
     setGrupoId(sugestao.grupoId)
@@ -182,7 +199,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
     setDescricao(v)
     if (v.trim().length > 8) {
       const sugestao = classificarAtendimento(v, catalogBruto)
-      setCategoria(sugestao.categoria)
+      handleCategoriaChange(sugestao.categoria)
       setTipoAtendimento(sugestao.tipoAtendimento)
       setPrioridade(sugestao.prioridade)
       setGrupoId(sugestao.grupoId)
@@ -212,6 +229,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
       gravacaoUrl: origem === '0800 (URA)' ? gravacao?.url : undefined,
       protocoloWhatsapp: origem === 'WhatsApp' ? protocoloWhatsapp.trim() || undefined : undefined,
       ativosVinculados,
+      anexoNome: anexo?.name,
     })
     onClose()
   }
@@ -575,7 +593,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
             <span className={`nc-summary-ic${categoria ? ' on' : ''}`}>{categoria ? '✓' : '•'}</span>
             <div className="nc-summary-body">
               <div className="lbl">Categoria</div>
-              <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+              <select value={categoria} onChange={(e) => handleCategoriaChange(e.target.value)}>
                 <option value="">Selecione…</option>
                 {catalog.map((item) => (
                   <option key={item.label} value={item.label}>
@@ -585,6 +603,51 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
               </select>
             </div>
           </div>
+
+          {documentoCategoria && (
+            <div className="nc-summary-card">
+              <span className="nc-summary-ic">📎</span>
+              <div className="nc-summary-body">
+                <div className="lbl">Documento da categoria</div>
+                <div style={{ fontSize: 12.5, marginBottom: 8 }}>{documentoCategoria.nome}</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <a
+                    className="btn"
+                    style={{ fontSize: 12 }}
+                    href={documentoCategoria.arquivoUrl}
+                    download={documentoCategoria.nomeArquivo}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    ⬇ Baixar
+                  </a>
+                  <button type="button" className="btn" style={{ fontSize: 12 }} onClick={() => anexoInputRef.current?.click()}>
+                    📎 Anexar preenchido
+                  </button>
+                  <input
+                    ref={anexoInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      handleAnexoChange(e.target.files?.[0])
+                      e.target.value = ''
+                    }}
+                  />
+                </div>
+                {anexo && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, marginTop: 8 }}>
+                    <span>{iconForFile(anexo)}</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{anexo.name}</span>
+                    <span style={{ color: 'var(--texto-sec)' }}>({formatFileSize(anexo.size)})</span>
+                    <button type="button" className="nc-req-chip-x" onClick={() => setAnexo(null)} title="Remover anexo">
+                      ×
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="nc-summary-card">
             <span className={`nc-summary-ic${tipoAtendimento ? ' on' : ''}`}>{tipoAtendimento ? '✓' : '•'}</span>

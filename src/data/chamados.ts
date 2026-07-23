@@ -85,6 +85,8 @@ export interface Chamado {
   protocoloWhatsapp?: string
   /** Patrimônios (Ativos) vinculados a este chamado. */
   ativosVinculados?: string[]
+  /** Nome do arquivo anexado como termo preenchido (Entrega/Devolução de Equipamentos), quando a categoria exige documento — ver DOCUMENTO_POR_CATEGORIA. */
+  anexoNome?: string
   /** Nota de satisfação (0–10, escala NPS) da pesquisa pós-atendimento respondida pelo requerente. Ausente = pesquisa não respondida (o sistema não tem envio automático de pesquisa nesta versão — ver 05.16 da documentação técnica). */
   notaSatisfacao?: number
   /** Técnico que assumiu o chamado (Processing assigned). Ausente enquanto o chamado está "Na fila". */

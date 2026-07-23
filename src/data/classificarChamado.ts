@@ -24,6 +24,8 @@ const SINONIMOS: Record<string, string[]> = {
   'dúvidas/sugestões/elogios ou reclamações': ['duvida', 'sugestao', 'elogio', 'reclamacao'],
   'empréstimo de equipamentos': ['emprestimo'],
   'apple tv': ['apple tv'],
+  'entrega de equipamentos': ['entreg', 'retirada', 'kit novo'],
+  'devolucao de equipamentos': ['devolucao', 'devolv'],
 }
 
 export interface ClassificacaoSugerida {
