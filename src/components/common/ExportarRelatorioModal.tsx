@@ -22,11 +22,17 @@ interface Props {
 
 type TipoRelatorio = 'chamados' | 'sla' | 'backlog'
 
-const TIPOS: { valor: TipoRelatorio; label: string; descricao: string }[] = [
-  { valor: 'chamados', label: 'Chamados por projeto', descricao: 'Total de chamados por projeto, aberto por status.' },
-  { valor: 'sla', label: 'SLAs vencidos e cumpridos', descricao: 'Cumprimento de SLA por projeto — dentro e fora do prazo.' },
-  { valor: 'backlog', label: 'Backlog por projeto', descricao: 'Backlog (em aberto) frente aos chamados abertos no mês, por projeto.' },
-]
+function tiposRelatorio(escopoUnico: Project | null): { valor: TipoRelatorio; label: string; descricao: string }[] {
+  return [
+    {
+      valor: 'chamados',
+      label: escopoUnico ? 'Chamados' : 'Chamados por projeto',
+      descricao: escopoUnico ? 'Total de chamados, aberto por status.' : 'Total de chamados por projeto, aberto por status.',
+    },
+    { valor: 'sla', label: 'SLAs vencidos e cumpridos', descricao: 'Cumprimento de SLA por projeto — dentro e fora do prazo.' },
+    { valor: 'backlog', label: 'Backlog por projeto', descricao: 'Backlog (em aberto) frente aos chamados abertos no mês, por projeto.' },
+  ]
+}
 
 const COLUNAS_CHAMADOS: RelatorioColuna[] = [
   { key: 'projeto', label: 'Projeto' },
@@ -71,6 +77,7 @@ export default function ExportarRelatorioModal({
   const [tipo, setTipo] = useState<TipoRelatorio>('chamados')
   const escopoUnico = projetos.length === 1 ? projetos[0] : null
   const sufixoArquivo = escopoUnico ? `-${escopoUnico.cidade.toLowerCase().replace(/\s+/g, '-')}` : ''
+  const tipos = tiposRelatorio(escopoUnico)
 
   function montar(): { colunas: RelatorioColuna[]; linhas: Record<string, unknown>[]; nomeArquivo: string } {
     const hoje = new Date().toISOString().slice(0, 10)
@@ -91,7 +98,7 @@ export default function ExportarRelatorioModal({
     return {
       colunas: COLUNAS_CHAMADOS,
       linhas: linhasChamadosPorProjeto(chamados, projetos),
-      nomeArquivo: `chamados-por-projeto${sufixoArquivo}-${hoje}`,
+      nomeArquivo: `${escopoUnico ? 'chamados' : 'chamados-por-projeto'}${sufixoArquivo}-${hoje}`,
     }
   }
 
@@ -110,7 +117,7 @@ export default function ExportarRelatorioModal({
       <div className="frow">
         <label className="field-label">Tipo de relatório</label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {TIPOS.map((t) => (
+          {tipos.map((t) => (
             <label
               key={t.valor}
               style={{
