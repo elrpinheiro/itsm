@@ -1,4 +1,4 @@
-import type { Chamado } from '@/data/chamados'
+import type { Chamado, StatusChamado } from '@/data/chamados'
 import { isFimDeSemanaOuFeriado } from './feriadosNacionais'
 
 /** Converte o texto livre de "abertoHa" (ex.: "26h", "18 dias", "agora mesmo") em horas decorridas. */
@@ -78,6 +78,46 @@ export function calcularSla(chamados: Chamado[], resolverTtr: (chamado: Chamado)
  * para julgar (SLA não configurado para o projeto, ou nenhum chamado ainda). */
 export function atingiuMeta(sla: SlaResumo, metaPercentual: number): boolean | null {
   return sla.percentual === null ? null : sla.percentual >= metaPercentual
+}
+
+/** Status ainda considerados "em aberto" para fins de backlog — solucionado/fechado já saíram da
+ * fila de trabalho ativo do técnico. */
+const STATUS_BACKLOG: StatusChamado[] = ['Na fila', 'Em atendimento', 'Processando (planejado)', 'Aguardando terceiro']
+
+/** Instante aproximado de abertura de um chamado, a partir do texto livre "abertoHa" — mesma
+ * aproximação usada em `horasUteisDecorridas` (o sistema não guarda a data/hora exata de abertura). */
+function aberturaAproximada(chamado: Chamado, agora: Date): Date {
+  return new Date(agora.getTime() - parseAbertoHaEmHoras(chamado.abertoHa) * 3600 * 1000)
+}
+
+export interface BacklogResumo {
+  backlog: number
+  abertosNoMes: number
+  percentual: number | null
+}
+
+/** Backlog (chamados ainda não solucionados nem fechados) comparado ao volume de chamados abertos
+ * no mês corrente — regra definida pela gestão (2026-07): o backlog não deve passar de uma meta (ex.:
+ * 10%) dos chamados abertos no mês, em nenhum projeto. `percentual` é `null` quando não há chamados
+ * abertos no mês corrente (nada para comparar). */
+export function calcularBacklog(chamados: Chamado[], agora: Date = new Date()): BacklogResumo {
+  const backlog = chamados.filter((c) => STATUS_BACKLOG.includes(c.status)).length
+  const abertosNoMes = chamados.filter((c) => {
+    const abertura = aberturaAproximada(c, agora)
+    return abertura.getFullYear() === agora.getFullYear() && abertura.getMonth() === agora.getMonth()
+  }).length
+  return {
+    backlog,
+    abertosNoMes,
+    percentual: abertosNoMes > 0 ? Math.round((backlog / abertosNoMes) * 100) : null,
+  }
+}
+
+/** Compara o % de backlog contra a meta (ex.: 10%) — aqui, diferente do SLA, "dentro da meta" é
+ * ficar ABAIXO ou igual ao limite, não acima. `null` quando não há chamados abertos no mês para
+ * julgar. */
+export function atingiuMetaBacklog(backlog: BacklogResumo, metaPercentual: number): boolean | null {
+  return backlog.percentual === null ? null : backlog.percentual <= metaPercentual
 }
 
 export interface NpsResumo {

@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
-import { useSlaMeta, useSlaTtrMapPorProjeto } from '@/store/useSlaStore'
-import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
+import { useMetaBacklog, useSlaMeta, useSlaTtrMapPorProjeto } from '@/store/useSlaStore'
+import { calcularBacklog, calcularSla, calcularNps } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
 import SlaComplianceBoard from './SlaComplianceBoard'
+import BacklogBoard from './BacklogBoard'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
 import type { StatusChamado } from '@/data/chamados'
@@ -41,6 +42,8 @@ export default function PainelGeralModule() {
     [chamados, ttrMapPorProjeto, projetoIdPorNome],
   )
   const metaPercentual = useSlaMeta()
+  const metaBacklogPercentual = useMetaBacklog()
+  const backlogGeral = useMemo(() => calcularBacklog(chamados), [chamados])
   const nps = useMemo(() => calcularNps(chamados), [chamados])
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
@@ -137,6 +140,14 @@ export default function PainelGeralModule() {
                   ttrMapPorProjeto={ttrMapPorProjeto}
                   metaPercentual={metaPercentual}
                 />
+              </div>
+
+              <div className="mos-cell mos-backlogboard">
+                <h3>
+                  Backlog por projeto — meta ≤{metaBacklogPercentual}% dos chamados abertos no mês
+                  {backlogGeral.percentual !== null && ` (geral: ${backlogGeral.percentual}%)`}
+                </h3>
+                <BacklogBoard chamados={chamados} projetos={projetos} metaPercentual={metaBacklogPercentual} />
               </div>
 
               <div className="mos-cell mos-status">

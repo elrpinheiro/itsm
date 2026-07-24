@@ -41,11 +41,18 @@ const SLA_PADRAO: SlaEntry[] = PROJECTS.flatMap((p) =>
  * (diferente de TTO/TTR, que são por projeto e prioridade), definida pela gestão em 2026-07. */
 const META_PADRAO = 85
 
+/** Meta de backlog (% máximo dos chamados abertos no mês que pode ficar em backlog) — regra única
+ * para todos os projetos, definida pela gestão em 2026-07. Diferente da meta de SLA, aqui "dentro da
+ * meta" é ficar EM OU ABAIXO do valor, não acima. */
+const META_BACKLOG_PADRAO = 10
+
 interface SlaState {
   entradas: SlaEntry[]
   metaPercentual: number
+  metaBacklogPercentual: number
   updateSla: (projetoId: string, prioridade: Prioridade, patch: Partial<Pick<SlaEntry, 'tto' | 'ttr'>>) => void
   setMetaPercentual: (valor: number) => void
+  setMetaBacklogPercentual: (valor: number) => void
 }
 
 /** Níveis de serviço (SLA) por projeto e prioridade — no espírito do módulo "Níveis de serviço" do
@@ -61,6 +68,7 @@ export const useSlaStore = create<SlaState>()(
     (set) => ({
       entradas: SLA_PADRAO,
       metaPercentual: META_PADRAO,
+      metaBacklogPercentual: META_BACKLOG_PADRAO,
       updateSla: (projetoId, prioridade, patch) =>
         set((s) => {
           const existe = s.entradas.some((e) => e.projetoId === projetoId && e.prioridade === prioridade)
@@ -74,6 +82,7 @@ export const useSlaStore = create<SlaState>()(
           }
         }),
       setMetaPercentual: (valor) => set({ metaPercentual: valor }),
+      setMetaBacklogPercentual: (valor) => set({ metaBacklogPercentual: valor }),
     }),
     { name: 'itsm-sla-v2' },
   ),
@@ -83,6 +92,12 @@ export const useSlaStore = create<SlaState>()(
  * Níveis de Serviço. */
 export function useSlaMeta(): number {
   return useSlaStore((s) => s.metaPercentual)
+}
+
+/** Meta de backlog (%) — mesma regra para todos os projetos, editável em Administração → Níveis de
+ * Serviço. */
+export function useMetaBacklog(): number {
+  return useSlaStore((s) => s.metaBacklogPercentual)
 }
 
 /** Entradas de SLA — de um projeto só (quando `projetoId` é informado) ou de todos. */

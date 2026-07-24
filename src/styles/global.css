@@ -2070,6 +2070,7 @@ button.inicio-legend-item {
     'k1 k2 k3 k4'
     'sla sla nps nps'
     'slaboard slaboard slaboard slaboard'
+    'backlogboard backlogboard backlogboard backlogboard'
     'status status status status'
     'catchart catchart unitchart unitchart'
     'list list list list';
@@ -2191,6 +2192,9 @@ button.inicio-legend-item {
 }
 .mos-slaboard {
   grid-area: slaboard;
+}
+.mos-backlogboard {
+  grid-area: backlogboard;
 }
 
 .mos-bar-row {
@@ -2330,6 +2334,7 @@ button.inicio-legend-item {
       'k3 k4'
       'sla nps'
       'slaboard slaboard'
+      'backlogboard backlogboard'
       'status status'
       'catchart catchart'
       'unitchart unitchart'
@@ -2347,6 +2352,7 @@ button.inicio-legend-item {
       'sla'
       'nps'
       'slaboard'
+      'backlogboard'
       'status'
       'catchart'
       'unitchart'

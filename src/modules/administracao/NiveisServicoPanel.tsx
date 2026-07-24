@@ -3,7 +3,7 @@ import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
-import { useSlaEntries, useSlaMeta, useSlaStore } from '@/store/useSlaStore'
+import { useMetaBacklog, useSlaEntries, useSlaMeta, useSlaStore } from '@/store/useSlaStore'
 import type { Prioridade } from '@/data/chamados'
 
 const COLUMNS: DataTableColumn[] = [
@@ -28,6 +28,8 @@ export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
   const updateSla = useSlaStore((s) => s.updateSla)
   const metaPercentual = useSlaMeta()
   const setMetaPercentual = useSlaStore((s) => s.setMetaPercentual)
+  const metaBacklogPercentual = useMetaBacklog()
+  const setMetaBacklogPercentual = useSlaStore((s) => s.setMetaBacklogPercentual)
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const projetoMap = Object.fromEntries(projetos.map((p) => [p.id, `${p.nome} — ${p.cidade}`]))
 
@@ -121,6 +123,29 @@ export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
           <span style={{ fontSize: 12.5, fontWeight: 700 }}>{metaPercentual}%</span>
         )}
         {canEdit && <span style={{ fontSize: 11.5, color: 'var(--texto-sec)' }}>% — mesma regra para todos os projetos, usada no Painel Geral e no Início.</span>}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <label className="field-label" style={{ margin: 0 }}>
+          Meta de backlog
+        </label>
+        {canEdit ? (
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step={1}
+            value={metaBacklogPercentual}
+            onChange={(ev) => setMetaBacklogPercentual(Number(ev.target.value))}
+            style={{ width: 70, fontSize: 12.5, padding: '5px 8px' }}
+          />
+        ) : (
+          <span style={{ fontSize: 12.5, fontWeight: 700 }}>{metaBacklogPercentual}%</span>
+        )}
+        {canEdit && (
+          <span style={{ fontSize: 11.5, color: 'var(--texto-sec)' }}>
+            % — backlog (chamados em aberto) não deve passar disso em relação aos chamados abertos no mês, em nenhum projeto.
+          </span>
+        )}
       </div>
       <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum SLA definido nesta entidade." />
     </div>
