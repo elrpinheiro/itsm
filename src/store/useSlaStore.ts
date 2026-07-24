@@ -17,14 +17,14 @@ export interface SlaEntry {
 
 /** Política solicitada pela gestão (2026-07) para P1–P4. Os campos são um único número (horas),
  * então usamos o limite superior de cada faixa "típica" como o prazo-alvo configurado (ex.: resposta
- * "15 a 30 min" → tto = 0,5h); "dias úteis" foram convertidos assumindo 24h por dia útil (ex.: Baixa
- * "3 a 5 dias úteis" → ttr = 120h) — o próprio "dia útil" já pula fins de semana/feriados no relógio
- * (ver `horasUteisDecorridas` em chamadoMetrics.ts), então essas 24h só contam em dias úteis de fato. */
+ * "15 a 30 min" → tto = 0,5h). "Dias úteis" foram convertidos assumindo o expediente de 08:00–18:00
+ * (10h por dia útil) que `horasUteisDecorridas` usa para contar o relógio do SLA (ex.: Baixa "3 a 5
+ * dias úteis" → ttr = 5 × 10h = 50h). */
 const POLITICA_PADRAO: Record<Prioridade, { tto: number; ttr: number }> = {
   Crítica: { tto: 0.5, ttr: 4 }, // P1 — resposta 15–30min, resolução até 4h (24x7)
   Alta: { tto: 1, ttr: 8 }, // P2 — resposta 30min–1h, resolução 8h (1 dia útil)
   Média: { tto: 4, ttr: 48 }, // P3 — resposta 2–4h, resolução 24–48h (1–2 dias úteis)
-  Baixa: { tto: 24, ttr: 120 }, // P4 — resposta 8h–1 dia útil, resolução 3–5 dias úteis
+  Baixa: { tto: 10, ttr: 50 }, // P4 — resposta 8h–1 dia útil (10h), resolução 3–5 dias úteis (10h/dia)
 }
 
 /** Política padrão de fábrica — aplicada a todos os projetos de fábrica, ajustável pelo
@@ -51,11 +51,11 @@ interface SlaState {
 /** Níveis de serviço (SLA) por projeto e prioridade — no espírito do módulo "Níveis de serviço" do
  * GLPI: TTO (Time To Own) e TTR (Time To Resolve) configuráveis pelo administrador, por entidade, em
  * vez de fixos no código. O cálculo em chamadoMetrics.ts (`horasUteisDecorridas`) trava o relógio do
- * SLA em sábados, domingos e feriados nacionais — exceto para chamados Críticos (P1), que mantêm
- * atendimento contínuo 24x7 — mas ainda não pausa enquanto o chamado está "Aguardando terceiro" nem
- * usa um calendário de expediente por horário (ex.: happy hour comercial), só por dia inteiro. Um
- * projeto sem nenhuma entrada (ex.: recém-criado pelo admin, antes de ter uma política definida) fica
- * de fora do cálculo de "SLA cumprido" em vez de herdar uma política de outro projeto. */
+ * SLA fora do expediente (08:00–18:00) e em sábados, domingos e feriados nacionais — exceto para
+ * chamados Críticos (P1), que mantêm atendimento contínuo 24x7 — mas ainda não pausa enquanto o
+ * chamado está "Aguardando terceiro". Um projeto sem nenhuma entrada (ex.: recém-criado pelo admin,
+ * antes de ter uma política definida) fica de fora do cálculo de "SLA cumprido" em vez de herdar uma
+ * política de outro projeto. */
 export const useSlaStore = create<SlaState>()(
   persist(
     (set) => ({

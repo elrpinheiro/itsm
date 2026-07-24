@@ -10,24 +10,42 @@ export function parseAbertoHaEmHoras(abertoHa: string): number {
   return 0
 }
 
-/** Horas decorridas desde a abertura, já descontando sábados, domingos e feriados nacionais — o
- * relógio do SLA fica "travado" nesses dias (regra definida pela gestão em 2026-07), exceto para
- * chamados Críticos (P1), que mantêm atendimento contínuo 24x7 sem pausar, como na política original.
- * Como "abertoHa" é só um texto livre (não guarda a data/hora exata de abertura), aproxima o instante
- * de abertura como `agora − horas totais decorridas` e subtrai 24h para cada dia (completo) de fim de
- * semana/feriado dentro dessa janela — uma aproximação por dia inteiro, não por hora exata. */
+/** Expediente considerado para o relógio do SLA — 08:00 às 18:00, em todos os projetos (regra
+ * definida pela gestão em 2026-07). Fora dessa janela (e em fins de semana/feriados) o relógio fica
+ * travado, exceto para chamados Críticos (ver `horasUteisDecorridas`). */
+const EXPEDIENTE_INICIO_HORA = 8
+const EXPEDIENTE_FIM_HORA = 18
+
+/** Horas de expediente decorridas desde a abertura: só conta o tempo dentro do horário comercial
+ * (08:00–18:00) em dias que não são fim de semana nem feriado nacional — o relógio do SLA fica
+ * "travado" fora disso, exceto para chamados Críticos (P1), que mantêm atendimento contínuo 24x7 sem
+ * pausar, como na política original. Como "abertoHa" é só um texto livre (não guarda a data/hora
+ * exata de abertura), aproxima o instante de abertura como `agora − horas totais decorridas` e depois
+ * soma, dia a dia, a sobreposição entre a janela [abertura, agora] e o expediente de cada dia útil. */
 export function horasUteisDecorridas(chamado: Chamado, agora: Date = new Date()): number {
   const totalHoras = parseAbertoHaEmHoras(chamado.abertoHa)
   if (chamado.prioridade === 'Crítica' || totalHoras <= 0) return totalHoras
   const abertoEm = new Date(agora.getTime() - totalHoras * 3600 * 1000)
-  let horasBloqueadas = 0
-  const cursor = new Date(abertoEm.getFullYear(), abertoEm.getMonth(), abertoEm.getDate())
+
+  let horasUteis = 0
+  const cursorDia = new Date(abertoEm.getFullYear(), abertoEm.getMonth(), abertoEm.getDate())
   const ultimoDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate())
-  while (cursor.getTime() <= ultimoDia.getTime()) {
-    if (isFimDeSemanaOuFeriado(cursor)) horasBloqueadas += 24
-    cursor.setDate(cursor.getDate() + 1)
+  while (cursorDia.getTime() <= ultimoDia.getTime()) {
+    if (!isFimDeSemanaOuFeriado(cursorDia)) {
+      const expedienteInicio = new Date(cursorDia)
+      expedienteInicio.setHours(EXPEDIENTE_INICIO_HORA, 0, 0, 0)
+      const expedienteFim = new Date(cursorDia)
+      expedienteFim.setHours(EXPEDIENTE_FIM_HORA, 0, 0, 0)
+
+      const sobreposicaoInicio = Math.max(abertoEm.getTime(), expedienteInicio.getTime())
+      const sobreposicaoFim = Math.min(agora.getTime(), expedienteFim.getTime())
+      if (sobreposicaoFim > sobreposicaoInicio) {
+        horasUteis += (sobreposicaoFim - sobreposicaoInicio) / (3600 * 1000)
+      }
+    }
+    cursorDia.setDate(cursorDia.getDate() + 1)
   }
-  return Math.max(0, totalHoras - horasBloqueadas)
+  return horasUteis
 }
 
 export interface SlaResumo {
@@ -37,8 +55,9 @@ export interface SlaResumo {
 }
 
 /** % de chamados dentro do prazo-alvo (TTR) da própria prioridade, considerando as horas úteis
- * decorridas (`horasUteisDecorridas`, que trava em fins de semana e feriados nacionais, exceto para
- * Críticos) — para chamados fechados isso é uma aproximação do tempo até a resolução. O prazo-alvo
+ * decorridas (`horasUteisDecorridas`, que só conta o expediente — 08:00–18:00 em dias que não são
+ * fim de semana nem feriado nacional —, exceto para Críticos, que contam 24x7) — para chamados
+ * fechados isso é uma aproximação do tempo até a resolução. O prazo-alvo
  * (TTR) vem de Administração → Níveis de Serviço (useSlaStore), por projeto, não é mais fixo no
  * código. `resolverTtr` devolve o TTR (horas) aplicável a um chamado, ou `undefined` quando o
  * projeto dele ainda não tem SLA configurado — esses chamados ficam de fora do cálculo (não entram
