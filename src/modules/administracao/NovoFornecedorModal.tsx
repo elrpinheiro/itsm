@@ -29,8 +29,8 @@ export default function NovoFornecedorModal({ onClose, defaultProjetoId }: Props
   const [projetoId, setProjetoId] = useState(defaultProjetoId ?? '')
   const [error, setError] = useState('')
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
     if (!empresa.trim()) return setError('Informe o nome da empresa.')
     if (!servico.trim()) return setError('Informe o serviço/produto fornecido.')
     if (!email.trim()) return setError('Informe o e-mail de contato.')
@@ -122,7 +122,7 @@ export default function NovoFornecedorModal({ onClose, defaultProjetoId }: Props
           <button type="button" className="btn" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="button" className="btn btn-primary" onClick={() => handleSubmit()}>
             Criar fornecedor
           </button>
         </div>

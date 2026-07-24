@@ -21,8 +21,8 @@ export default function NovoGrupoModal({ onClose, defaultProjetoId }: Props) {
   const [podeSerNotificado, setPodeSerNotificado] = useState(true)
   const [error, setError] = useState('')
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
     if (!nome.trim()) return setError('Informe o nome do grupo.')
     if (!descricao.trim()) return setError('Informe uma descrição para o grupo.')
     addGrupo({
@@ -83,7 +83,7 @@ export default function NovoGrupoModal({ onClose, defaultProjetoId }: Props) {
           <button type="button" className="btn" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="button" className="btn btn-primary" onClick={() => handleSubmit()}>
             Criar grupo
           </button>
         </div>

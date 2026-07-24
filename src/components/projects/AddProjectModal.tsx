@@ -25,8 +25,8 @@ export default function AddProjectModal({ onClose, onCreated }: Props) {
     setLogo(await resizeImageToDataUrl(file))
   }
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
     if (!cidade.trim() || !nome.trim()) {
       setError('Preencha a cidade e o nome do projeto.')
       return
@@ -83,7 +83,7 @@ export default function AddProjectModal({ onClose, onCreated }: Props) {
           <button type="button" className="btn" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="button" className="btn btn-primary" onClick={() => handleSubmit()}>
             Criar projeto
           </button>
         </div>

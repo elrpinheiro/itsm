@@ -20,8 +20,8 @@ export default function NovoPerfilModal({ onClose, onCreated, defaultProjetoId }
   const [projetoId, setProjetoId] = useState(defaultProjetoId ?? '')
   const [error, setError] = useState('')
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
     if (!nome.trim()) return setError('Informe o nome do perfil.')
     if (!descricao.trim()) return setError('Informe uma descrição para o perfil.')
     const id = addPerfil({ nome, descricao, projetoId: projetoId || undefined })
@@ -64,7 +64,7 @@ export default function NovoPerfilModal({ onClose, onCreated, defaultProjetoId }
           <button type="button" className="btn" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="button" className="btn btn-primary" onClick={() => handleSubmit()}>
             Criar perfil
           </button>
         </div>
