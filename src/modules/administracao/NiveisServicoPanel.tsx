@@ -97,11 +97,12 @@ export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
         chamado) e <strong>TTR</strong> (Time To Resolve — prazo para resolver), em horas, por prioridade
         e por entidade. Hoje o sistema mede automaticamente só o <strong>TTR</strong> (usado no KPI "SLA
         cumprido" do Início e do Painel Geral) — não há registro de quando um técnico assume um chamado,
-        então o TTO fica salvo como referência, sem indicador de cumprimento ainda. O cálculo também não
-        usa calendário de expediente (trata o tempo como corrido, 24×7, sem pausar em fins de semana,
-        feriados ou enquanto o chamado está "Aguardando terceiro") — no GLPI isso é resolvido associando
-        um calendário ao SLA, o que pode ser uma evolução futura deste módulo. Uma entidade sem nenhuma
-        linha ainda não tem SLA definido.
+        então o TTO fica salvo como referência, sem indicador de cumprimento ainda. O relógio do TTR
+        trava em sábados, domingos e feriados nacionais — exceto para chamados <strong>Críticos (P1)</strong>,
+        que mantêm atendimento contínuo 24x7 — mas ainda não pausa enquanto o chamado está "Aguardando
+        terceiro" nem usa um calendário de expediente por horário comercial, só por dia inteiro; isso
+        pode ser uma evolução futura deste módulo. Uma entidade sem nenhuma linha ainda não tem SLA
+        definido.
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <label className="field-label" style={{ margin: 0 }}>
