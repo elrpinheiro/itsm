@@ -22,8 +22,8 @@ const COLUMNS: DataTableColumn[] = [
 
 /** Painel de cumprimento de SLA por projeto — quantos chamados foram atendidos dentro do prazo-alvo
  * (TTR) e quantos não foram, comparados contra a meta única (ex.: 85%) definida em Administração →
- * Níveis de Serviço para todos os projetos. Projetos sem SLA configurado (ex.: ConectaOZ — Osasco,
- * em validação) aparecem à parte, sem entrar na comparação com a meta. */
+ * Níveis de Serviço para todos os projetos. Projetos sem SLA configurado aparecem à parte, sem
+ * entrar na comparação com a meta. */
 export default function SlaComplianceBoard({ chamados, projetos, ttrMapPorProjeto, metaPercentual }: Props) {
   const linhas = useMemo(() => {
     return projetos.map((p) => {

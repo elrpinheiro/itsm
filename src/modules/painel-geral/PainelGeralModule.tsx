@@ -45,7 +45,7 @@ export default function PainelGeralModule() {
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
   const slaTitle =
-    'Percentual de chamados dentro do prazo-alvo (TTR) configurado para o projeto de cada chamado — configurável em Administração → Níveis de Serviço, somando todas as unidades. Projetos ainda sem SLA definido (ex.: ConectaOZ — Osasco, em validação) não entram nesta conta.'
+    'Percentual de chamados dentro do prazo-alvo (TTR) configurado para o projeto de cada chamado — configurável em Administração → Níveis de Serviço, somando todas as unidades. Projetos ainda sem SLA definido não entram nesta conta.'
 
   const porCategoria = useMemo(() => {
     const contagem = new Map<string, number>()

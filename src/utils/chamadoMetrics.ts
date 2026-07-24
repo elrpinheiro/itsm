@@ -19,8 +19,8 @@ export interface SlaResumo {
  * "abertoHa" — para chamados fechados isso é uma aproximação do tempo até a resolução. O prazo-alvo
  * (TTR) vem de Administração → Níveis de Serviço (useSlaStore), por projeto, não é mais fixo no
  * código. `resolverTtr` devolve o TTR (horas) aplicável a um chamado, ou `undefined` quando o
- * projeto dele ainda não tem SLA configurado (ex.: ConectaOZ — Osasco, em validação) — esses
- * chamados ficam de fora do cálculo (não entram nem no total nem no "fora do prazo"). */
+ * projeto dele ainda não tem SLA configurado — esses chamados ficam de fora do cálculo (não entram
+ * nem no total nem no "fora do prazo"). */
 export function calcularSla(chamados: Chamado[], resolverTtr: (chamado: Chamado) => number | undefined): SlaResumo {
   const elegiveis = chamados.filter((c) => resolverTtr(c) !== undefined)
   if (elegiveis.length === 0) return { percentual: null, foraDoPrazo: 0, total: 0 }

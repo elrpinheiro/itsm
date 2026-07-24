@@ -18,9 +18,8 @@ const ORDEM_PRIORIDADE: Prioridade[] = ['Crítica', 'Alta', 'Média', 'Baixa']
 /** Administração de Níveis de Serviço (SLA) — inspirada no módulo "Níveis de serviço" do GLPI: TTO
  * (Time To Own, prazo para assumir) e TTR (Time To Resolve, prazo para resolver) configuráveis por
  * prioridade, por entidade (projeto), em vez de fixos no código ou únicos para todo o sistema. Um
- * projeto sem nenhuma linha (ex.: ConectaOZ — Osasco, ainda em fase de validação) simplesmente não
- * tem SLA definido ainda — os dashboards mostram "Sem SLA configurado" em vez de aplicar a política
- * de outro projeto. */
+ * projeto sem nenhuma linha simplesmente não tem SLA definido ainda — os dashboards mostram "Sem SLA
+ * configurado" em vez de aplicar a política de outro projeto. */
 export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
   const currentProject = useProjectStore((s) => s.selectedProject)
   const projetos = useAllProjects()
@@ -102,7 +101,7 @@ export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
         usa calendário de expediente (trata o tempo como corrido, 24×7, sem pausar em fins de semana,
         feriados ou enquanto o chamado está "Aguardando terceiro") — no GLPI isso é resolvido associando
         um calendário ao SLA, o que pode ser uma evolução futura deste módulo. Uma entidade sem nenhuma
-        linha ainda não tem SLA definido (ex.: ConectaOZ — Osasco, em fase de validação).
+        linha ainda não tem SLA definido.
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <label className="field-label" style={{ margin: 0 }}>

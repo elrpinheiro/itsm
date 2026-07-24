@@ -15,9 +15,6 @@ export interface SlaEntry {
   ttr: number
 }
 
-/** Projeto sem política de SLA por enquanto — ConectaOZ ainda está em fase de validação. */
-const PROJETO_SEM_SLA = 'osasco-conectaoz'
-
 /** Política solicitada pela gestão (2026-07) para P1–P4. Os campos são um único número (horas),
  * então usamos o limite superior de cada faixa "típica" como o prazo-alvo configurado (ex.: resposta
  * "15 a 30 min" → tto = 0,5h); dias úteis foram convertidos em horas corridas (1 dia útil = 24h), já
@@ -29,9 +26,9 @@ const POLITICA_PADRAO: Record<Prioridade, { tto: number; ttr: number }> = {
   Baixa: { tto: 24, ttr: 120 }, // P4 — resposta 8h–1 dia útil, resolução 3–5 dias úteis
 }
 
-/** Política padrão de fábrica — aplicada a todos os projetos de fábrica, exceto o ConectaOZ —
- * Osasco (PROJETO_SEM_SLA), ajustável pelo administrador em Administração → Níveis de Serviço. */
-const SLA_PADRAO: SlaEntry[] = PROJECTS.filter((p) => p.id !== PROJETO_SEM_SLA).flatMap((p) =>
+/** Política padrão de fábrica — aplicada a todos os projetos de fábrica, ajustável pelo
+ * administrador em Administração → Níveis de Serviço. */
+const SLA_PADRAO: SlaEntry[] = PROJECTS.flatMap((p) =>
   (Object.keys(POLITICA_PADRAO) as Prioridade[]).map((prioridade) => ({
     projetoId: p.id,
     prioridade,
@@ -54,8 +51,9 @@ interface SlaState {
  * GLPI: TTO (Time To Own) e TTR (Time To Resolve) configuráveis pelo administrador, por entidade, em
  * vez de fixos no código. GLPI também associa um calendário de expediente ao SLA; este sistema ainda
  * não tem — o cálculo em chamadoMetrics.ts trata o tempo decorrido como corrido (24×7), sem pausar em
- * fins de semana/feriados/status pendente. Um projeto sem nenhuma entrada (ex.: ConectaOZ, ainda em
- * validação) fica de fora do cálculo de "SLA cumprido" em vez de herdar uma política de outro projeto. */
+ * fins de semana/feriados/status pendente. Um projeto sem nenhuma entrada (ex.: recém-criado pelo
+ * admin, antes de ter uma política definida) fica de fora do cálculo de "SLA cumprido" em vez de
+ * herdar uma política de outro projeto. */
 export const useSlaStore = create<SlaState>()(
   persist(
     (set) => ({
@@ -91,8 +89,8 @@ export function useSlaEntries(projetoId?: string): SlaEntry[] {
   return projetoId ? entradas.filter((e) => e.projetoId === projetoId) : entradas
 }
 
-/** Mapa Prioridade → TTR (horas) de um projeto — vazio se o projeto ainda não tem SLA configurado
- * (ex.: ConectaOZ — Osasco, em validação), no formato que `calcularSla` espera. */
+/** Mapa Prioridade → TTR (horas) de um projeto — vazio se o projeto ainda não tem SLA configurado,
+ * no formato que `calcularSla` espera. */
 export function useSlaTtrMap(projetoId: string): Partial<Record<Prioridade, number>> {
   const entradas = useSlaEntries(projetoId)
   return Object.fromEntries(entradas.map((e) => [e.prioridade, e.ttr]))
