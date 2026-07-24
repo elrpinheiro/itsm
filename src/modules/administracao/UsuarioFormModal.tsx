@@ -48,8 +48,8 @@ export default function UsuarioFormModal({ onClose, usuario, defaultProjetoId }:
     setGrupoIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
   }
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
     if (!primeiroNome.trim()) return setError('Informe o primeiro nome.')
     if (!sobrenome.trim()) return setError('Informe o sobrenome.')
     if (!email.trim()) return setError('Informe o e-mail do usuário.')
@@ -213,7 +213,7 @@ export default function UsuarioFormModal({ onClose, usuario, defaultProjetoId }:
           <button type="button" className="btn" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="button" className="btn btn-primary" onClick={() => handleSubmit()}>
             {isEdit ? 'Salvar alterações' : 'Criar usuário'}
           </button>
         </div>

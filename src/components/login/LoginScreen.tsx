@@ -8,8 +8,8 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('admin@vitaebrasil.com.br')
   const [senha, setSenha] = useState('12345678')
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
     if (!login(email, senha)) {
       alert('Informe usuário e senha.')
       return
@@ -44,6 +44,9 @@ export default function LoginScreen() {
               placeholder="••••••••"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSubmit()
+              }}
             />
           </div>
           <div style={{ textAlign: 'right', marginBottom: 16 }}>
@@ -59,9 +62,10 @@ export default function LoginScreen() {
             </a>
           </div>
           <button
-            type="submit"
+            type="button"
             className="btn btn-primary"
             style={{ width: '100%', justifyContent: 'center', padding: 11, fontSize: 14, fontWeight: 600 }}
+            onClick={() => handleSubmit()}
           >
             Entrar
           </button>
