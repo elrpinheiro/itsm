@@ -86,8 +86,40 @@ const STATUS_BACKLOG: StatusChamado[] = ['Na fila', 'Em atendimento', 'Processan
 
 /** Instante aproximado de abertura de um chamado, a partir do texto livre "abertoHa" — mesma
  * aproximação usada em `horasUteisDecorridas` (o sistema não guarda a data/hora exata de abertura). */
-function aberturaAproximada(chamado: Chamado, agora: Date): Date {
+export function aberturaAproximada(chamado: Chamado, agora: Date = new Date()): Date {
   return new Date(agora.getTime() - parseAbertoHaEmHoras(chamado.abertoHa) * 3600 * 1000)
+}
+
+export type PeriodoFiltro = 'hoje' | 'semana' | 'mes' | 'todos'
+
+/** Opções do filtro de período dos dashboards (Painel Geral e Início), na ordem em que aparecem. */
+export const PERIODO_FILTRO_OPCOES: { valor: PeriodoFiltro; label: string }[] = [
+  { valor: 'hoje', label: 'Hoje' },
+  { valor: 'semana', label: 'Últimos 7 dias' },
+  { valor: 'mes', label: 'Este mês' },
+  { valor: 'todos', label: 'Todos' },
+]
+
+/** Filtra chamados pelo período de abertura (aproximado via `aberturaAproximada`) — usado pelo
+ * filtro de período dos dashboards. "Hoje" e "este mês" usam o dia/mês corrente; "últimos 7 dias" é
+ * uma janela corrida (não a semana do calendário). */
+export function filtrarPorPeriodo(chamados: Chamado[], periodo: PeriodoFiltro, agora: Date = new Date()): Chamado[] {
+  if (periodo === 'todos') return chamados
+  return chamados.filter((c) => {
+    const abertura = aberturaAproximada(c, agora)
+    if (periodo === 'hoje') {
+      return (
+        abertura.getFullYear() === agora.getFullYear() &&
+        abertura.getMonth() === agora.getMonth() &&
+        abertura.getDate() === agora.getDate()
+      )
+    }
+    if (periodo === 'semana') {
+      const seteDiasAtras = agora.getTime() - 7 * 24 * 3600 * 1000
+      return abertura.getTime() >= seteDiasAtras
+    }
+    return abertura.getFullYear() === agora.getFullYear() && abertura.getMonth() === agora.getMonth()
+  })
 }
 
 export interface BacklogResumo {
