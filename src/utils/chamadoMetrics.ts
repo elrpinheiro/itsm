@@ -32,6 +32,12 @@ export function calcularSla(chamados: Chamado[], resolverTtr: (chamado: Chamado)
   }
 }
 
+/** Compara o % de cumprimento contra a meta (ex.: 85%) — `null` quando não há chamados elegíveis
+ * para julgar (SLA não configurado para o projeto, ou nenhum chamado ainda). */
+export function atingiuMeta(sla: SlaResumo, metaPercentual: number): boolean | null {
+  return sla.percentual === null ? null : sla.percentual >= metaPercentual
+}
+
 export interface NpsResumo {
   nps: number
   promotores: number

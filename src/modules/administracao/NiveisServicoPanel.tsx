@@ -3,7 +3,7 @@ import DataTable, { type DataTableColumn } from '@/components/common/DataTable'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
-import { useSlaEntries, useSlaStore } from '@/store/useSlaStore'
+import { useSlaEntries, useSlaMeta, useSlaStore } from '@/store/useSlaStore'
 import type { Prioridade } from '@/data/chamados'
 
 const COLUMNS: DataTableColumn[] = [
@@ -27,6 +27,8 @@ export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
   const [entidadeFiltro, setEntidadeFiltro] = useState(currentProject?.id ?? '')
   const entradas = useSlaEntries(entidadeFiltro || undefined)
   const updateSla = useSlaStore((s) => s.updateSla)
+  const metaPercentual = useSlaMeta()
+  const setMetaPercentual = useSlaStore((s) => s.setMetaPercentual)
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const projetoMap = Object.fromEntries(projetos.map((p) => [p.id, `${p.nome} — ${p.cidade}`]))
 
@@ -101,6 +103,25 @@ export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
         feriados ou enquanto o chamado está "Aguardando terceiro") — no GLPI isso é resolvido associando
         um calendário ao SLA, o que pode ser uma evolução futura deste módulo. Uma entidade sem nenhuma
         linha ainda não tem SLA definido (ex.: ConectaOZ — Osasco, em fase de validação).
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <label className="field-label" style={{ margin: 0 }}>
+          Meta de cumprimento de SLA
+        </label>
+        {canEdit ? (
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step={1}
+            value={metaPercentual}
+            onChange={(ev) => setMetaPercentual(Number(ev.target.value))}
+            style={{ width: 70, fontSize: 12.5, padding: '5px 8px' }}
+          />
+        ) : (
+          <span style={{ fontSize: 12.5, fontWeight: 700 }}>{metaPercentual}%</span>
+        )}
+        {canEdit && <span style={{ fontSize: 11.5, color: 'var(--texto-sec)' }}>% — mesma regra para todos os projetos, usada no Painel Geral e no Início.</span>}
       </div>
       <DataTable columns={COLUMNS} rows={rows} emptyText="Nenhum SLA definido nesta entidade." />
     </div>

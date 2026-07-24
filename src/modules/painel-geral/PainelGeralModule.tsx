@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
-import { useSlaTtrMapPorProjeto } from '@/store/useSlaStore'
+import { useSlaMeta, useSlaTtrMapPorProjeto } from '@/store/useSlaStore'
 import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
+import SlaComplianceBoard from './SlaComplianceBoard'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
 import type { StatusChamado } from '@/data/chamados'
@@ -39,6 +40,7 @@ export default function PainelGeralModule() {
       }),
     [chamados, ttrMapPorProjeto, projetoIdPorNome],
   )
+  const metaPercentual = useSlaMeta()
   const nps = useMemo(() => calcularNps(chamados), [chamados])
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
@@ -125,6 +127,16 @@ export default function PainelGeralModule() {
               <div className="mos-cell mos-nps">
                 <h3>NPS · qualidade</h3>
                 <NpsMeter nps={nps} title={NPS_TITLE} />
+              </div>
+
+              <div className="mos-cell mos-slaboard">
+                <h3>Cumprimento de SLA por projeto — meta {metaPercentual}%</h3>
+                <SlaComplianceBoard
+                  chamados={chamados}
+                  projetos={projetos}
+                  ttrMapPorProjeto={ttrMapPorProjeto}
+                  metaPercentual={metaPercentual}
+                />
               </div>
 
               <div className="mos-cell mos-status">

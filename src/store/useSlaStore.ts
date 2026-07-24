@@ -39,9 +39,15 @@ const SLA_PADRAO: SlaEntry[] = PROJECTS.filter((p) => p.id !== PROJETO_SEM_SLA).
   })),
 )
 
+/** Meta de cumprimento de SLA (% de chamados dentro do prazo) — regra única para todos os projetos
+ * (diferente de TTO/TTR, que são por projeto e prioridade), definida pela gestão em 2026-07. */
+const META_PADRAO = 85
+
 interface SlaState {
   entradas: SlaEntry[]
+  metaPercentual: number
   updateSla: (projetoId: string, prioridade: Prioridade, patch: Partial<Pick<SlaEntry, 'tto' | 'ttr'>>) => void
+  setMetaPercentual: (valor: number) => void
 }
 
 /** Níveis de serviço (SLA) por projeto e prioridade — no espírito do módulo "Níveis de serviço" do
@@ -54,6 +60,7 @@ export const useSlaStore = create<SlaState>()(
   persist(
     (set) => ({
       entradas: SLA_PADRAO,
+      metaPercentual: META_PADRAO,
       updateSla: (projetoId, prioridade, patch) =>
         set((s) => {
           const existe = s.entradas.some((e) => e.projetoId === projetoId && e.prioridade === prioridade)
@@ -66,10 +73,17 @@ export const useSlaStore = create<SlaState>()(
             ),
           }
         }),
+      setMetaPercentual: (valor) => set({ metaPercentual: valor }),
     }),
     { name: 'itsm-sla-v2' },
   ),
 )
+
+/** Meta de cumprimento de SLA (%) — mesma regra para todos os projetos, editável em Administração →
+ * Níveis de Serviço. */
+export function useSlaMeta(): number {
+  return useSlaStore((s) => s.metaPercentual)
+}
 
 /** Entradas de SLA — de um projeto só (quando `projetoId` é informado) ou de todos. */
 export function useSlaEntries(projetoId?: string): SlaEntry[] {
