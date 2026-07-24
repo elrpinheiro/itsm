@@ -17,14 +17,14 @@ export interface SlaEntry {
 
 /** Política solicitada pela gestão (2026-07) para P1–P4. Os campos são um único número (horas),
  * então usamos o limite superior de cada faixa "típica" como o prazo-alvo configurado (ex.: resposta
- * "15 a 30 min" → tto = 0,5h). "Dias úteis" foram convertidos assumindo o expediente de 08:00–18:00
- * (10h por dia útil) que `horasUteisDecorridas` usa para contar o relógio do SLA (ex.: Baixa "3 a 5
- * dias úteis" → ttr = 5 × 10h = 50h). */
+ * "15 a 30 min" → tto = 0,5h). Para a Baixa, a gestão preferiu manter o TTO/TTR em 24h/120h mesmo
+ * com o expediente de 08:00–18:00 que `horasUteisDecorridas` usa para contar o relógio do SLA — ou
+ * seja, na prática o prazo real (em dias úteis corridos) fica maior que "3 a 5 dias úteis". */
 const POLITICA_PADRAO: Record<Prioridade, { tto: number; ttr: number }> = {
   Crítica: { tto: 0.5, ttr: 4 }, // P1 — resposta 15–30min, resolução até 4h (24x7)
   Alta: { tto: 1, ttr: 8 }, // P2 — resposta 30min–1h, resolução 8h (1 dia útil)
   Média: { tto: 4, ttr: 48 }, // P3 — resposta 2–4h, resolução 24–48h (1–2 dias úteis)
-  Baixa: { tto: 10, ttr: 50 }, // P4 — resposta 8h–1 dia útil (10h), resolução 3–5 dias úteis (10h/dia)
+  Baixa: { tto: 24, ttr: 120 }, // P4 — mantido em 24h/120h por preferência da gestão
 }
 
 /** Política padrão de fábrica — aplicada a todos os projetos de fábrica, ajustável pelo
