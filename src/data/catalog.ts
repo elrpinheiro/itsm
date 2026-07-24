@@ -139,6 +139,11 @@ export const PROJECT_CATALOGS: Record<string, CatalogItem[]> = {
     { icon: '👥', label: 'SAEJUQ' },
     { icon: '🏫', label: 'Secretaria escolar' },
   ],
+  // Faz Educação — Osasco (ConectaOZ)
+  'osasco-conectaoz': [
+    { icon: '📤', label: 'Entrega de Equipamentos' },
+    { icon: '📥', label: 'Devolução de Equipamentos' },
+  ],
   // Planeta Educação — Osasco
   'osasco-eu-tenho-futuro': [
     { icon: '💬', label: 'Dúvidas/sugestões/elogios ou reclamações' },

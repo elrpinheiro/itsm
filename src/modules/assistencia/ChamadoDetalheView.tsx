@@ -381,6 +381,18 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
             </div>
           )}
 
+          {chamado.anexoNome && (
+            <div className="chd-sidebar-card">
+              <div className="chd-sidebar-title">Documentos</div>
+              <div className="chd-dados-lista">
+                <div>
+                  <span className="lbl">Termo anexado</span>
+                  <span>{chamado.anexoNome}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {podeAgir && (
             <div className="chd-sidebar-card">
               <div className="chd-sidebar-title">Ações</div>

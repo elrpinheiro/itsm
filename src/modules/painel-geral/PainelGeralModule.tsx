@@ -2,11 +2,14 @@ import { useMemo } from 'react'
 import { Inbox, Activity, AlertTriangle, CheckCircle2, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useChamadosStore } from '@/store/useChamadosStore'
+import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
-import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
-import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
+import { useMetaBacklog, useSlaMeta, useSlaTtrMapPorProjeto } from '@/store/useSlaStore'
+import { calcularBacklog, calcularSla, calcularNps } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
+import SlaComplianceBoard from './SlaComplianceBoard'
+import BacklogBoard from './BacklogBoard'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
 import type { StatusChamado } from '@/data/chamados'
@@ -24,15 +27,28 @@ export default function PainelGeralModule() {
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento' || c.status === 'Processando (planejado)').length
   const fechados = chamados.filter((c) => c.status === 'Fechado').length
   const criticosAbertos = chamados.filter((c) => c.prioridade === 'Crítica' && c.status !== 'Fechado').length
-  const ttrMap = useSlaTtrMap()
-  const slaEntries = useSlaEntries()
-  const sla = useMemo(() => calcularSla(chamados, ttrMap), [chamados, ttrMap])
+  const ttrMapPorProjeto = useSlaTtrMapPorProjeto()
+  const projetos = useAllProjects()
+  const projetoIdPorNome = useMemo(
+    () => Object.fromEntries(projetos.map((p) => [`${p.nome} — ${p.cidade}`, p.id])),
+    [projetos],
+  )
+  const sla = useMemo(
+    () =>
+      calcularSla(chamados, (c) => {
+        const projetoId = projetoIdPorNome[c.projetoNome]
+        return projetoId ? ttrMapPorProjeto[projetoId]?.[c.prioridade] : undefined
+      }),
+    [chamados, ttrMapPorProjeto, projetoIdPorNome],
+  )
+  const metaPercentual = useSlaMeta()
+  const metaBacklogPercentual = useMetaBacklog()
+  const backlogGeral = useMemo(() => calcularBacklog(chamados), [chamados])
   const nps = useMemo(() => calcularNps(chamados), [chamados])
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
-  const slaTitle = `% de chamados dentro do prazo-alvo (TTR) da prioridade (${slaEntries
-    .map((e) => `${prioridadeMap[e.prioridade]?.label ?? e.prioridade} ${e.ttr}h`)
-    .join(' / ')} — configurável em Administração → Níveis de Serviço), somando todas as unidades.`
+  const slaTitle =
+    'Percentual de chamados dentro do prazo-alvo (TTR) configurado para o projeto de cada chamado — configurável em Administração → Níveis de Serviço, somando todas as unidades. Projetos ainda sem SLA definido não entram nesta conta.'
 
   const porCategoria = useMemo(() => {
     const contagem = new Map<string, number>()
@@ -114,6 +130,24 @@ export default function PainelGeralModule() {
               <div className="mos-cell mos-nps">
                 <h3>NPS · qualidade</h3>
                 <NpsMeter nps={nps} title={NPS_TITLE} />
+              </div>
+
+              <div className="mos-cell mos-slaboard">
+                <h3>Cumprimento de SLA por projeto — meta {metaPercentual}%</h3>
+                <SlaComplianceBoard
+                  chamados={chamados}
+                  projetos={projetos}
+                  ttrMapPorProjeto={ttrMapPorProjeto}
+                  metaPercentual={metaPercentual}
+                />
+              </div>
+
+              <div className="mos-cell mos-backlogboard">
+                <h3>
+                  Backlog por projeto — meta ≤{metaBacklogPercentual}% dos chamados abertos no mês
+                  {backlogGeral.percentual !== null && ` (geral: ${backlogGeral.percentual}%)`}
+                </h3>
+                <BacklogBoard chamados={chamados} projetos={projetos} metaPercentual={metaBacklogPercentual} />
               </div>
 
               <div className="mos-cell mos-status">

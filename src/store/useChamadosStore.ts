@@ -29,6 +29,7 @@ export interface AddChamadoInput {
   gravacaoUrl?: string
   protocoloWhatsapp?: string
   ativosVinculados?: string[]
+  anexoNome?: string
 }
 
 export interface AcompanhamentoInput {
@@ -116,6 +117,7 @@ export const useChamadosStore = create<ChamadosState>()(
           gravacaoUrl: input.gravacaoUrl || undefined,
           protocoloWhatsapp: input.protocoloWhatsapp || undefined,
           ativosVinculados: input.ativosVinculados?.length ? input.ativosVinculados : undefined,
+          anexoNome: input.anexoNome || undefined,
         }
         set((s) => ({ chamados: [...s.chamados, chamado] }))
         return numero

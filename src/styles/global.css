@@ -163,6 +163,10 @@ body {
   background: var(--purple-pale);
   color: var(--purple-texto);
 }
+.badge-red {
+  background: var(--vermelho-pale);
+  color: var(--vermelho-texto);
+}
 .btn {
   padding: 8px 15px;
   border-radius: 8px;
@@ -2065,6 +2069,8 @@ button.inicio-legend-item {
   grid-template-areas:
     'k1 k2 k3 k4'
     'sla sla nps nps'
+    'slaboard slaboard slaboard slaboard'
+    'backlogboard backlogboard backlogboard backlogboard'
     'status status status status'
     'catchart catchart unitchart unitchart'
     'list list list list';
@@ -2183,6 +2189,12 @@ button.inicio-legend-item {
 }
 .mos-list {
   grid-area: list;
+}
+.mos-slaboard {
+  grid-area: slaboard;
+}
+.mos-backlogboard {
+  grid-area: backlogboard;
 }
 
 .mos-bar-row {
@@ -2321,6 +2333,8 @@ button.inicio-legend-item {
       'k1 k2'
       'k3 k4'
       'sla nps'
+      'slaboard slaboard'
+      'backlogboard backlogboard'
       'status status'
       'catchart catchart'
       'unitchart unitchart'
@@ -2337,6 +2351,8 @@ button.inicio-legend-item {
       'k4'
       'sla'
       'nps'
+      'slaboard'
+      'backlogboard'
       'status'
       'catchart'
       'unitchart'
