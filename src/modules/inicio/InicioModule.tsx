@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react'
-import { Inbox, Activity, AlertTriangle, CheckCircle2, Plus, ArrowUpRight } from 'lucide-react'
+import { Inbox, Activity, AlertTriangle, CheckCircle2, Plus, ArrowUpRight, Download } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
-import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
+import { useMetaBacklog, useSlaEntries, useSlaMeta, useSlaTtrMap } from '@/store/useSlaStore'
 import { calcularSla, calcularNps, filtrarPorPeriodo, type PeriodoFiltro } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
 import PeriodoFiltroChips from '@/components/common/PeriodoFiltroChips'
+import ExportarRelatorioModal from '@/components/common/ExportarRelatorioModal'
 import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento. Sem envio automático de pesquisa nesta versão.'
@@ -23,6 +24,7 @@ export default function InicioModule() {
   const todosChamados = useChamadosStore((s) => s.chamados)
   const navigate = useNavigate()
   const [periodo, setPeriodo] = useState<PeriodoFiltro>('todos')
+  const [exportando, setExportando] = useState(false)
 
   const projetoLabel = project ? `${project.nome} — ${project.cidade}` : ''
   const chamados = useMemo(
@@ -37,6 +39,9 @@ export default function InicioModule() {
   const ttrMap = useSlaTtrMap(project?.id ?? '')
   const slaEntries = useSlaEntries(project?.id)
   const sla = useMemo(() => calcularSla(chamados, (c) => ttrMap[c.prioridade]), [chamados, ttrMap])
+  const metaPercentual = useSlaMeta()
+  const metaBacklogPercentual = useMetaBacklog()
+  const ttrMapPorProjeto = useMemo(() => (project ? { [project.id]: ttrMap } : {}), [project, ttrMap])
   const nps = useMemo(() => calcularNps(chamados), [chamados])
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
@@ -86,7 +91,17 @@ export default function InicioModule() {
               </button>
             </div>
 
-            <PeriodoFiltroChips value={periodo} onChange={setPeriodo} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <PeriodoFiltroChips value={periodo} onChange={setPeriodo} />
+              <button
+                type="button"
+                className="mos-status-item"
+                style={{ marginLeft: 'auto', marginBottom: 16, cursor: 'pointer' }}
+                onClick={() => setExportando(true)}
+              >
+                <Download size={13} /> Exportar relatório
+              </button>
+            </div>
 
             <div className="mos-bento">
               <button type="button" className="mos-cell mos-k1 mos-kpi clickable" onClick={() => navigate('/app/assistencia?tab=novos')}>
@@ -201,6 +216,17 @@ export default function InicioModule() {
           </div>
         </div>
       </div>
+
+      {exportando && (
+        <ExportarRelatorioModal
+          chamados={chamados}
+          projetos={[project]}
+          ttrMapPorProjeto={ttrMapPorProjeto}
+          metaSlaPercentual={metaPercentual}
+          metaBacklogPercentual={metaBacklogPercentual}
+          onClose={() => setExportando(false)}
+        />
+      )}
     </div>
   )
 }

@@ -56,9 +56,10 @@ const COLUNAS_BACKLOG: RelatorioColuna[] = [
   { key: 'situacao', label: 'Situação' },
 ]
 
-/** Modal de exportação de relatórios (CSV/Excel) a partir do Painel Geral — reaproveita exatamente
- * os mesmos cálculos por projeto exibidos nos painéis de SLA e Backlog, para os números baterem com
- * o que já está na tela. Tudo gerado no navegador, sem backend nesta versão do sistema. */
+/** Modal de exportação de relatórios (CSV/Excel) — usado tanto no Painel Geral (todos os projetos)
+ * quanto no Início de um projeto específico (só `projetos` com aquele projeto). Reaproveita
+ * exatamente os mesmos cálculos por projeto exibidos nos painéis de SLA e Backlog, para os números
+ * baterem com o que já está na tela. Tudo gerado no navegador, sem backend nesta versão do sistema. */
 export default function ExportarRelatorioModal({
   chamados,
   projetos,
@@ -68,6 +69,8 @@ export default function ExportarRelatorioModal({
   onClose,
 }: Props) {
   const [tipo, setTipo] = useState<TipoRelatorio>('chamados')
+  const escopoUnico = projetos.length === 1 ? projetos[0] : null
+  const sufixoArquivo = escopoUnico ? `-${escopoUnico.cidade.toLowerCase().replace(/\s+/g, '-')}` : ''
 
   function montar(): { colunas: RelatorioColuna[]; linhas: Record<string, unknown>[]; nomeArquivo: string } {
     const hoje = new Date().toISOString().slice(0, 10)
@@ -75,20 +78,20 @@ export default function ExportarRelatorioModal({
       return {
         colunas: COLUNAS_SLA,
         linhas: linhasSlaPorProjeto(chamados, projetos, ttrMapPorProjeto, metaSlaPercentual),
-        nomeArquivo: `slas-vencidos-e-cumpridos-${hoje}`,
+        nomeArquivo: `slas-vencidos-e-cumpridos${sufixoArquivo}-${hoje}`,
       }
     }
     if (tipo === 'backlog') {
       return {
         colunas: COLUNAS_BACKLOG,
         linhas: linhasBacklogPorProjeto(chamados, projetos, metaBacklogPercentual),
-        nomeArquivo: `backlog-por-projeto-${hoje}`,
+        nomeArquivo: `backlog-por-projeto${sufixoArquivo}-${hoje}`,
       }
     }
     return {
       colunas: COLUNAS_CHAMADOS,
       linhas: linhasChamadosPorProjeto(chamados, projetos),
-      nomeArquivo: `chamados-por-projeto-${hoje}`,
+      nomeArquivo: `chamados-por-projeto${sufixoArquivo}-${hoje}`,
     }
   }
 
@@ -132,7 +135,9 @@ export default function ExportarRelatorioModal({
         </div>
       </div>
       <div style={{ fontSize: 11.5, color: 'var(--texto-sec)', margin: '10px 0 14px' }}>
-        O relatório reflete o período selecionado no Painel Geral e soma todos os projetos.
+        {escopoUnico
+          ? `O relatório reflete o período selecionado e só os dados de ${escopoUnico.nome} — ${escopoUnico.cidade}.`
+          : 'O relatório reflete o período selecionado e soma todos os projetos.'}
       </div>
       <div className="admin-form-actions">
         <button type="button" className="btn" onClick={onClose}>
