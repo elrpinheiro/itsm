@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Inbox, Activity, AlertTriangle, CheckCircle2, ArrowRight, ArrowUpRight } from 'lucide-react'
+import { Inbox, Activity, AlertTriangle, CheckCircle2, ArrowRight, ArrowUpRight, Download } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useAllProjects } from '@/store/useCatalogStore'
@@ -10,6 +10,7 @@ import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
 import SlaComplianceBoard from './SlaComplianceBoard'
 import BacklogBoard from './BacklogBoard'
+import ExportarRelatorioModal from './ExportarRelatorioModal'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
 import PeriodoFiltroChips from '@/components/common/PeriodoFiltroChips'
@@ -24,6 +25,7 @@ export default function PainelGeralModule() {
   const todosChamados = useChamadosStore((s) => s.chamados)
   const navigate = useNavigate()
   const [periodo, setPeriodo] = useState<PeriodoFiltro>('todos')
+  const [exportando, setExportando] = useState(false)
   const chamados = useMemo(() => filtrarPorPeriodo(todosChamados, periodo), [todosChamados, periodo])
 
   const naFila = chamados.filter((c) => c.status === 'Na fila').length
@@ -100,7 +102,17 @@ export default function PainelGeralModule() {
               </button>
             </div>
 
-            <PeriodoFiltroChips value={periodo} onChange={setPeriodo} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <PeriodoFiltroChips value={periodo} onChange={setPeriodo} />
+              <button
+                type="button"
+                className="mos-status-item"
+                style={{ marginLeft: 'auto', marginBottom: 16, cursor: 'pointer' }}
+                onClick={() => setExportando(true)}
+              >
+                <Download size={13} /> Exportar relatório
+              </button>
+            </div>
 
             <div className="mos-bento">
               <button type="button" className="mos-cell mos-k1 mos-kpi clickable" onClick={() => navigate('/assistencia?tab=novos')}>
@@ -249,6 +261,17 @@ export default function PainelGeralModule() {
           </div>
         </div>
       </div>
+
+      {exportando && (
+        <ExportarRelatorioModal
+          chamados={chamados}
+          projetos={projetos}
+          ttrMapPorProjeto={ttrMapPorProjeto}
+          metaSlaPercentual={metaPercentual}
+          metaBacklogPercentual={metaBacklogPercentual}
+          onClose={() => setExportando(false)}
+        />
+      )}
     </div>
   )
 }
