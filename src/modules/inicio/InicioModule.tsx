@@ -1,15 +1,16 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Inbox, Activity, AlertTriangle, CheckCircle2, Plus, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
-import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
+import { calcularSla, calcularNps, filtrarPorPeriodo, type PeriodoFiltro } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
+import PeriodoFiltroChips from '@/components/common/PeriodoFiltroChips'
 import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento. Sem envio automático de pesquisa nesta versão.'
@@ -21,9 +22,13 @@ export default function InicioModule() {
   const project = useProjectStore((s) => s.selectedProject)
   const todosChamados = useChamadosStore((s) => s.chamados)
   const navigate = useNavigate()
+  const [periodo, setPeriodo] = useState<PeriodoFiltro>('todos')
 
   const projetoLabel = project ? `${project.nome} — ${project.cidade}` : ''
-  const chamados = useMemo(() => todosChamados.filter((c) => c.projetoNome === projetoLabel), [todosChamados, projetoLabel])
+  const chamados = useMemo(
+    () => filtrarPorPeriodo(todosChamados.filter((c) => c.projetoNome === projetoLabel), periodo),
+    [todosChamados, projetoLabel, periodo],
+  )
 
   const naFila = chamados.filter((c) => c.status === 'Na fila').length
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento' || c.status === 'Processando (planejado)').length
@@ -80,6 +85,8 @@ export default function InicioModule() {
                 <Plus size={14} /> Novo Atendimento
               </button>
             </div>
+
+            <PeriodoFiltroChips value={periodo} onChange={setPeriodo} />
 
             <div className="mos-bento">
               <button type="button" className="mos-cell mos-k1 mos-kpi clickable" onClick={() => navigate('/app/assistencia?tab=novos')}>

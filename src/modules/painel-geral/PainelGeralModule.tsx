@@ -1,17 +1,18 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Inbox, Activity, AlertTriangle, CheckCircle2, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { useMetaBacklog, useSlaMeta, useSlaTtrMapPorProjeto } from '@/store/useSlaStore'
-import { calcularBacklog, calcularSla, calcularNps } from '@/utils/chamadoMetrics'
+import { calcularBacklog, calcularSla, calcularNps, filtrarPorPeriodo, type PeriodoFiltro } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
 import SlaComplianceBoard from './SlaComplianceBoard'
 import BacklogBoard from './BacklogBoard'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
+import PeriodoFiltroChips from '@/components/common/PeriodoFiltroChips'
 import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento, em todas as unidades. Sem envio automático de pesquisa nesta versão.'
@@ -20,8 +21,10 @@ const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) reg
  * na identidade visual "Mosaico" (bento/glassmorphism) usada em todo o sistema. Ver 05.29 da
  * documentação técnica. */
 export default function PainelGeralModule() {
-  const chamados = useChamadosStore((s) => s.chamados)
+  const todosChamados = useChamadosStore((s) => s.chamados)
   const navigate = useNavigate()
+  const [periodo, setPeriodo] = useState<PeriodoFiltro>('todos')
+  const chamados = useMemo(() => filtrarPorPeriodo(todosChamados, periodo), [todosChamados, periodo])
 
   const naFila = chamados.filter((c) => c.status === 'Na fila').length
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento' || c.status === 'Processando (planejado)').length
@@ -96,6 +99,8 @@ export default function PainelGeralModule() {
                 Ver todos os chamados <ArrowRight size={14} />
               </button>
             </div>
+
+            <PeriodoFiltroChips value={periodo} onChange={setPeriodo} />
 
             <div className="mos-bento">
               <button type="button" className="mos-cell mos-k1 mos-kpi clickable" onClick={() => navigate('/assistencia?tab=novos')}>
