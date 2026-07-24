@@ -2,8 +2,9 @@ import { useMemo } from 'react'
 import { Inbox, Activity, AlertTriangle, CheckCircle2, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useChamadosStore } from '@/store/useChamadosStore'
+import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
-import { useSlaEntries, useSlaTtrMap } from '@/store/useSlaStore'
+import { useSlaTtrMapPorProjeto } from '@/store/useSlaStore'
 import { calcularSla, calcularNps } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
@@ -24,15 +25,25 @@ export default function PainelGeralModule() {
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento' || c.status === 'Processando (planejado)').length
   const fechados = chamados.filter((c) => c.status === 'Fechado').length
   const criticosAbertos = chamados.filter((c) => c.prioridade === 'Crítica' && c.status !== 'Fechado').length
-  const ttrMap = useSlaTtrMap()
-  const slaEntries = useSlaEntries()
-  const sla = useMemo(() => calcularSla(chamados, ttrMap), [chamados, ttrMap])
+  const ttrMapPorProjeto = useSlaTtrMapPorProjeto()
+  const projetos = useAllProjects()
+  const projetoIdPorNome = useMemo(
+    () => Object.fromEntries(projetos.map((p) => [`${p.nome} — ${p.cidade}`, p.id])),
+    [projetos],
+  )
+  const sla = useMemo(
+    () =>
+      calcularSla(chamados, (c) => {
+        const projetoId = projetoIdPorNome[c.projetoNome]
+        return projetoId ? ttrMapPorProjeto[projetoId]?.[c.prioridade] : undefined
+      }),
+    [chamados, ttrMapPorProjeto, projetoIdPorNome],
+  )
   const nps = useMemo(() => calcularNps(chamados), [chamados])
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
-  const slaTitle = `% de chamados dentro do prazo-alvo (TTR) da prioridade (${slaEntries
-    .map((e) => `${prioridadeMap[e.prioridade]?.label ?? e.prioridade} ${e.ttr}h`)
-    .join(' / ')} — configurável em Administração → Níveis de Serviço), somando todas as unidades.`
+  const slaTitle =
+    'Percentual de chamados dentro do prazo-alvo (TTR) configurado para o projeto de cada chamado — configurável em Administração → Níveis de Serviço, somando todas as unidades. Projetos ainda sem SLA definido (ex.: ConectaOZ — Osasco, em validação) não entram nesta conta.'
 
   const porCategoria = useMemo(() => {
     const contagem = new Map<string, number>()

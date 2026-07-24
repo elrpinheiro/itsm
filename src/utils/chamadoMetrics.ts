@@ -1,4 +1,4 @@
-import type { Chamado, Prioridade } from '@/data/chamados'
+import type { Chamado } from '@/data/chamados'
 
 /** Converte o texto livre de "abertoHa" (ex.: "26h", "18 dias", "agora mesmo") em horas decorridas. */
 export function parseAbertoHaEmHoras(abertoHa: string): number {
@@ -17,14 +17,18 @@ export interface SlaResumo {
 
 /** % de chamados dentro do prazo-alvo (TTR) da própria prioridade, considerando o tempo decorrido em
  * "abertoHa" — para chamados fechados isso é uma aproximação do tempo até a resolução. O prazo-alvo
- * (TTR) vem de Administração → Níveis de Serviço (useSlaStore), não é mais fixo no código. */
-export function calcularSla(chamados: Chamado[], ttrPorPrioridade: Record<Prioridade, number>): SlaResumo {
-  if (chamados.length === 0) return { percentual: null, foraDoPrazo: 0, total: 0 }
-  const foraDoPrazo = chamados.filter((c) => parseAbertoHaEmHoras(c.abertoHa) > ttrPorPrioridade[c.prioridade]).length
+ * (TTR) vem de Administração → Níveis de Serviço (useSlaStore), por projeto, não é mais fixo no
+ * código. `resolverTtr` devolve o TTR (horas) aplicável a um chamado, ou `undefined` quando o
+ * projeto dele ainda não tem SLA configurado (ex.: ConectaOZ — Osasco, em validação) — esses
+ * chamados ficam de fora do cálculo (não entram nem no total nem no "fora do prazo"). */
+export function calcularSla(chamados: Chamado[], resolverTtr: (chamado: Chamado) => number | undefined): SlaResumo {
+  const elegiveis = chamados.filter((c) => resolverTtr(c) !== undefined)
+  if (elegiveis.length === 0) return { percentual: null, foraDoPrazo: 0, total: 0 }
+  const foraDoPrazo = elegiveis.filter((c) => parseAbertoHaEmHoras(c.abertoHa) > resolverTtr(c)!).length
   return {
-    percentual: Math.round(((chamados.length - foraDoPrazo) / chamados.length) * 100),
+    percentual: Math.round(((elegiveis.length - foraDoPrazo) / elegiveis.length) * 100),
     foraDoPrazo,
-    total: chamados.length,
+    total: elegiveis.length,
   }
 }
 

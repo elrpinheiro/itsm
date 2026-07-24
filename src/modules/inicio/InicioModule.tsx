@@ -29,15 +29,17 @@ export default function InicioModule() {
   const emAtendimento = chamados.filter((c) => c.status === 'Em atendimento' || c.status === 'Processando (planejado)').length
   const fechados = chamados.filter((c) => c.status === 'Fechado').length
   const criticosAbertos = chamados.filter((c) => c.prioridade === 'Crítica' && c.status !== 'Fechado').length
-  const ttrMap = useSlaTtrMap()
-  const slaEntries = useSlaEntries()
-  const sla = useMemo(() => calcularSla(chamados, ttrMap), [chamados, ttrMap])
+  const ttrMap = useSlaTtrMap(project?.id ?? '')
+  const slaEntries = useSlaEntries(project?.id)
+  const sla = useMemo(() => calcularSla(chamados, (c) => ttrMap[c.prioridade]), [chamados, ttrMap])
   const nps = useMemo(() => calcularNps(chamados), [chamados])
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
-  const slaTitle = `% de chamados dentro do prazo-alvo (TTR) da prioridade (${slaEntries
-    .map((e) => `${prioridadeMap[e.prioridade]?.label ?? e.prioridade} ${e.ttr}h`)
-    .join(' / ')} — configurável em Administração → Níveis de Serviço).`
+  const slaTitle = slaEntries.length
+    ? `% de chamados dentro do prazo-alvo (TTR) da prioridade (${slaEntries
+        .map((e) => `${prioridadeMap[e.prioridade]?.label ?? e.prioridade} ${e.ttr}h`)
+        .join(' / ')} — configurável em Administração → Níveis de Serviço).`
+    : 'Este projeto ainda não tem SLA configurado (Administração → Níveis de Serviço).'
 
   const porCategoria = useMemo(() => {
     const contagem = new Map<string, number>()
@@ -107,7 +109,7 @@ export default function InicioModule() {
 
               <div className="mos-cell mos-sla">
                 <h3>SLA cumprido</h3>
-                <SlaGauge percentual={sla.percentual} foraDoPrazo={sla.foraDoPrazo} total={sla.total} title={slaTitle} />
+                <SlaGauge percentual={sla.percentual} foraDoPrazo={sla.foraDoPrazo} total={sla.total} title={slaTitle} semSla={slaEntries.length === 0} />
               </div>
               <div className="mos-cell mos-nps">
                 <h3>NPS · qualidade</h3>

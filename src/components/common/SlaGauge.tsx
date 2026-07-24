@@ -5,6 +5,10 @@ interface Props {
   foraDoPrazo: number
   total: number
   title?: string
+  /** Projeto ainda sem nenhuma política de SLA cadastrada (ex.: em fase de validação) — troca a
+   * legenda por um aviso em vez de "Nenhum chamado registrado ainda", que seria enganoso quando o
+   * projeto já tem chamados, só não tem SLA configurado. */
+  semSla?: boolean
 }
 
 function corPorFaixa(pct: number): string {
@@ -15,7 +19,7 @@ function corPorFaixa(pct: number): string {
 
 /** Gauge circular de SLA (conic-gradient) — verde/amarelo/vermelho pela mesma faixa usada em
  * badges de prioridade, sem depender de biblioteca de gráficos para um anel simples. */
-export default function SlaGauge({ percentual, foraDoPrazo, total, title }: Props) {
+export default function SlaGauge({ percentual, foraDoPrazo, total, title, semSla }: Props) {
   const pct = percentual ?? 0
   const style: CSSProperties & Record<string, string | number> = {
     '--gauge-pct': pct,
@@ -31,7 +35,11 @@ export default function SlaGauge({ percentual, foraDoPrazo, total, title }: Prop
       <div>
         <div className="gauge-title">SLA cumprido</div>
         <div className="gauge-sub">
-          {total === 0 ? 'Nenhum chamado registrado ainda.' : `${total - foraDoPrazo} de ${total} chamados dentro do prazo`}
+          {semSla
+            ? 'Sem SLA configurado para este projeto.'
+            : total === 0
+              ? 'Nenhum chamado registrado ainda.'
+              : `${total - foraDoPrazo} de ${total} chamados dentro do prazo`}
         </div>
       </div>
     </div>
