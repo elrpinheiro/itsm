@@ -65,6 +65,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
 
   const [busca, setBusca] = useState('')
   const [requerenteId, setRequerenteId] = useState<string | null>(null)
+  const [projetoId, setProjetoId] = useState(project?.id ?? '')
   const [editandoRequerente, setEditandoRequerente] = useState(false)
   const [origem, setOrigem] = useState<OrigemAtendimento>('Atendente')
   const [linkedId, setLinkedId] = useState('')
@@ -103,7 +104,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   // Deriva do store (não guarda uma cópia) para refletir na hora qualquer edição feita em "Atualizar Informações do Usuário".
   const requerente = useMemo(() => usuarios.find((u) => u.id === requerenteId) ?? null, [usuarios, requerenteId])
 
-  const effectiveProject = project ?? (requerente?.projetoId ? projetos.find((p) => p.id === requerente.projetoId) ?? null : null)
+  const effectiveProject = projetos.find((p) => p.id === projetoId) ?? null
   const projetoLabel = effectiveProject ? `${effectiveProject.nome} — ${effectiveProject.cidade}` : 'Matriz'
   const catalogBruto = effectiveProject ? PROJECT_CATALOGS[effectiveProject.id] : undefined
   const catalog = catalogBruto && catalogBruto.length ? catalogBruto : OUTROS_CATEGORIA
@@ -210,6 +211,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
 
   function handleSubmit() {
     if (!requerente) return setError('Selecione o requerente.')
+    if (!effectiveProject) return setError('Selecione o projeto e a localidade.')
     if (!descricao.trim()) return setError('Descreva o atendimento.')
     if (solucionado === null) return setError('Informe se o chamado já foi solucionado.')
     if (solucionado && !acaoRealizada.trim()) return setError('Descreva a ação realizada para encerrar o chamado.')
@@ -243,7 +245,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
           ← Voltar
         </button>
         <div className="mod-section-title" style={{ marginBottom: 0 }}>
-          Novo atendimento{requerente ? ` — ${effectiveProject ? effectiveProject.nome : 'Matriz'}` : project ? ` — ${project.nome}` : ''}
+          Novo atendimento{effectiveProject ? ` — ${effectiveProject.nome}` : ''}
         </div>
         {atendente && (
           <div style={{ marginLeft: 'auto', fontSize: 11.5, color: 'var(--texto-sec)' }}>
@@ -273,6 +275,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
                         onClick={() => {
                           setRequerenteId(u.id)
                           setBusca('')
+                          if (!projetoId && u.projetoId) setProjetoId(u.projetoId)
                         }}
                       >
                         <b>{u.nome}</b>
@@ -306,6 +309,18 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="frow">
+            <label className="field-label">Projeto / Localidade</label>
+            <select value={projetoId} onChange={(e) => setProjetoId(e.target.value)}>
+              <option value="">Selecione…</option>
+              {projetos.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nome} — {p.cidade}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="frow">
@@ -579,7 +594,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
             <button type="button" className="btn" onClick={onClose}>
               Cancelar
             </button>
-            <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={!requerente}>
+            <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={!requerente || !effectiveProject}>
               Criar chamado
             </button>
           </div>
