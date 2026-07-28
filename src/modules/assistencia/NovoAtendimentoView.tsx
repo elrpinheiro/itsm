@@ -33,6 +33,8 @@ const STATUS_BUCKET: Record<StatusChamado, 'andamento' | 'pendente' | 'fechado'>
   'Em atendimento': 'andamento',
   'Processando (planejado)': 'andamento',
   'Aguardando terceiro': 'pendente',
+  'Pendente Fornecedor': 'pendente',
+  'Pendente Cliente/Colaborador': 'pendente',
   Solucionado: 'andamento',
   Fechado: 'fechado',
 }

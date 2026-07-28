@@ -14,6 +14,8 @@ export interface LinhaChamadosPorProjeto {
   emAtendimento: number
   processandoPlanejado: number
   aguardandoTerceiro: number
+  pendenteFornecedor: number
+  pendenteClienteColaborador: number
   solucionado: number
   fechado: number
   [key: string]: unknown
@@ -33,6 +35,8 @@ export function linhasChamadosPorProjeto(chamados: Chamado[], projetos: Project[
       emAtendimento: contar('Em atendimento'),
       processandoPlanejado: contar('Processando (planejado)'),
       aguardandoTerceiro: contar('Aguardando terceiro'),
+      pendenteFornecedor: contar('Pendente Fornecedor'),
+      pendenteClienteColaborador: contar('Pendente Cliente/Colaborador'),
       solucionado: contar('Solucionado'),
       fechado: contar('Fechado'),
     }

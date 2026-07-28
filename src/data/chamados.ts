@@ -3,17 +3,24 @@ import type { DocumentFormData, Signer } from '@/types'
 
 export type Prioridade = 'Baixa' | 'Média' | 'Alta' | 'Crítica'
 /**
- * Ciclo de vida do chamado — os 6 status do GLPI (Assistência → Chamados → ciclo de vida):
+ * Ciclo de vida do chamado — os status do GLPI (Assistência → Chamados → ciclo de vida):
  * Na fila (New) → Em atendimento (Processing assigned) → Processando (planejado) (Processing planned)
  * → [Aguardando terceiro (Pending)] → Solucionado (Solved) → Fechado (Closed). Os rótulos exibidos
  * (Administração → Listas Suspensas) usam a nomenclatura em português do GLPI (Novo/Processando
  * atribuído/Processando planejado/Pendente); a chave interna abaixo é que fica fixa.
+ *
+ * "Pendente Fornecedor" e "Pendente Cliente/Colaborador" são duas variantes mais específicas do
+ * "Aguardando terceiro" genérico (que continua existindo, para quem não se encaixa em nenhuma das
+ * duas) — usadas quando se sabe exatamente de quem o chamado está esperando. As três travam o
+ * relógio do SLA da mesma forma (ver STATUS_PENDENTES e `calcularSla` em chamadoMetrics.ts).
  */
 export type StatusChamado =
   | 'Na fila'
   | 'Em atendimento'
   | 'Processando (planejado)'
   | 'Aguardando terceiro'
+  | 'Pendente Fornecedor'
+  | 'Pendente Cliente/Colaborador'
   | 'Solucionado'
   | 'Fechado'
 /** Ordem canônica do ciclo de vida — usada pelo widget "Ciclo de vida" no detalhe do chamado. */
@@ -22,9 +29,14 @@ export const CICLO_VIDA_ORDEM: StatusChamado[] = [
   'Em atendimento',
   'Processando (planejado)',
   'Aguardando terceiro',
+  'Pendente Fornecedor',
+  'Pendente Cliente/Colaborador',
   'Solucionado',
   'Fechado',
 ]
+/** Os três "sabores" de pendência — todos travam o relógio do SLA enquanto o chamado estiver neles
+ * (ver `calcularSla`), e todos levam para a mesma aba "Pendentes" na fila de chamados. */
+export const STATUS_PENDENTES: StatusChamado[] = ['Aguardando terceiro', 'Pendente Fornecedor', 'Pendente Cliente/Colaborador']
 /** Canal de origem do atendimento — de onde veio o relato que virou este chamado. */
 export type OrigemAtendimento = 'Atendente' | '0800 (URA)' | 'WhatsApp'
 

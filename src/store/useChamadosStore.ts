@@ -49,8 +49,9 @@ interface ChamadosState {
   adicionarAcompanhamento: (numero: string, input: AcompanhamentoInput) => void
   /** Tarefa técnica planejada — "Processando (planejado)" no GLPI. */
   planejarTarefa: (numero: string, texto: string, autor: string) => void
-  /** Requerente indisponível ou chamado incompleto — "Aguardando terceiro" (Pending do GLPI). */
-  colocarPendente: (numero: string, motivo: string, autor: string) => void
+  /** Requerente indisponível ou chamado incompleto — "Aguardando terceiro" (Pending do GLPI) ou uma
+   * das variantes mais específicas ("Pendente Fornecedor"/"Pendente Cliente/Colaborador"). */
+  colocarPendente: (numero: string, motivo: string, autor: string, statusPendente: StatusChamado) => void
   retomarChamado: (numero: string, autor: string) => void
   /** Reatribui o chamado para outro grupo de atendimento. */
   reatribuirGrupo: (numero: string, grupoId: string, grupoNome: string, autor: string) => void
@@ -152,9 +153,9 @@ export const useChamadosStore = create<ChamadosState>()(
             texto,
           }),
         })),
-      colocarPendente: (numero, motivo, autor) =>
+      colocarPendente: (numero, motivo, autor, statusPendente) =>
         set((s) => ({
-          chamados: atualizarChamado(s.chamados, numero, { status: 'Aguardando terceiro' }, {
+          chamados: atualizarChamado(s.chamados, numero, { status: statusPendente }, {
             tipo: 'sistema',
             origem: 'Sistema',
             publico: true,

@@ -25,8 +25,10 @@ const STATUS_PADRAO: DropdownEntry[] = [
   { chave: 'Em atendimento', label: 'Processando (atribuído)', cor: '#185fa5', ativo: true, ordem: 1 },
   { chave: 'Processando (planejado)', label: 'Processando (planejado)', cor: '#6a3fa0', ativo: true, ordem: 2 },
   { chave: 'Aguardando terceiro', label: 'Pendente', cor: '#8b8f83', ativo: true, ordem: 3 },
-  { chave: 'Solucionado', label: 'Solucionado', cor: '#0f7a72', ativo: true, ordem: 4 },
-  { chave: 'Fechado', label: 'Fechado', cor: '#3b6d11', ativo: true, ordem: 5 },
+  { chave: 'Pendente Fornecedor', label: 'Pendente Fornecedor', cor: '#8a5a12', ativo: true, ordem: 4 },
+  { chave: 'Pendente Cliente/Colaborador', label: 'Pendente Cliente/Colaborador', cor: '#6f6a12', ativo: true, ordem: 5 },
+  { chave: 'Solucionado', label: 'Solucionado', cor: '#0f7a72', ativo: true, ordem: 6 },
+  { chave: 'Fechado', label: 'Fechado', cor: '#3b6d11', ativo: true, ordem: 7 },
 ]
 
 const ORIGEM_PADRAO: DropdownEntry[] = [
@@ -54,7 +56,7 @@ export const useDropdownsStore = create<DropdownsState>()(
       updateEntry: (tipo, chave, patch) =>
         set((s) => ({ [tipo]: s[tipo].map((e) => (e.chave === chave ? { ...e, ...patch } : e)) }) as Partial<DropdownsState>),
     }),
-    { name: 'itsm-dropdowns-v3' },
+    { name: 'itsm-dropdowns-v4' },
   ),
 )
 

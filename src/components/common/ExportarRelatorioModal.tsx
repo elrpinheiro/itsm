@@ -41,6 +41,8 @@ const COLUNAS_CHAMADOS: RelatorioColuna[] = [
   { key: 'emAtendimento', label: 'Em atendimento' },
   { key: 'processandoPlanejado', label: 'Processando (planejado)' },
   { key: 'aguardandoTerceiro', label: 'Aguardando terceiro' },
+  { key: 'pendenteFornecedor', label: 'Pendente Fornecedor' },
+  { key: 'pendenteClienteColaborador', label: 'Pendente Cliente/Colaborador' },
   { key: 'solucionado', label: 'Solucionado' },
   { key: 'fechado', label: 'Fechado' },
 ]

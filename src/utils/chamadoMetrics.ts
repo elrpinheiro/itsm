@@ -1,4 +1,4 @@
-import type { Chamado, StatusChamado } from '@/data/chamados'
+import { STATUS_PENDENTES, type Chamado, type StatusChamado } from '@/data/chamados'
 import { isFimDeSemanaOuFeriado } from './feriadosNacionais'
 
 /** Converte o texto livre de "abertoHa" (ex.: "26h", "18 dias", "agora mesmo") em horas decorridas. */
@@ -61,10 +61,13 @@ export interface SlaResumo {
  * (TTR) vem de Administração → Níveis de Serviço (useSlaStore), por projeto, não é mais fixo no
  * código. `resolverTtr` devolve o TTR (horas) aplicável a um chamado, ou `undefined` quando o
  * projeto dele ainda não tem SLA configurado — esses chamados ficam de fora do cálculo (não entram
- * nem no total nem no "fora do prazo"). */
+ * nem no total nem no "fora do prazo"). Chamados atualmente em algum status de pendência
+ * (STATUS_PENDENTES — "Aguardando terceiro"/"Pendente Fornecedor"/"Pendente Cliente/Colaborador")
+ * também ficam de fora: o relógio do SLA está travado enquanto se espera outra pessoa, então não faz
+ * sentido contá-los como dentro nem fora do prazo agora. */
 export function calcularSla(chamados: Chamado[], resolverTtr: (chamado: Chamado) => number | undefined): SlaResumo {
   const agora = new Date()
-  const elegiveis = chamados.filter((c) => resolverTtr(c) !== undefined)
+  const elegiveis = chamados.filter((c) => resolverTtr(c) !== undefined && !STATUS_PENDENTES.includes(c.status))
   if (elegiveis.length === 0) return { percentual: null, foraDoPrazo: 0, total: 0 }
   const foraDoPrazo = elegiveis.filter((c) => horasUteisDecorridas(c, agora) > resolverTtr(c)!).length
   return {
@@ -81,8 +84,9 @@ export function atingiuMeta(sla: SlaResumo, metaPercentual: number): boolean | n
 }
 
 /** Status ainda considerados "em aberto" para fins de backlog — solucionado/fechado já saíram da
- * fila de trabalho ativo do técnico. */
-const STATUS_BACKLOG: StatusChamado[] = ['Na fila', 'Em atendimento', 'Processando (planejado)', 'Aguardando terceiro']
+ * fila de trabalho ativo do técnico. Os três status de pendência continuam contando aqui (o chamado
+ * segue em aberto, só o relógio do SLA é que está travado). */
+const STATUS_BACKLOG: StatusChamado[] = ['Na fila', 'Em atendimento', 'Processando (planejado)', ...STATUS_PENDENTES]
 
 /** Instante aproximado de abertura de um chamado, a partir do texto livre "abertoHa" — mesma
  * aproximação usada em `horasUteisDecorridas` (o sistema não guarda a data/hora exata de abertura). */

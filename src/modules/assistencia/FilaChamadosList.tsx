@@ -3,7 +3,7 @@ import { User, Building2, Phone, MessageCircle, Keyboard } from 'lucide-react'
 import { useAdminStore } from '@/store/useAdminStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { badgeStyleFromColor } from '@/utils/color'
-import type { Chamado, OrigemAtendimento } from '@/data/chamados'
+import { STATUS_PENDENTES, type Chamado, type OrigemAtendimento } from '@/data/chamados'
 
 export type FiltroTab = 'todos' | 'novos' | 'andamento' | 'pendentes' | 'solucionados' | 'fechados'
 
@@ -35,7 +35,7 @@ const ORIGEM_ICON: Record<OrigemAtendimento, typeof User> = {
 export function statusParaTab(status: Chamado['status']): FiltroTab | null {
   if (status === 'Na fila') return 'novos'
   if (status === 'Em atendimento' || status === 'Processando (planejado)') return 'andamento'
-  if (status === 'Aguardando terceiro') return 'pendentes'
+  if (STATUS_PENDENTES.includes(status)) return 'pendentes'
   if (status === 'Solucionado') return 'solucionados'
   if (status === 'Fechado') return 'fechados'
   return null

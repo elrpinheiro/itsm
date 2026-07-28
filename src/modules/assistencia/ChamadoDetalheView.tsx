@@ -8,7 +8,7 @@ import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { badgeStyleFromColor } from '@/utils/color'
 import { reformularDescricao } from '@/data/classificarChamado'
 import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
-import { CICLO_VIDA_ORDEM, type OrigemAtendimento, type TipoInteracao } from '@/data/chamados'
+import { CICLO_VIDA_ORDEM, STATUS_PENDENTES, type OrigemAtendimento, type StatusChamado, type TipoInteracao } from '@/data/chamados'
 import OsAssinaturaView from './OsAssinaturaView'
 
 interface Props {
@@ -20,6 +20,12 @@ type TipoVisual = TipoInteracao | 'abertura'
 type ComposerTipo = 'acompanhamento' | 'tarefa' | 'solucao'
 
 const ORIGENS_RESPOSTA: OrigemAtendimento[] = ['Atendente', '0800 (URA)', 'WhatsApp']
+
+const LABEL_STATUS_PENDENTE: Record<'Aguardando terceiro' | 'Pendente Fornecedor' | 'Pendente Cliente/Colaborador', string> = {
+  'Aguardando terceiro': 'Aguardando terceiro (outro motivo)',
+  'Pendente Fornecedor': 'Pendente Fornecedor',
+  'Pendente Cliente/Colaborador': 'Pendente Cliente/Colaborador',
+}
 
 const TIPO_LABEL: Record<TipoVisual, string> = {
   abertura: 'Abertura',
@@ -79,6 +85,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
   const [origem, setOrigem] = useState<OrigemAtendimento>('Atendente')
   const [privado, setPrivado] = useState(false)
   const [colocarComoPendente, setColocarComoPendente] = useState(false)
+  const [tipoPendencia, setTipoPendencia] = useState<StatusChamado>('Aguardando terceiro')
 
   const [mostrarReatribuir, setMostrarReatribuir] = useState(false)
   const [novoGrupoId, setNovoGrupoId] = useState('')
@@ -148,6 +155,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
   function resetComposer() {
     setTexto('')
     setColocarComoPendente(false)
+    setTipoPendencia('Aguardando terceiro')
   }
 
   function handleAdicionar() {
@@ -157,7 +165,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
     } else if (composerTipo === 'solucao') {
       registrarSolucao(numero, texto.trim(), autor)
     } else if (colocarComoPendente) {
-      colocarPendente(numero, texto.trim(), autor)
+      colocarPendente(numero, texto.trim(), autor, tipoPendencia)
     } else {
       adicionarAcompanhamento(numero, { texto: texto.trim(), autor, origem, publico: !privado })
     }
@@ -295,10 +303,25 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
               />
               <div className="chd-composer-footer">
                 {composerTipo === 'acompanhamento' && (
-                  <label className="chd-composer-check">
-                    <input type="checkbox" checked={colocarComoPendente} onChange={(e) => setColocarComoPendente(e.target.checked)} />
-                    Colocar em pendência
-                  </label>
+                  <>
+                    <label className="chd-composer-check">
+                      <input type="checkbox" checked={colocarComoPendente} onChange={(e) => setColocarComoPendente(e.target.checked)} />
+                      Colocar em pendência
+                    </label>
+                    {colocarComoPendente && (
+                      <select
+                        value={tipoPendencia}
+                        onChange={(e) => setTipoPendencia(e.target.value as StatusChamado)}
+                        style={{ fontSize: 12.5, padding: '5px 8px' }}
+                      >
+                        {(Object.keys(LABEL_STATUS_PENDENTE) as (keyof typeof LABEL_STATUS_PENDENTE)[]).map((chave) => (
+                          <option key={chave} value={chave}>
+                            {LABEL_STATUS_PENDENTE[chave]}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </>
                 )}
                 <button type="button" className="btn" disabled title="Anexos ainda não implementados nesta versão">
                   <Paperclip size={13} /> Anexar
@@ -397,7 +420,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
             <div className="chd-sidebar-card">
               <div className="chd-sidebar-title">Ações</div>
               <div className="chd-sidebar-actions">
-                {chamado.status === 'Aguardando terceiro' ? (
+                {STATUS_PENDENTES.includes(chamado.status) ? (
                   <button type="button" className="btn chd-sidebar-btn" onClick={() => retomarChamado(numero, autor)}>
                     Retomar atendimento
                   </button>
