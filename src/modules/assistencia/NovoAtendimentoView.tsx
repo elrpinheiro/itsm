@@ -5,7 +5,7 @@ import { useChamadosStore } from '@/store/useChamadosStore'
 import { useAllProjects } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { classificarAtendimento, encontrarChamadosSimilares, reformularDescricao } from '@/data/classificarChamado'
-import { PROJECT_CATALOGS, type ClassificationLabel } from '@/data/catalog'
+import { PROJECT_CATALOGS, type CatalogItem, type ClassificationLabel } from '@/data/catalog'
 import type { OrigemAtendimento, Prioridade, StatusChamado } from '@/data/chamados'
 import { ATIVOS_VINCULAVEIS } from '@/data/ativosMock'
 import { buscarConversaWhatsApp, buscarGravacaoURA, type GravacaoURA } from '@/data/integracaoOrigem'
@@ -39,7 +39,7 @@ const STATUS_BUCKET: Record<StatusChamado, 'andamento' | 'pendente' | 'fechado'>
   Fechado: 'fechado',
 }
 
-const OUTROS_CATEGORIA = [{ icon: '📋', label: 'Outros' }]
+const OUTROS_CATEGORIA: CatalogItem[] = [{ icon: '📋', label: 'Outros' }]
 const TIPOS: ClassificationLabel[] = ['Requisição', 'Incidente', 'Problema', 'Habilitação de Mudanças']
 
 function iniciais(nome: string): string {
@@ -82,6 +82,8 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const [error, setError] = useState('')
 
   const [categoria, setCategoria] = useState('')
+  const [subcategoria, setSubcategoria] = useState('')
+  const [subsubcategoria, setSubsubcategoria] = useState('')
   const [tipoAtendimento, setTipoAtendimento] = useState<ClassificationLabel | ''>('')
   const [prioridade, setPrioridade] = useState<Prioridade | ''>('')
   const [grupoId, setGrupoId] = useState('')
@@ -95,6 +97,13 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
       if (atual !== nova) setAnexo(null)
       return nova
     })
+    setSubcategoria('')
+    setSubsubcategoria('')
+  }
+
+  function handleSubcategoriaChange(nova: string) {
+    setSubcategoria(nova)
+    setSubsubcategoria('')
   }
 
   function handleAnexoChange(file: File | undefined) {
@@ -108,6 +117,8 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const projetoLabel = effectiveProject ? `${effectiveProject.nome} — ${effectiveProject.cidade}` : 'Matriz'
   const catalogBruto = effectiveProject ? PROJECT_CATALOGS[effectiveProject.id] : undefined
   const catalog = catalogBruto && catalogBruto.length ? catalogBruto : OUTROS_CATEGORIA
+  const subitensNivel2 = catalog.find((c) => c.label === categoria)?.subitens ?? []
+  const subitensNivel3 = subitensNivel2.find((s) => s.label === subcategoria)?.subitens ?? []
 
   const candidatos = useMemo(() => {
     if (!busca.trim()) return []
@@ -223,6 +234,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
       descricao,
       solicitanteEmail: requerente.email,
       categoria: categoria || 'Outros',
+      subcategoria: subsubcategoria ? `${subcategoria} › ${subsubcategoria}` : subcategoria || undefined,
       tipoAtendimento: tipoAtendimento || 'Requisição',
       grupoId: grupoId || 'grp-n1',
       origem,
@@ -620,6 +632,40 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
               </select>
             </div>
           </div>
+
+          {subitensNivel2.length > 0 && (
+            <div className="nc-summary-card">
+              <span className={`nc-summary-ic${subcategoria ? ' on' : ''}`}>{subcategoria ? '✓' : '•'}</span>
+              <div className="nc-summary-body">
+                <div className="lbl">Subcategoria</div>
+                <select value={subcategoria} onChange={(e) => handleSubcategoriaChange(e.target.value)}>
+                  <option value="">Selecione…</option>
+                  {subitensNivel2.map((item) => (
+                    <option key={item.label} value={item.label}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
+          {subitensNivel3.length > 0 && (
+            <div className="nc-summary-card">
+              <span className={`nc-summary-ic${subsubcategoria ? ' on' : ''}`}>{subsubcategoria ? '✓' : '•'}</span>
+              <div className="nc-summary-body">
+                <div className="lbl">Detalhe</div>
+                <select value={subsubcategoria} onChange={(e) => setSubsubcategoria(e.target.value)}>
+                  <option value="">Selecione…</option>
+                  {subitensNivel3.map((item) => (
+                    <option key={item.label} value={item.label}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
 
           {documentoCategoria && (
             <div className="nc-summary-card">

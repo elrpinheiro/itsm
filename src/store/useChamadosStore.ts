@@ -18,6 +18,7 @@ export interface AddChamadoInput {
   descricao: string
   solicitanteEmail: string
   categoria: string
+  subcategoria?: string
   tipoAtendimento: ClassificationLabel
   grupoId: string
   origem: OrigemAtendimento
@@ -108,6 +109,7 @@ export const useChamadosStore = create<ChamadosState>()(
           abertoHa: 'agora mesmo',
           solicitanteEmail: input.solicitanteEmail,
           categoria: input.categoria,
+          subcategoria: input.subcategoria || undefined,
           tipoAtendimento: input.tipoAtendimento,
           grupoId: input.grupoId,
           origem: input.origem,

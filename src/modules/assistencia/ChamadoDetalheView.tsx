@@ -205,7 +205,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
           </div>
           {(chamado.tipoAtendimento || chamado.categoria) && (
             <div className="chd-header-sub">
-              {[chamado.tipoAtendimento, chamado.categoria].filter(Boolean).join(' › ')}
+              {[chamado.tipoAtendimento, chamado.categoria, chamado.subcategoria].filter(Boolean).join(' › ')}
             </div>
           )}
         </div>
@@ -474,7 +474,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
               </div>
               <div>
                 <span className="lbl">Categoria</span>
-                <span>{chamado.categoria ?? '—'}</span>
+                <span>{[chamado.categoria, chamado.subcategoria].filter(Boolean).join(' › ') || '—'}</span>
               </div>
               <div>
                 <span className="lbl">Prioridade</span>

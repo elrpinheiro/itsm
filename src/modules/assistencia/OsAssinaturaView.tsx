@@ -78,7 +78,7 @@ export default function OsAssinaturaView({ numero, onClose, modoConsulta }: Prop
       titulo: chamado.assunto,
       responsavel: chamado.atribuidoA ?? autor,
       origem: chamado.origem ? origemLabels[chamado.origem] ?? chamado.origem : '',
-      categoria: chamado.categoria ?? '',
+      categoria: [chamado.categoria, chamado.subcategoria].filter(Boolean).join(' › '),
       abertoHa: chamado.abertoHa,
       emissao: new Date().toLocaleDateString('pt-BR'),
       descricao: chamado.descricao ?? '',

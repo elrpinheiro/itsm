@@ -79,6 +79,9 @@ export interface Chamado {
   solicitanteEmail?: string
   /** Item do catálogo do projeto (ex.: "Notebook", "Internet") — sugerido pela IA a partir da descrição. */
   categoria?: string
+  /** Subcategoria do item, quando o catálogo do projeto tem `subitens` (ex.: "Notebook" › "Danificado") —
+   * escolhida manualmente, a IA não sugere. Quando há um terceiro nível, vem concatenada com " › ". */
+  subcategoria?: string
   /** Requisição / Incidente / Problema / Habilitação de Mudanças — sugerido pela IA. */
   tipoAtendimento?: ClassificationLabel
   /** Grupo de atendimento (Administração → Grupos) escalado pela IA. */

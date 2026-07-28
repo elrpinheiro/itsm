@@ -1,14 +1,23 @@
 export type ClassificationLabel = 'Requisição' | 'Incidente' | 'Problema' | 'Habilitação de Mudanças'
 
+/** Subcategoria (ou sub-subcategoria, quando aninhada de novo) de um item de catálogo. */
+export interface CatalogSubItem {
+  label: string
+  subitens?: CatalogSubItem[]
+}
+
 export interface CatalogItem {
   icon: string
   label: string
+  /** Subcategorias do item — opcional; a maioria dos projetos ainda usa só o nível de categoria. */
+  subitens?: CatalogSubItem[]
 }
 
 /**
  * Catálogo de itens de atendimento por projeto — extraído do catálogo real enviado
- * (Faz Educação e Planeta). Ainda é uma lista simples (ícone + rótulo); a
- * granularidade de item/sub-item por categoria virá depois, via planilha.
+ * (Faz Educação e Planeta). Ainda é majoritariamente uma lista simples (ícone + rótulo); a
+ * granularidade de sub-item por categoria (`subitens`) só foi detalhada para os projetos que já
+ * enviaram a árvore completa (ex.: ConectaOZ — Osasco).
  */
 export const PROJECT_CATALOGS: Record<string, CatalogItem[]> = {
   // Faz Educação — Caçapava
@@ -141,8 +150,73 @@ export const PROJECT_CATALOGS: Record<string, CatalogItem[]> = {
   ],
   // Faz Educação — Osasco (ConectaOZ)
   'osasco-conectaoz': [
-    { icon: '📤', label: 'Entrega de Equipamentos' },
-    { icon: '📥', label: 'Devolução de Equipamentos' },
+    {
+      icon: '🎒',
+      label: 'Kit Educacional',
+      subitens: [
+        { label: 'Agendamento Retirada' },
+        { label: 'Devolução' },
+        { label: 'Devoluções/Manutenções' },
+        { label: 'Dúvidas' },
+        { label: 'Usuário sem Cadastro' },
+      ],
+    },
+    {
+      icon: '🔧',
+      label: 'Manutenção',
+      subitens: [{ label: 'Manutenção' }],
+    },
+    {
+      icon: '📶',
+      label: 'Modem/Chip',
+      subitens: [
+        { label: 'Configurar wifi' },
+        { label: 'Danificado' },
+        { label: 'Dúvidas', subitens: [{ label: 'Consulta de Chamado' }] },
+        { label: 'Esqueceu a Senha' },
+        { label: 'Lentidão/Travando' },
+        { label: 'Não Liga' },
+        { label: 'Perda/Furto' },
+        { label: 'Portabilidade CHIP' },
+      ],
+    },
+    {
+      icon: '💻',
+      label: 'Notebook',
+      subitens: [
+        { label: 'Configuração de Rede' },
+        { label: 'Danificado' },
+        { label: 'Dúvidas', subitens: [{ label: 'Consulta chamados' }] },
+        { label: 'Dúvidas de Acesso' },
+        { label: 'Lentidão/Travando' },
+        { label: 'Não Liga' },
+        { label: 'Perda/Furto' },
+      ],
+    },
+    {
+      icon: '🖱️',
+      label: 'Periféricos',
+      subitens: [
+        { label: 'Dúvidas' },
+        { label: 'Fonte - Não funciona' },
+        { label: 'Headset - Danificado' },
+        { label: 'Headset - Não funciona' },
+        { label: 'Mouse - Danificado' },
+        { label: 'Mouse - Não funciona' },
+        { label: 'Perda/Furto' },
+      ],
+    },
+    {
+      icon: '🖥️',
+      label: 'Sistema Cliente (Remote Desktop)',
+      subitens: [
+        { label: 'Inacessível' },
+        { label: 'Manutenção Programada' },
+        { label: 'Reinstalação do Arlequim' },
+        { label: 'Sem atalhos' },
+        { label: 'Sem Permissão de Acesso' },
+      ],
+    },
   ],
   // Planeta Educação — Osasco
   'osasco-eu-tenho-futuro': [
