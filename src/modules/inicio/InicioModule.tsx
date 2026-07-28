@@ -5,13 +5,14 @@ import { useProjectStore } from '@/store/useProjectStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { useMetaBacklog, useSlaEntries, useSlaMeta, useSlaTtrMap } from '@/store/useSlaStore'
-import { calcularSla, calcularNps, filtrarPorPeriodo, type PeriodoFiltro } from '@/utils/chamadoMetrics'
+import { calcularSla, calcularBacklog, calcularNps, filtrarPorPeriodo, type PeriodoFiltro } from '@/utils/chamadoMetrics'
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
 import PeriodoFiltroChips from '@/components/common/PeriodoFiltroChips'
 import ExportarRelatorioModal from '@/components/common/ExportarRelatorioModal'
+import BacklogBoard from '@/components/common/BacklogBoard'
 import type { StatusChamado } from '@/data/chamados'
 
 const NPS_TITLE = 'NPS calculado a partir das notas de satisfação (0–10) registradas na pesquisa pós-atendimento. Sem envio automático de pesquisa nesta versão.'
@@ -41,6 +42,7 @@ export default function InicioModule() {
   const sla = useMemo(() => calcularSla(chamados, (c) => ttrMap[c.prioridade]), [chamados, ttrMap])
   const metaPercentual = useSlaMeta()
   const metaBacklogPercentual = useMetaBacklog()
+  const backlog = useMemo(() => calcularBacklog(chamados), [chamados])
   const ttrMapPorProjeto = useMemo(() => (project ? { [project.id]: ttrMap } : {}), [project, ttrMap])
   const nps = useMemo(() => calcularNps(chamados), [chamados])
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
@@ -136,6 +138,14 @@ export default function InicioModule() {
               <div className="mos-cell mos-nps">
                 <h3>NPS · qualidade</h3>
                 <NpsMeter nps={nps} title={NPS_TITLE} />
+              </div>
+
+              <div className="mos-cell mos-backlogboard">
+                <h3>
+                  Backlog — meta ≤{metaBacklogPercentual}% dos chamados abertos no mês
+                  {backlog.percentual !== null && ` (atual: ${backlog.percentual}%)`}
+                </h3>
+                <BacklogBoard chamados={chamados} projetos={[project]} metaPercentual={metaBacklogPercentual} />
               </div>
 
               <div className="mos-cell mos-status">

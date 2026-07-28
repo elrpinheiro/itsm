@@ -9,7 +9,7 @@ import { calcularBacklog, calcularSla, calcularNps, filtrarPorPeriodo, type Peri
 import { statusParaTab } from '@/modules/assistencia/FilaChamadosList'
 import SlaGauge from '@/components/common/SlaGauge'
 import SlaComplianceBoard from './SlaComplianceBoard'
-import BacklogBoard from './BacklogBoard'
+import BacklogBoard from '@/components/common/BacklogBoard'
 import ExportarRelatorioModal from '@/components/common/ExportarRelatorioModal'
 import NpsMeter from '@/components/common/NpsMeter'
 import StatusDonut from '@/components/common/StatusDonut'
