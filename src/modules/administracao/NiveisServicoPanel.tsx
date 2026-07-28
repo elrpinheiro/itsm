@@ -102,8 +102,10 @@ export default function NiveisServicoPanel({ canEdit }: { canEdit: boolean }) {
         então o TTO fica salvo como referência, sem indicador de cumprimento ainda. O relógio do TTR só
         conta o expediente (<strong>08:00–18:00</strong>) em dias que não são sábado, domingo nem feriado
         nacional — exceto para chamados <strong>Críticos (P1)</strong>, que mantêm atendimento contínuo
-        24x7. Ainda não pausa enquanto o chamado está "Aguardando terceiro" — pode ser uma evolução
-        futura deste módulo. Uma entidade sem nenhuma linha ainda não tem SLA definido.
+        24x7. Um chamado <strong>Pendente</strong> (Aguardando terceiro, Pendente Fornecedor ou Pendente
+        Cliente/Colaborador) tem o relógio travado o tempo todo, independente do expediente — fica de fora
+        do cálculo de "SLA cumprido" até sair da pendência. Uma entidade sem nenhuma linha ainda não tem SLA
+        definido.
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <label className="field-label" style={{ margin: 0 }}>

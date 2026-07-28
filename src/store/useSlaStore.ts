@@ -59,8 +59,9 @@ interface SlaState {
  * GLPI: TTO (Time To Own) e TTR (Time To Resolve) configuráveis pelo administrador, por entidade, em
  * vez de fixos no código. O cálculo em chamadoMetrics.ts (`horasUteisDecorridas`) trava o relógio do
  * SLA fora do expediente (08:00–18:00) e em sábados, domingos e feriados nacionais — exceto para
- * chamados Críticos (P1), que mantêm atendimento contínuo 24x7 — mas ainda não pausa enquanto o
- * chamado está "Aguardando terceiro". Um projeto sem nenhuma entrada (ex.: recém-criado pelo admin,
+ * chamados Críticos (P1), que mantêm atendimento contínuo 24x7. `calcularSla` (chamadoMetrics.ts)
+ * também trava o relógio o tempo todo (24x7, mesmo para Críticos) enquanto o chamado está em algum
+ * status de pendência (STATUS_PENDENTES). Um projeto sem nenhuma entrada (ex.: recém-criado pelo admin,
  * antes de ter uma política definida) fica de fora do cálculo de "SLA cumprido" em vez de herdar uma
  * política de outro projeto. */
 export const useSlaStore = create<SlaState>()(
