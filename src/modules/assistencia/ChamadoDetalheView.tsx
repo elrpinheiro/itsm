@@ -9,6 +9,7 @@ import { badgeStyleFromColor } from '@/utils/color'
 import { reformularDescricao } from '@/data/classificarChamado'
 import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
 import { CICLO_VIDA_ORDEM, STATUS_PENDENTES, type OrigemAtendimento, type StatusChamado, type TipoInteracao } from '@/data/chamados'
+import { DOCUMENTO_POR_CATEGORIA } from '@/data/documentosCategoria'
 import OsAssinaturaView from './OsAssinaturaView'
 
 interface Props {
@@ -93,6 +94,9 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
   const [formRejeicao, setFormRejeicao] = useState('')
   const [gerandoOs, setGerandoOs] = useState(false)
   const [consultandoOs, setConsultandoOs] = useState(false)
+  const [mostrarTermos, setMostrarTermos] = useState(false)
+
+  const documentosCategoria = chamado?.categoria ? DOCUMENTO_POR_CATEGORIA[chamado.categoria] : undefined
 
   // Sugestão da Base de Conhecimento ao registrar solução — mesma lógica de NovoAtendimentoView,
   // recalculada a cada tecla para refinar entre artigos da mesma categoria pela palavra-chave.
@@ -412,6 +416,34 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
                   <span className="lbl">Termo anexado</span>
                   <span>{chamado.anexoNome}</span>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {documentosCategoria && documentosCategoria.length > 0 && (
+            <div className="chd-sidebar-card">
+              <div className="chd-sidebar-title">Termo</div>
+              <div className="chd-sidebar-actions">
+                <button type="button" className="btn chd-sidebar-btn" onClick={() => setMostrarTermos((v) => !v)}>
+                  📄 Termo
+                </button>
+                {mostrarTermos && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {documentosCategoria.map((doc) => (
+                      <a
+                        key={doc.nomeArquivo}
+                        className="btn"
+                        style={{ fontSize: 12, justifyContent: 'flex-start' }}
+                        href={doc.arquivoUrl}
+                        download={doc.nomeArquivo}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        ⬇ {doc.nome}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -90,7 +90,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const [anexo, setAnexo] = useState<File | null>(null)
   const anexoInputRef = useRef<HTMLInputElement>(null)
 
-  const documentoCategoria = categoria ? DOCUMENTO_POR_CATEGORIA[categoria] : undefined
+  const documentosCategoria = categoria ? DOCUMENTO_POR_CATEGORIA[categoria] : undefined
 
   function handleCategoriaChange(nova: string) {
     setCategoria((atual) => {
@@ -667,30 +667,34 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
             </div>
           )}
 
-          {documentoCategoria && (
+          {documentosCategoria && documentosCategoria.length > 0 && (
             <div className="nc-summary-card">
               <span className="nc-summary-ic">📎</span>
               <div className="nc-summary-body">
-                <div className="lbl">Documento da categoria</div>
-                <div style={{ fontSize: 12.5, marginBottom: 8 }}>{documentoCategoria.nome}</div>
+                <div className="lbl">Documentos da categoria</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+                  {documentosCategoria.map((doc) => (
+                    <a
+                      key={doc.nomeArquivo}
+                      className="btn"
+                      style={{ fontSize: 12, justifyContent: 'flex-start' }}
+                      href={doc.arquivoUrl}
+                      download={doc.nomeArquivo}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      ⬇ {doc.nome}
+                    </a>
+                  ))}
+                </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <a
-                    className="btn"
-                    style={{ fontSize: 12 }}
-                    href={documentoCategoria.arquivoUrl}
-                    download={documentoCategoria.nomeArquivo}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    ⬇ Baixar
-                  </a>
                   <button type="button" className="btn" style={{ fontSize: 12 }} onClick={() => anexoInputRef.current?.click()}>
                     📎 Anexar preenchido
                   </button>
                   <input
                     ref={anexoInputRef}
                     type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                     style={{ display: 'none' }}
                     onChange={(e) => {
                       handleAnexoChange(e.target.files?.[0])
