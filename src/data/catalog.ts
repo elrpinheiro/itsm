@@ -235,4 +235,21 @@ export const PROJECT_CATALOGS: Record<string, CatalogItem[]> = {
     { icon: '📽️', label: 'Projetor' },
     { icon: '📺', label: 'Smart TV' },
   ],
+  // Planneta Educação — Taboão da Serra (EducaTaboão) — mesmo catálogo do Eu Tenho Futuro (Osasco)
+  'taboao-da-serra-educataboao': [
+    { icon: '💬', label: 'Dúvidas/sugestões/elogios ou reclamações' },
+    { icon: '🤝', label: 'Empréstimo de equipamentos' },
+    { icon: '📱', label: 'iPad' },
+    { icon: '📶', label: 'Internet' },
+    { icon: '🖨️', label: 'Impressora/Scanner' },
+    { icon: '🔌', label: 'Gabinete de recarga' },
+    { icon: '🧴', label: 'Kit limpeza' },
+    { icon: '💻', label: 'Notebook' },
+    { icon: '📱', label: 'Tablet' },
+    { icon: '🍎', label: 'Apple TV' },
+    { icon: '📷', label: 'Câmeras' },
+    { icon: '📢', label: 'Furto/roubo' },
+    { icon: '📽️', label: 'Projetor' },
+    { icon: '📺', label: 'Smart TV' },
+  ],
 }
