@@ -680,8 +680,6 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
                       style={{ fontSize: 12, justifyContent: 'flex-start' }}
                       href={doc.arquivoUrl}
                       download={doc.nomeArquivo}
-                      target="_blank"
-                      rel="noreferrer"
                     >
                       ⬇ {doc.nome}
                     </a>
