@@ -10,6 +10,7 @@ import { reformularDescricao } from '@/data/classificarChamado'
 import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
 import { CICLO_VIDA_ORDEM, STATUS_PENDENTES, type OrigemAtendimento, type StatusChamado, type TipoInteracao } from '@/data/chamados'
 import { DOCUMENTO_POR_CATEGORIA } from '@/data/documentosCategoria'
+import { baixarArquivo } from '@/utils/download'
 import OsAssinaturaView from './OsAssinaturaView'
 
 interface Props {
@@ -430,15 +431,15 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
                 {mostrarTermos && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {documentosCategoria.map((doc) => (
-                      <a
+                      <button
                         key={doc.nomeArquivo}
+                        type="button"
                         className="btn"
                         style={{ fontSize: 12, justifyContent: 'flex-start' }}
-                        href={doc.arquivoUrl}
-                        download={doc.nomeArquivo}
+                        onClick={() => baixarArquivo(doc.arquivoUrl, doc.nomeArquivo)}
                       >
                         ⬇ {doc.nome}
-                      </a>
+                      </button>
                     ))}
                   </div>
                 )}

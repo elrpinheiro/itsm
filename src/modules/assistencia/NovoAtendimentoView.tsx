@@ -11,6 +11,7 @@ import { ATIVOS_VINCULAVEIS } from '@/data/ativosMock'
 import { buscarConversaWhatsApp, buscarGravacaoURA, type GravacaoURA } from '@/data/integracaoOrigem'
 import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
 import { DOCUMENTO_POR_CATEGORIA } from '@/data/documentosCategoria'
+import { baixarArquivo } from '@/utils/download'
 import { formatFileSize, iconForFile } from '../assinatura/types'
 import UsuarioFormModal from '../administracao/UsuarioFormModal'
 import type { Project } from '@/types'
@@ -674,15 +675,15 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
                 <div className="lbl">Documentos da categoria</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
                   {documentosCategoria.map((doc) => (
-                    <a
+                    <button
                       key={doc.nomeArquivo}
+                      type="button"
                       className="btn"
                       style={{ fontSize: 12, justifyContent: 'flex-start' }}
-                      href={doc.arquivoUrl}
-                      download={doc.nomeArquivo}
+                      onClick={() => baixarArquivo(doc.arquivoUrl, doc.nomeArquivo)}
                     >
                       ⬇ {doc.nome}
-                    </a>
+                    </button>
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
