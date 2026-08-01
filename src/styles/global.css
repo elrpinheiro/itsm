@@ -302,6 +302,11 @@ textarea:focus,
 select:focus {
   border-color: var(--tema);
 }
+select:disabled {
+  background: var(--fundo);
+  color: var(--texto-sec);
+  cursor: not-allowed;
+}
 textarea {
   resize: vertical;
   min-height: 56px;
