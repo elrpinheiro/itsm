@@ -11,6 +11,7 @@ import { ATIVOS_VINCULAVEIS } from '@/data/ativosMock'
 import { buscarConversaWhatsApp, buscarGravacaoURA, type GravacaoURA } from '@/data/integracaoOrigem'
 import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
 import { DOCUMENTO_POR_CATEGORIA } from '@/data/documentosCategoria'
+import { localizacoesDoProjeto } from '@/data/localizacoes'
 import { baixarArquivo } from '@/utils/download'
 import { formatFileSize, iconForFile } from '../assinatura/types'
 import UsuarioFormModal from '../administracao/UsuarioFormModal'
@@ -67,6 +68,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const [busca, setBusca] = useState('')
   const [requerenteId, setRequerenteId] = useState<string | null>(null)
   const [projetoId, setProjetoId] = useState(project?.id ?? '')
+  const [localizacao, setLocalizacao] = useState('')
   const [editandoRequerente, setEditandoRequerente] = useState(false)
   const [origem, setOrigem] = useState<OrigemAtendimento>('Atendente')
   const [linkedId, setLinkedId] = useState('')
@@ -118,6 +120,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const projetoLabel = effectiveProject ? `${effectiveProject.nome} — ${effectiveProject.cidade}` : 'Matriz'
   const catalogBruto = effectiveProject ? PROJECT_CATALOGS[effectiveProject.id] : undefined
   const catalog = catalogBruto && catalogBruto.length ? catalogBruto : OUTROS_CATEGORIA
+  const localizacoes = localizacoesDoProjeto(effectiveProject?.id ?? '')
   const subitensNivel2 = catalog.find((c) => c.label === categoria)?.subitens ?? []
   const subitensNivel3 = subitensNivel2.find((s) => s.label === subcategoria)?.subitens ?? []
 
@@ -234,6 +237,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
       prioridade: prioridade || 'Média',
       descricao,
       solicitanteEmail: requerente.email,
+      localizacao: localizacao || undefined,
       categoria: categoria || 'Outros',
       subcategoria: subsubcategoria ? `${subcategoria} › ${subsubcategoria}` : subcategoria || undefined,
       tipoAtendimento: tipoAtendimento || 'Requisição',
@@ -326,11 +330,29 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
 
           <div className="frow">
             <label className="field-label">Projeto / Localidade</label>
-            <select value={projetoId} onChange={(e) => setProjetoId(e.target.value)}>
+            {project ? (
+              <select value={projetoId} disabled>
+                <option value={projetoId}>{projetoLabel}</option>
+              </select>
+            ) : (
+              <select value={projetoId} onChange={(e) => setProjetoId(e.target.value)}>
+                <option value="">Selecione…</option>
+                {projetos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nome} — {p.cidade}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          <div className="frow">
+            <label className="field-label">Localização</label>
+            <select value={localizacao} onChange={(e) => setLocalizacao(e.target.value)}>
               <option value="">Selecione…</option>
-              {projetos.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nome} — {p.cidade}
+              {localizacoes.map((l) => (
+                <option key={l} value={l}>
+                  {l}
                 </option>
               ))}
             </select>

@@ -517,6 +517,10 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
                 <span className="lbl">Unidade</span>
                 <span>{chamado.projetoNome}</span>
               </div>
+              <div>
+                <span className="lbl">Localização</span>
+                <span>{chamado.localizacao ?? '—'}</span>
+              </div>
             </div>
           </div>
         </div>

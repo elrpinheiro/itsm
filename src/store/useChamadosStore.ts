@@ -17,6 +17,7 @@ export interface AddChamadoInput {
   prioridade: Prioridade
   descricao: string
   solicitanteEmail: string
+  localizacao?: string
   categoria: string
   subcategoria?: string
   tipoAtendimento: ClassificationLabel
@@ -108,6 +109,7 @@ export const useChamadosStore = create<ChamadosState>()(
           status,
           abertoHa: 'agora mesmo',
           solicitanteEmail: input.solicitanteEmail,
+          localizacao: input.localizacao || undefined,
           categoria: input.categoria,
           subcategoria: input.subcategoria || undefined,
           tipoAtendimento: input.tipoAtendimento,

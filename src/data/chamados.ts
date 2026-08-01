@@ -77,6 +77,9 @@ export interface Chamado {
   abertoHa: string
   /** E-mail de quem abriu o chamado (o requerente) — usado para filtrar "meus chamados" em perfis com visibilidade "próprios" e para montar o histórico do requerente. */
   solicitanteEmail?: string
+  /** Localização dentro do projeto (ex.: sala/prédio/setor) — hoje escolhida a partir de uma lista de
+   * teste (ver src/data/localizacoes.ts), até a lista real de cada projeto ser fornecida. */
+  localizacao?: string
   /** Item do catálogo do projeto (ex.: "Notebook", "Internet") — sugerido pela IA a partir da descrição. */
   categoria?: string
   /** Subcategoria do item, quando o catálogo do projeto tem `subitens` (ex.: "Notebook" › "Danificado") —
