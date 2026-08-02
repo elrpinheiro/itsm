@@ -890,7 +890,7 @@ textarea {
   background: rgba(255, 255, 255, 0.24);
 }
 
-/* ===== dropdown "Selecione o Projeto" (cabeçalho, sem projeto ativo) ===== */
+/* ===== dropdown "Selecione a Entidade" (cabeçalho, sem projeto ativo) ===== */
 .proj-picker {
   position: relative;
   flex-shrink: 0;
