@@ -73,6 +73,7 @@ export default function OsAssinaturaView({ numero, onClose, modoConsulta }: Prop
     return {
       numero: chamado.numero,
       unidade: chamado.projetoNome,
+      localizacao: chamado.localizacao ?? '',
       requerente: requerenteNome,
       requerenteEmail: chamado.solicitanteEmail ?? '',
       titulo: chamado.assunto,

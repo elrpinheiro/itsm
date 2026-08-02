@@ -100,7 +100,7 @@ export const useChamadosStore = create<ChamadosState>()(
       chamados: CHAMADOS,
       addChamado: (input) => {
         const numero = proximoNumero(get().chamados)
-        const status: StatusChamado = input.resolvidoNaHora ? 'Fechado' : 'Na fila'
+        const status: StatusChamado = input.resolvidoNaHora ? 'Solucionado' : 'Na fila'
         const chamado: Chamado = {
           numero,
           projetoNome: input.projetoNome,
@@ -123,6 +123,7 @@ export const useChamadosStore = create<ChamadosState>()(
           protocoloWhatsapp: input.protocoloWhatsapp || undefined,
           ativosVinculados: input.ativosVinculados?.length ? input.ativosVinculados : undefined,
           anexoNome: input.anexoNome || undefined,
+          assinaturaStatus: input.resolvidoNaHora ? 'pendente' : undefined,
         }
         set((s) => ({ chamados: [...s.chamados, chamado] }))
         return numero

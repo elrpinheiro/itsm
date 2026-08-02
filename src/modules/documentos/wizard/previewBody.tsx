@@ -436,6 +436,7 @@ export function renderPreviewBody(
         <>
           <div className="doc-sec">Dados do requerente</div>
           <Kv label="Unidade" value={data.unidade} />
+          {data.localizacao && <Kv label="Localização" value={data.localizacao} />}
           <Kv label="Requerente" value={data.requerente} />
           {data.requerenteEmail && <Kv label="E-mail" value={data.requerenteEmail} />}
           <div className="doc-sec">Detalhes do atendimento</div>
