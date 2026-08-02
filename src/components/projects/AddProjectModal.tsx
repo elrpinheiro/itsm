@@ -2,27 +2,38 @@ import { useState, type ChangeEvent, type FormEvent } from 'react'
 import Modal from '@/components/common/Modal'
 import { useAllBrandsMap, useCatalogStore } from '@/store/useCatalogStore'
 import { resizeImageToDataUrl } from '@/utils/image'
+import type { Project } from '@/types'
 
 interface Props {
+  /** Presente para editar um projeto existente — ausente para cadastrar um novo. */
+  project?: Project
   onClose: () => void
   onCreated?: () => void
 }
 
-export default function AddProjectModal({ onClose, onCreated }: Props) {
+export default function AddProjectModal({ project, onClose, onCreated }: Props) {
   const addProject = useCatalogStore((s) => s.addProject)
+  const updateProject = useCatalogStore((s) => s.updateProject)
   const brandsMap = useAllBrandsMap()
   const brandOptions = Object.values(brandsMap)
 
-  const [nome, setNome] = useState('')
-  const [cidade, setCidade] = useState('')
-  const [brandId, setBrandId] = useState(brandOptions[0]?.id ?? '')
-  const [logo, setLogo] = useState<string | null>(null)
+  const [nome, setNome] = useState(project?.nome ?? '')
+  const [cidade, setCidade] = useState(project?.cidade ?? '')
+  const [brandId, setBrandId] = useState(project?.brandId ?? brandOptions[0]?.id ?? '')
+  const [logo, setLogo] = useState<string | null>(project?.logo ?? null)
+  const [wallpaper, setWallpaper] = useState<string | null>(project?.wallpaper ?? null)
   const [error, setError] = useState('')
 
   async function handleLogoChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     setLogo(await resizeImageToDataUrl(file))
+  }
+
+  async function handleWallpaperChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setWallpaper(await resizeImageToDataUrl(file, 1000))
   }
 
   function handleSubmit(e?: FormEvent) {
@@ -39,13 +50,19 @@ export default function AddProjectModal({ onClose, onCreated }: Props) {
       setError('Envie o logotipo do projeto.')
       return
     }
+    if (project) {
+      updateProject(project.id, { nome: nome.trim(), cidade: cidade.trim(), brandId, logo, wallpaper })
+      onCreated?.()
+      onClose()
+      return
+    }
     addProject({ nome: nome.trim(), cidade: cidade.trim(), brandId, logo })
     onCreated?.()
     onClose()
   }
 
   return (
-    <Modal title="Novo projeto" onClose={onClose}>
+    <Modal title={project ? `Editar projeto — ${project.nome}` : 'Novo projeto'} onClose={onClose}>
       <form onSubmit={handleSubmit}>
         <div className="frow">
           <label className="field-label">Cidade</label>
@@ -78,13 +95,30 @@ export default function AddProjectModal({ onClose, onCreated }: Props) {
             </div>
           )}
         </div>
+        <div className="frow">
+          <label className="field-label">Wallpaper (opcional)</label>
+          <input type="file" accept="image/*" onChange={handleWallpaperChange} />
+          <div style={{ fontSize: 11.5, color: 'var(--texto-sec)', marginTop: 4 }}>
+            Imagem de fundo exibida no painel Início desta unidade.
+          </div>
+          {wallpaper && (
+            <div className="admin-logo-preview" style={{ width: '100%', maxWidth: 280, aspectRatio: '16/9', height: 'auto' }}>
+              <img src={wallpaper} alt="Pré-visualização do wallpaper" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
+          {wallpaper && (
+            <button type="button" className="btn" style={{ fontSize: 11.5, marginTop: 6, padding: '4px 10px' }} onClick={() => setWallpaper(null)}>
+              Remover wallpaper
+            </button>
+          )}
+        </div>
         {error && <div className="admin-error">{error}</div>}
         <div className="admin-form-actions">
           <button type="button" className="btn" onClick={onClose}>
             Cancelar
           </button>
           <button type="button" className="btn btn-primary" onClick={() => handleSubmit()}>
-            Criar projeto
+            {project ? 'Salvar alterações' : 'Criar projeto'}
           </button>
         </div>
       </form>

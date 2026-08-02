@@ -2,18 +2,22 @@ import { useState, type ChangeEvent, type FormEvent } from 'react'
 import Modal from '@/components/common/Modal'
 import { useCatalogStore } from '@/store/useCatalogStore'
 import { resizeImageToDataUrl } from '@/utils/image'
+import type { Brand } from '@/types'
 
 interface Props {
+  /** Presente para editar uma empresa existente — ausente para cadastrar uma nova. */
+  brand?: Brand
   onClose: () => void
   onCreated?: (brandId: string) => void
 }
 
-export default function AddBrandModal({ onClose, onCreated }: Props) {
+export default function AddBrandModal({ brand, onClose, onCreated }: Props) {
   const addBrand = useCatalogStore((s) => s.addBrand)
-  const [nome, setNome] = useState('')
-  const [razaoSocial, setRazaoSocial] = useState('')
-  const [cor, setCor] = useState('#0D2B5E')
-  const [logo, setLogo] = useState<string | null>(null)
+  const updateBrand = useCatalogStore((s) => s.updateBrand)
+  const [nome, setNome] = useState(brand?.nome ?? '')
+  const [razaoSocial, setRazaoSocial] = useState(brand?.razaoSocial ?? '')
+  const [cor, setCor] = useState(brand?.cor ?? '#0D2B5E')
+  const [logo, setLogo] = useState<string | null>(brand?.logo ?? null)
   const [error, setError] = useState('')
 
   async function handleLogoChange(e: ChangeEvent<HTMLInputElement>) {
@@ -32,13 +36,19 @@ export default function AddBrandModal({ onClose, onCreated }: Props) {
       setError('Envie o logotipo da empresa.')
       return
     }
+    if (brand) {
+      updateBrand(brand.id, { nome: nome.trim(), razaoSocial: razaoSocial.trim(), cor, logo })
+      onCreated?.(brand.id)
+      onClose()
+      return
+    }
     const id = addBrand({ nome: nome.trim(), razaoSocial: razaoSocial.trim(), cor, logo })
     onCreated?.(id)
     onClose()
   }
 
   return (
-    <Modal title="Nova empresa mantenedora" onClose={onClose}>
+    <Modal title={brand ? `Editar empresa — ${brand.nome}` : 'Nova empresa mantenedora'} onClose={onClose}>
       <form onSubmit={handleSubmit}>
         <div className="frow">
           <label className="field-label">Nome da empresa</label>
@@ -83,7 +93,7 @@ export default function AddBrandModal({ onClose, onCreated }: Props) {
             Cancelar
           </button>
           <button type="button" className="btn btn-primary" onClick={() => handleSubmit()}>
-            Criar empresa
+            {brand ? 'Salvar alterações' : 'Criar empresa'}
           </button>
         </div>
       </form>

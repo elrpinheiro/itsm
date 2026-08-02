@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useAdminStore } from '@/store/useAdminStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
-import { useAllProjects } from '@/store/useCatalogStore'
+import { useAllProjects, useLocalizacoesDoProjeto } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { classificarAtendimento, encontrarChamadosSimilares, reformularDescricao } from '@/data/classificarChamado'
 import { PROJECT_CATALOGS, type CatalogItem, type ClassificationLabel } from '@/data/catalog'
@@ -11,7 +11,6 @@ import { ATIVOS_VINCULAVEIS } from '@/data/ativosMock'
 import { buscarConversaWhatsApp, buscarGravacaoURA, type GravacaoURA } from '@/data/integracaoOrigem'
 import { buscarSolucaoSugerida } from '@/data/baseConhecimento'
 import { DOCUMENTO_POR_CATEGORIA } from '@/data/documentosCategoria'
-import { localizacoesDoProjeto } from '@/data/localizacoes'
 import { baixarArquivo } from '@/utils/download'
 import { formatFileSize, iconForFile } from '../assinatura/types'
 import UsuarioFormModal from '../administracao/UsuarioFormModal'
@@ -120,7 +119,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const projetoLabel = effectiveProject ? `${effectiveProject.nome} — ${effectiveProject.cidade}` : 'Matriz'
   const catalogBruto = effectiveProject ? PROJECT_CATALOGS[effectiveProject.id] : undefined
   const catalog = catalogBruto && catalogBruto.length ? catalogBruto : OUTROS_CATEGORIA
-  const localizacoes = localizacoesDoProjeto(effectiveProject?.id ?? '')
+  const localizacoes = useLocalizacoesDoProjeto(effectiveProject?.id ?? '')
   const subitensNivel2 = catalog.find((c) => c.label === categoria)?.subitens ?? []
   const subitensNivel3 = subitensNivel2.find((s) => s.label === subcategoria)?.subitens ?? []
 

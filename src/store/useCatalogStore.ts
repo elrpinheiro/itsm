@@ -4,6 +4,7 @@ import type { Brand, Project, ProjectTheme } from '@/types'
 import { BRANDS } from '@/data/brands'
 import { PROJECT_THEMES } from '@/data/projectThemes'
 import { PROJECTS } from '@/data/projects'
+import { LOCALIZACOES_TESTE } from '@/data/localizacoes'
 import { derivePalette } from '@/utils/color'
 
 function slugify(text: string): string {
@@ -40,12 +41,30 @@ export interface AddProjectInput {
   logo: string
 }
 
+export interface UpdateResult {
+  ok: boolean
+  error?: string
+}
+
 interface CatalogState {
   customBrands: Brand[]
   customThemes: Record<string, ProjectTheme>
   customProjects: Project[]
+  /** Edições sobre marcas de fábrica ou criadas pelo admin — aplicadas por cima do registro base. */
+  brandOverrides: Record<string, Partial<AddBrandInput>>
+  deletedBrandIds: string[]
+  /** Edições (nome/cidade/logo/marca/wallpaper) sobre projetos de fábrica ou criados pelo admin. */
+  projectOverrides: Record<string, Partial<AddProjectInput> & { wallpaper?: string | null }>
+  deletedProjectIds: string[]
+  /** Localizações reais cadastradas por projeto — substitui a lista de teste (Teste 1/2/3) quando definida. */
+  customLocalizacoes: Record<string, string[]>
   addBrand: (input: AddBrandInput) => string
+  updateBrand: (id: string, patch: Partial<AddBrandInput>) => void
+  deleteBrand: (id: string) => UpdateResult
   addProject: (input: AddProjectInput) => string
+  updateProject: (id: string, patch: Partial<AddProjectInput> & { wallpaper?: string | null }) => void
+  deleteProject: (id: string) => UpdateResult
+  setLocalizacoes: (projetoId: string, lista: string[]) => void
 }
 
 /**
@@ -59,6 +78,11 @@ export const useCatalogStore = create<CatalogState>()(
       customBrands: [],
       customThemes: {},
       customProjects: [],
+      brandOverrides: {},
+      deletedBrandIds: [],
+      projectOverrides: {},
+      deletedProjectIds: [],
+      customLocalizacoes: {},
       addBrand: (input) => {
         const taken = new Set([...Object.keys(BRANDS), ...get().customBrands.map((b) => b.id)])
         const id = uniqueId(slugify(input.nome), taken)
@@ -95,15 +119,79 @@ export const useCatalogStore = create<CatalogState>()(
         set((s) => ({ customProjects: [...s.customProjects, project] }))
         return id
       },
+      updateBrand: (id, patch) => {
+        set((s) => {
+          if (s.customBrands.some((b) => b.id === id)) {
+            return { customBrands: s.customBrands.map((b) => (b.id === id ? { ...b, ...patch } : b)) }
+          }
+          return { brandOverrides: { ...s.brandOverrides, [id]: { ...s.brandOverrides[id], ...patch } } }
+        })
+      },
+      deleteBrand: (id) => {
+        const s = get()
+        const projetosAtivos = [...PROJECTS, ...s.customProjects].filter((p) => !s.deletedProjectIds.includes(p.id))
+        const emUso = projetosAtivos.some((p) => (s.projectOverrides[p.id]?.brandId ?? p.brandId) === id)
+        if (emUso) {
+          return { ok: false, error: 'Existem projetos vinculados a esta empresa — exclua-os ou troque a empresa mantenedora deles antes.' }
+        }
+        const isCustom = s.customBrands.some((b) => b.id === id)
+        set((st) => ({
+          customBrands: st.customBrands.filter((b) => b.id !== id),
+          deletedBrandIds: isCustom || st.deletedBrandIds.includes(id) ? st.deletedBrandIds : [...st.deletedBrandIds, id],
+          brandOverrides: Object.fromEntries(Object.entries(st.brandOverrides).filter(([k]) => k !== id)),
+          customThemes: Object.fromEntries(Object.entries(st.customThemes).filter(([k]) => k !== id)),
+        }))
+        return { ok: true }
+      },
+      updateProject: (id, patch) => {
+        set((s) => {
+          if (s.customProjects.some((p) => p.id === id)) {
+            return {
+              customProjects: s.customProjects.map((p) => {
+                if (p.id !== id) return p
+                const next: Project = { ...p }
+                if (patch.nome !== undefined) next.nome = patch.nome
+                if (patch.cidade !== undefined) next.cidade = patch.cidade
+                if (patch.brandId !== undefined) next.brandId = patch.brandId
+                if (patch.logo !== undefined) next.logo = patch.logo
+                if (patch.wallpaper !== undefined) next.wallpaper = patch.wallpaper ?? undefined
+                return next
+              }),
+            }
+          }
+          return { projectOverrides: { ...s.projectOverrides, [id]: { ...s.projectOverrides[id], ...patch } } }
+        })
+      },
+      deleteProject: (id) => {
+        const s = get()
+        const isCustom = s.customProjects.some((p) => p.id === id)
+        set((st) => ({
+          customProjects: st.customProjects.filter((p) => p.id !== id),
+          deletedProjectIds: isCustom || st.deletedProjectIds.includes(id) ? st.deletedProjectIds : [...st.deletedProjectIds, id],
+          projectOverrides: Object.fromEntries(Object.entries(st.projectOverrides).filter(([k]) => k !== id)),
+          customLocalizacoes: Object.fromEntries(Object.entries(st.customLocalizacoes).filter(([k]) => k !== id)),
+        }))
+        return { ok: true }
+      },
+      setLocalizacoes: (projetoId, lista) => {
+        set((s) => ({ customLocalizacoes: { ...s.customLocalizacoes, [projetoId]: lista } }))
+      },
     }),
     { name: 'itsm-catalog' },
   ),
 )
 
-/** Mapa combinado de marcas de fábrica + criadas pelo admin, indexado por id. */
+/** Mapa combinado de marcas de fábrica + criadas pelo admin, indexado por id — com edições e exclusões aplicadas. */
 export function useAllBrandsMap(): Record<string, Brand> {
   const custom = useCatalogStore((s) => s.customBrands)
-  return { ...BRANDS, ...Object.fromEntries(custom.map((b) => [b.id, b])) }
+  const overrides = useCatalogStore((s) => s.brandOverrides)
+  const deleted = useCatalogStore((s) => s.deletedBrandIds)
+  const merged: Record<string, Brand> = { ...BRANDS, ...Object.fromEntries(custom.map((b) => [b.id, b])) }
+  for (const id of deleted) delete merged[id]
+  for (const [id, patch] of Object.entries(overrides)) {
+    if (merged[id]) merged[id] = { ...merged[id], ...patch }
+  }
+  return merged
 }
 
 export function useBrand(id: string): Brand {
@@ -111,10 +199,24 @@ export function useBrand(id: string): Brand {
   return map[id] ?? BRANDS.planneta
 }
 
-/** Mapa combinado de temas (paleta do shell) de fábrica + criados pelo admin. */
+/** Mapa combinado de temas (paleta do shell) de fábrica + criados pelo admin — recalcula a paleta
+ * quando a cor principal de uma marca de fábrica é editada. */
 export function useAllThemesMap(): Record<string, ProjectTheme> {
   const custom = useCatalogStore((s) => s.customThemes)
-  return { ...PROJECT_THEMES, ...custom }
+  const overrides = useCatalogStore((s) => s.brandOverrides)
+  const merged: Record<string, ProjectTheme> = { ...PROJECT_THEMES, ...custom }
+  for (const [id, patch] of Object.entries(overrides)) {
+    const base = merged[id]
+    if (!base) continue
+    const label = patch.nome ?? base.label
+    const logo = patch.logo ?? base.logo
+    if (patch.cor) {
+      merged[id] = { label, logo, medio: patch.cor, ...derivePalette(patch.cor) }
+    } else if (patch.nome || patch.logo) {
+      merged[id] = { ...base, label, logo }
+    }
+  }
+  return merged
 }
 
 export function useProjectTheme(id: string): ProjectTheme {
@@ -122,16 +224,37 @@ export function useProjectTheme(id: string): ProjectTheme {
   return map[id] ?? PROJECT_THEMES.planneta
 }
 
-/** Lista combinada de projetos de fábrica + criados pelo admin. */
+/** Lista combinada de projetos de fábrica + criados pelo admin — com edições e exclusões aplicadas. */
 export function useAllProjects(): Project[] {
   const custom = useCatalogStore((s) => s.customProjects)
-  return [...PROJECTS, ...custom]
+  const overrides = useCatalogStore((s) => s.projectOverrides)
+  const deleted = useCatalogStore((s) => s.deletedProjectIds)
+  const base = [...PROJECTS, ...custom]
+  return base
+    .filter((p) => !deleted.includes(p.id))
+    .map((p) => {
+      const patch = overrides[p.id]
+      if (!patch) return p
+      const { wallpaper, ...rest } = patch
+      const merged: Project = { ...p, ...rest }
+      if (wallpaper !== undefined) merged.wallpaper = wallpaper ?? undefined
+      return merged
+    })
 }
 
-/** Ids de todas as marcas conhecidas (de fábrica + admin), na ordem de criação. */
+/** Ids de todas as marcas conhecidas (de fábrica + admin), na ordem de criação — sem as excluídas. */
 export function useAllBrandIds(): string[] {
   // seleciona o array bruto (referência estável entre renders) — mapear dentro do
   // seletor retornaria uma referência nova a cada chamada e causaria loop de render
   const customBrands = useCatalogStore((s) => s.customBrands)
-  return [...Object.keys(PROJECT_THEMES), ...customBrands.map((b) => b.id)]
+  const deleted = useCatalogStore((s) => s.deletedBrandIds)
+  const ids = [...Object.keys(PROJECT_THEMES), ...customBrands.map((b) => b.id)]
+  return deleted.length ? ids.filter((id) => !deleted.includes(id)) : ids
+}
+
+/** Localizações reais de um projeto (cadastradas em Administração → Projeto); enquanto nenhuma for
+ * definida, cai na lista de teste — igual para todos os projetos até ser configurada. */
+export function useLocalizacoesDoProjeto(projetoId: string): string[] {
+  const custom = useCatalogStore((s) => s.customLocalizacoes[projetoId])
+  return custom && custom.length ? custom : LOCALIZACOES_TESTE
 }

@@ -88,7 +88,18 @@ export default function InicioModule() {
     <div className="mod-page mos-page">
       <div className="mod-page-body">
         <div className="mod-scroll-area">
-          <div className="mos">
+          <div
+            className="mos"
+            style={
+              project.wallpaper
+                ? {
+                    backgroundImage: `linear-gradient(rgba(246, 244, 238, 0.9), rgba(246, 244, 238, 0.9)), url(${project.wallpaper})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }
+                : undefined
+            }
+          >
             <div className="mos-blob b1" />
             <div className="mos-blob b2" />
 
