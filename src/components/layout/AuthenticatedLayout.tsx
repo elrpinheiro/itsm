@@ -177,9 +177,6 @@ export default function AuthenticatedLayout() {
           </div>
         ) : (
           <div className="hdr-project hdr-project-empty">
-            <div className="hdr-project-text">
-              <div className="hdr-project-name">Selecione uma unidade</div>
-            </div>
             <ProjectPickerDropdown />
           </div>
         )}

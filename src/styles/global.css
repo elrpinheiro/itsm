@@ -855,10 +855,6 @@ textarea {
   padding: 2px 4px;
   flex-shrink: 0;
 }
-.hdr-project-empty .hdr-project-name {
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 500;
-}
 .hdr-project-text {
   min-width: 0;
   line-height: 1.15;
