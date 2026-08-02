@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Brand, Project, ProjectTheme } from '@/types'
+import type { Brand, Localizacao, Project, ProjectTheme } from '@/types'
 import { BRANDS } from '@/data/brands'
 import { PROJECT_THEMES } from '@/data/projectThemes'
 import { PROJECTS } from '@/data/projects'
@@ -10,7 +10,7 @@ import { derivePalette } from '@/utils/color'
 function slugify(text: string): string {
   return text
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-+|-+$)/g, '')
@@ -24,6 +24,12 @@ function uniqueId(base: string, taken: Set<string>): string {
     id = `${safeBase}-${n}`
     n += 1
   }
+  return id
+}
+
+function uniqueLocId(taken: Set<string>): string {
+  let id = `loc-${Date.now()}`
+  while (taken.has(id)) id = `loc-${Date.now()}-${Math.floor(Math.random() * 1000)}`
   return id
 }
 
@@ -51,24 +57,23 @@ interface CatalogState {
   customThemes: Record<string, ProjectTheme>
   customProjects: Project[]
   /** Edições sobre marcas de fábrica ou criadas pelo admin — aplicadas por cima do registro base. */
-  brandOverrides: Record<string, Partial<AddBrandInput>>
-  deletedBrandIds: string[]
-  /** Edições (nome/cidade/logo/marca/wallpaper) sobre projetos de fábrica ou criados pelo admin. */
-  projectOverrides: Record<string, Partial<AddProjectInput> & { wallpaper?: string | null }>
-  deletedProjectIds: string[]
-  /** Localizações reais cadastradas por projeto — substitui a lista de teste (Teste 1/2/3) quando definida. */
-  customLocalizacoes: Record<string, string[]>
+  brandOverrides: Record<string, Partial<AddBrandInput> & { status?: 'Ativo' | 'Inativo' }>
+  /** Edições (nome/cidade/logo/marca/wallpaper/status) sobre entidades de fábrica ou criadas pelo admin. */
+  projectOverrides: Record<string, Partial<AddProjectInput> & { wallpaper?: string | null; status?: 'Ativo' | 'Inativo' }>
+  /** Localizações reais cadastradas por entidade — substitui a lista de teste (Teste 1/2/3) enquanto houver ao menos uma Ativa. */
+  customLocalizacoes: Record<string, Localizacao[]>
   addBrand: (input: AddBrandInput) => string
-  updateBrand: (id: string, patch: Partial<AddBrandInput>) => void
-  deleteBrand: (id: string) => UpdateResult
+  updateBrand: (id: string, patch: Partial<AddBrandInput> & { status?: 'Ativo' | 'Inativo' }) => void
   addProject: (input: AddProjectInput) => string
-  updateProject: (id: string, patch: Partial<AddProjectInput> & { wallpaper?: string | null }) => void
-  deleteProject: (id: string) => UpdateResult
-  setLocalizacoes: (projetoId: string, lista: string[]) => void
+  updateProject: (id: string, patch: Partial<AddProjectInput> & { wallpaper?: string | null; status?: 'Ativo' | 'Inativo' }) => void
+  addLocalizacao: (projetoId: string, nome: string) => void
+  renameLocalizacao: (projetoId: string, locId: string, nome: string) => void
+  toggleLocalizacaoStatus: (projetoId: string, locId: string) => void
+  removeLocalizacao: (projetoId: string, locId: string) => void
 }
 
 /**
- * Empresas e projetos criados pelo administrador em tempo de execução — persistidos
+ * Empresas e entidades criadas pelo administrador em tempo de execução — persistidos
  * em localStorage e mesclados com o catálogo "de fábrica" (src/data/*) em toda a
  * aplicação. Logos são guardados como data URL (já reduzidos em src/utils/image.ts).
  */
@@ -79,9 +84,7 @@ export const useCatalogStore = create<CatalogState>()(
       customThemes: {},
       customProjects: [],
       brandOverrides: {},
-      deletedBrandIds: [],
       projectOverrides: {},
-      deletedProjectIds: [],
       customLocalizacoes: {},
       addBrand: (input) => {
         const taken = new Set([...Object.keys(BRANDS), ...get().customBrands.map((b) => b.id)])
@@ -127,22 +130,6 @@ export const useCatalogStore = create<CatalogState>()(
           return { brandOverrides: { ...s.brandOverrides, [id]: { ...s.brandOverrides[id], ...patch } } }
         })
       },
-      deleteBrand: (id) => {
-        const s = get()
-        const projetosAtivos = [...PROJECTS, ...s.customProjects].filter((p) => !s.deletedProjectIds.includes(p.id))
-        const emUso = projetosAtivos.some((p) => (s.projectOverrides[p.id]?.brandId ?? p.brandId) === id)
-        if (emUso) {
-          return { ok: false, error: 'Existem projetos vinculados a esta empresa — exclua-os ou troque a empresa mantenedora deles antes.' }
-        }
-        const isCustom = s.customBrands.some((b) => b.id === id)
-        set((st) => ({
-          customBrands: st.customBrands.filter((b) => b.id !== id),
-          deletedBrandIds: isCustom || st.deletedBrandIds.includes(id) ? st.deletedBrandIds : [...st.deletedBrandIds, id],
-          brandOverrides: Object.fromEntries(Object.entries(st.brandOverrides).filter(([k]) => k !== id)),
-          customThemes: Object.fromEntries(Object.entries(st.customThemes).filter(([k]) => k !== id)),
-        }))
-        return { ok: true }
-      },
       updateProject: (id, patch) => {
         set((s) => {
           if (s.customProjects.some((p) => p.id === id)) {
@@ -155,6 +142,7 @@ export const useCatalogStore = create<CatalogState>()(
                 if (patch.brandId !== undefined) next.brandId = patch.brandId
                 if (patch.logo !== undefined) next.logo = patch.logo
                 if (patch.wallpaper !== undefined) next.wallpaper = patch.wallpaper ?? undefined
+                if (patch.status !== undefined) next.status = patch.status
                 return next
               }),
             }
@@ -162,32 +150,54 @@ export const useCatalogStore = create<CatalogState>()(
           return { projectOverrides: { ...s.projectOverrides, [id]: { ...s.projectOverrides[id], ...patch } } }
         })
       },
-      deleteProject: (id) => {
-        const s = get()
-        const isCustom = s.customProjects.some((p) => p.id === id)
-        set((st) => ({
-          customProjects: st.customProjects.filter((p) => p.id !== id),
-          deletedProjectIds: isCustom || st.deletedProjectIds.includes(id) ? st.deletedProjectIds : [...st.deletedProjectIds, id],
-          projectOverrides: Object.fromEntries(Object.entries(st.projectOverrides).filter(([k]) => k !== id)),
-          customLocalizacoes: Object.fromEntries(Object.entries(st.customLocalizacoes).filter(([k]) => k !== id)),
-        }))
-        return { ok: true }
+      addLocalizacao: (projetoId, nome) => {
+        const nomeTrim = nome.trim()
+        if (!nomeTrim) return
+        set((s) => {
+          const atuais = s.customLocalizacoes[projetoId] ?? []
+          const taken = new Set(atuais.map((l) => l.id))
+          const loc: Localizacao = { id: uniqueLocId(taken), nome: nomeTrim, status: 'Ativo' }
+          return { customLocalizacoes: { ...s.customLocalizacoes, [projetoId]: [...atuais, loc] } }
+        })
       },
-      setLocalizacoes: (projetoId, lista) => {
-        set((s) => ({ customLocalizacoes: { ...s.customLocalizacoes, [projetoId]: lista } }))
+      renameLocalizacao: (projetoId, locId, nome) => {
+        const nomeTrim = nome.trim()
+        if (!nomeTrim) return
+        set((s) => ({
+          customLocalizacoes: {
+            ...s.customLocalizacoes,
+            [projetoId]: (s.customLocalizacoes[projetoId] ?? []).map((l) => (l.id === locId ? { ...l, nome: nomeTrim } : l)),
+          },
+        }))
+      },
+      toggleLocalizacaoStatus: (projetoId, locId) => {
+        set((s) => ({
+          customLocalizacoes: {
+            ...s.customLocalizacoes,
+            [projetoId]: (s.customLocalizacoes[projetoId] ?? []).map((l) =>
+              l.id === locId ? { ...l, status: l.status === 'Inativo' ? 'Ativo' : 'Inativo' } : l,
+            ),
+          },
+        }))
+      },
+      removeLocalizacao: (projetoId, locId) => {
+        set((s) => ({
+          customLocalizacoes: {
+            ...s.customLocalizacoes,
+            [projetoId]: (s.customLocalizacoes[projetoId] ?? []).filter((l) => l.id !== locId),
+          },
+        }))
       },
     }),
-    { name: 'itsm-catalog' },
+    { name: 'itsm-catalog-v2' },
   ),
 )
 
-/** Mapa combinado de marcas de fábrica + criadas pelo admin, indexado por id — com edições e exclusões aplicadas. */
+/** Mapa combinado de marcas de fábrica + criadas pelo admin, indexado por id — com edições aplicadas. */
 export function useAllBrandsMap(): Record<string, Brand> {
   const custom = useCatalogStore((s) => s.customBrands)
   const overrides = useCatalogStore((s) => s.brandOverrides)
-  const deleted = useCatalogStore((s) => s.deletedBrandIds)
   const merged: Record<string, Brand> = { ...BRANDS, ...Object.fromEntries(custom.map((b) => [b.id, b])) }
-  for (const id of deleted) delete merged[id]
   for (const [id, patch] of Object.entries(overrides)) {
     if (merged[id]) merged[id] = { ...merged[id], ...patch }
   }
@@ -224,37 +234,51 @@ export function useProjectTheme(id: string): ProjectTheme {
   return map[id] ?? PROJECT_THEMES.planneta
 }
 
-/** Lista combinada de projetos de fábrica + criados pelo admin — com edições e exclusões aplicadas. */
+/** Lista combinada de entidades de fábrica + criadas pelo admin — com edições aplicadas. */
 export function useAllProjects(): Project[] {
   const custom = useCatalogStore((s) => s.customProjects)
   const overrides = useCatalogStore((s) => s.projectOverrides)
-  const deleted = useCatalogStore((s) => s.deletedProjectIds)
   const base = [...PROJECTS, ...custom]
-  return base
-    .filter((p) => !deleted.includes(p.id))
-    .map((p) => {
-      const patch = overrides[p.id]
-      if (!patch) return p
-      const { wallpaper, ...rest } = patch
-      const merged: Project = { ...p, ...rest }
-      if (wallpaper !== undefined) merged.wallpaper = wallpaper ?? undefined
-      return merged
-    })
+  return base.map((p) => {
+    const patch = overrides[p.id]
+    if (!patch) return p
+    const { wallpaper, ...rest } = patch
+    const merged: Project = { ...p, ...rest }
+    if (wallpaper !== undefined) merged.wallpaper = wallpaper ?? undefined
+    return merged
+  })
 }
 
-/** Ids de todas as marcas conhecidas (de fábrica + admin), na ordem de criação — sem as excluídas. */
+/** Ids de todas as marcas conhecidas (de fábrica + admin), na ordem de criação. */
 export function useAllBrandIds(): string[] {
   // seleciona o array bruto (referência estável entre renders) — mapear dentro do
   // seletor retornaria uma referência nova a cada chamada e causaria loop de render
   const customBrands = useCatalogStore((s) => s.customBrands)
-  const deleted = useCatalogStore((s) => s.deletedBrandIds)
-  const ids = [...Object.keys(PROJECT_THEMES), ...customBrands.map((b) => b.id)]
-  return deleted.length ? ids.filter((id) => !deleted.includes(id)) : ids
+  return [...Object.keys(PROJECT_THEMES), ...customBrands.map((b) => b.id)]
 }
 
-/** Localizações reais de um projeto (cadastradas em Administração → Projeto); enquanto nenhuma for
- * definida, cai na lista de teste — igual para todos os projetos até ser configurada. */
+/** Entidades com status Ativo cuja empresa mantenedora também está Ativa — a lista "para começar a
+ * trabalhar" usada no picker pós-login e no campo Projeto/Localidade de Novo Atendimento. Uma entidade
+ * inativada continua existindo (histórico, chamados, usuários) e visível em useAllProjects(); só some
+ * daqui. */
+export function useProjetosSelecionaveis(): Project[] {
+  const all = useAllProjects()
+  const brandsMap = useAllBrandsMap()
+  return all.filter((p) => (p.status ?? 'Ativo') === 'Ativo' && (brandsMap[p.brandId]?.status ?? 'Ativo') === 'Ativo')
+}
+
+/** Localizações reais de uma entidade (todas, inclusive inativas) — cadastradas em Administração →
+ * Entidades. Usado na tela de administração; para o campo Localização de Novo Atendimento, ver
+ * useLocalizacoesDoProjeto. */
+export function useLocalizacoesEntidade(projetoId: string): Localizacao[] {
+  return useCatalogStore((s) => s.customLocalizacoes[projetoId] ?? [])
+}
+
+/** Nomes das localizações Ativas de uma entidade, para o campo Localização de Novo Atendimento;
+ * enquanto nenhuma estiver Ativa, cai na lista de teste — igual para todas as entidades até cadastrar
+ * a primeira real. */
 export function useLocalizacoesDoProjeto(projetoId: string): string[] {
   const custom = useCatalogStore((s) => s.customLocalizacoes[projetoId])
-  return custom && custom.length ? custom : LOCALIZACOES_TESTE
+  const ativas = custom?.filter((l) => l.status === 'Ativo').map((l) => l.nome) ?? []
+  return ativas.length ? ativas : LOCALIZACOES_TESTE
 }

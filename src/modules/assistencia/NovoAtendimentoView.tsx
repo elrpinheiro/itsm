@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useAdminStore } from '@/store/useAdminStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useChamadosStore } from '@/store/useChamadosStore'
-import { useAllProjects, useLocalizacoesDoProjeto } from '@/store/useCatalogStore'
+import { useAllProjects, useLocalizacoesDoProjeto, useProjetosSelecionaveis } from '@/store/useCatalogStore'
 import { useDropdownEntries } from '@/store/useDropdownsStore'
 import { classificarAtendimento, encontrarChamadosSimilares, reformularDescricao } from '@/data/classificarChamado'
 import { PROJECT_CATALOGS, type CatalogItem, type ClassificationLabel } from '@/data/catalog'
@@ -61,6 +61,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
   const chamados = useChamadosStore((s) => s.chamados)
   const addChamado = useChamadosStore((s) => s.addChamado)
   const projetos = useAllProjects()
+  const projetosSelecionaveis = useProjetosSelecionaveis()
   const prioridadeEntries = useDropdownEntries('prioridade').filter((e) => e.ativo)
   const origemLabels = Object.fromEntries(useDropdownEntries('origem').map((e) => [e.chave, e.label]))
 
@@ -336,7 +337,7 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
             ) : (
               <select value={projetoId} onChange={(e) => setProjetoId(e.target.value)}>
                 <option value="">Selecione…</option>
-                {projetos.map((p) => (
+                {projetosSelecionaveis.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.nome} — {p.cidade}
                   </option>

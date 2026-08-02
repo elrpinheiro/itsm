@@ -7,11 +7,13 @@ import type { Project } from '@/types'
 interface Props {
   /** Presente para editar um projeto existente — ausente para cadastrar um novo. */
   project?: Project
+  /** Empresa pré-selecionada ao criar uma nova entidade a partir da tela já filtrada por empresa. */
+  defaultBrandId?: string
   onClose: () => void
   onCreated?: () => void
 }
 
-export default function AddProjectModal({ project, onClose, onCreated }: Props) {
+export default function AddProjectModal({ project, defaultBrandId, onClose, onCreated }: Props) {
   const addProject = useCatalogStore((s) => s.addProject)
   const updateProject = useCatalogStore((s) => s.updateProject)
   const brandsMap = useAllBrandsMap()
@@ -19,7 +21,7 @@ export default function AddProjectModal({ project, onClose, onCreated }: Props) 
 
   const [nome, setNome] = useState(project?.nome ?? '')
   const [cidade, setCidade] = useState(project?.cidade ?? '')
-  const [brandId, setBrandId] = useState(project?.brandId ?? brandOptions[0]?.id ?? '')
+  const [brandId, setBrandId] = useState(project?.brandId ?? defaultBrandId ?? brandOptions[0]?.id ?? '')
   const [logo, setLogo] = useState<string | null>(project?.logo ?? null)
   const [wallpaper, setWallpaper] = useState<string | null>(project?.wallpaper ?? null)
   const [error, setError] = useState('')

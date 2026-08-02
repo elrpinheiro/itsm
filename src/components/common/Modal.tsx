@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 
 interface Props {
-  title: string
+  title: ReactNode
   onClose: () => void
   children: ReactNode
   /** Modal mais largo (760px) — para formulários com colunas/grades que não cabem nos 420px padrão. */

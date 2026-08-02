@@ -16,11 +16,11 @@ import NiveisServicoPanel from './NiveisServicoPanel'
 import AdminProjetosPanel from './AdminProjetosPanel'
 import type { Usuario } from '@/data/administracaoMock'
 
-type Section = 'projeto' | 'perfis' | 'usuarios' | 'grupos' | 'fornecedores' | 'listas-suspensas' | 'niveis-servico'
+type Section = 'entidades' | 'perfis' | 'usuarios' | 'grupos' | 'fornecedores' | 'listas-suspensas' | 'niveis-servico'
 type OpenModal = 'usuario' | 'grupo' | 'fornecedor' | 'perfil' | null
 
 const ALL_TABS: { key: Section; label: string }[] = [
-  { key: 'projeto', label: 'Projeto' },
+  { key: 'entidades', label: 'Entidades' },
   { key: 'perfis', label: 'Perfis' },
   { key: 'usuarios', label: 'Usuários' },
   { key: 'grupos', label: 'Grupos' },
@@ -72,8 +72,8 @@ function Flag({ on }: { on: boolean }) {
 
 export default function AdministracaoModule() {
   const currentProject = useProjectStore((s) => s.selectedProject)
-  const [active, setActive] = useState<Section>(currentProject ? 'perfis' : 'projeto')
-  const tabs = currentProject ? ALL_TABS.filter((t) => t.key !== 'projeto') : ALL_TABS
+  const [active, setActive] = useState<Section>(currentProject ? 'perfis' : 'entidades')
+  const tabs = currentProject ? ALL_TABS.filter((t) => t.key !== 'entidades') : ALL_TABS
   const [openModal, setOpenModal] = useState<OpenModal>(null)
   const [selectedPerfilId, setSelectedPerfilId] = useState<string | null>(null)
   const [entidadeFiltro, setEntidadeFiltro] = useState(currentProject?.id ?? '')
@@ -138,7 +138,7 @@ export default function AdministracaoModule() {
       </div>
       <div className="mod-page-body">
       <div className="mod-scroll-area">
-        {active === 'projeto' && !currentProject && <AdminProjetosPanel canEdit={acessoAdmin.editar} />}
+        {active === 'entidades' && !currentProject && <AdminProjetosPanel canEdit={acessoAdmin.editar} />}
 
         {active === 'perfis' && (
           <>

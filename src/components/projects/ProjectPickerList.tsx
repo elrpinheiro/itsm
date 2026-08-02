@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/store/useProjectStore'
-import { useAllProjects, useProjectTheme } from '@/store/useCatalogStore'
+import { useProjetosSelecionaveis, useProjectTheme } from '@/store/useCatalogStore'
 import type { Project, ProjectBrandId } from '@/types'
 
 function ProjectRow({ project, onSelect, label }: { project: Project; onSelect: (p: Project) => void; label?: string }) {
@@ -21,7 +21,7 @@ function ProjectRow({ project, onSelect, label }: { project: Project; onSelect: 
 
 function BrandGroup({ brandId, onSelect }: { brandId: ProjectBrandId; onSelect: (p: Project) => void }) {
   const theme = useProjectTheme(brandId)
-  const allProjects = useAllProjects()
+  const allProjects = useProjetosSelecionaveis()
   const projects = allProjects.filter((p) => p.brandId === brandId && !p.isMatriz)
   const [recolhido, setRecolhido] = useState(true)
 
@@ -49,11 +49,11 @@ function BrandGroup({ brandId, onSelect }: { brandId: ProjectBrandId; onSelect: 
   )
 }
 
-/** Lista de projetos agrupada por marca, usada dentro do dropdown "Selecione o Projeto" do cabeçalho. */
+/** Lista de projetos agrupada por marca, usada dentro do dropdown "Selecione a Entidade" do cabeçalho. */
 export default function ProjectPickerList({ onSelect }: { onSelect?: () => void }) {
   const navigate = useNavigate()
   const selectProject = useProjectStore((s) => s.selectProject)
-  const allProjects = useAllProjects()
+  const allProjects = useProjetosSelecionaveis()
   const matrizes = allProjects.filter((p) => p.isMatriz)
   const fieldBrandIds = Array.from(new Set(allProjects.filter((p) => !p.isMatriz).map((p) => p.brandId)))
 

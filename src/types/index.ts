@@ -9,6 +9,8 @@ export interface Brand {
   /** Classe CSS fixa (badge-blue/green/purple) usada pelas marcas originais; marcas criadas pelo admin não têm classe pré-definida e usam estilo inline derivado de `cor`. */
   badgeClass?: 'badge-blue' | 'badge-green' | 'badge-purple'
   logo: string
+  /** Ausente = Ativa. Inativa some da seleção pós-login, mas mantém seu histórico (entidades, chamados, usuários). */
+  status?: 'Ativo' | 'Inativo'
 }
 
 export type TemplateId =
@@ -104,6 +106,17 @@ export interface Project {
   logo: string
   /** Verdadeiro para a matriz/sede da empresa (sem cidade de campo) — cada empresa do grupo tem exatamente uma, e ela também pode abrir chamados/ter seu próprio catálogo de atendimento. */
   isMatriz?: boolean
-  /** Imagem de fundo (data URL) exibida no painel Início desta unidade — opcional, configurável em Administração → Projeto. */
+  /** Imagem de fundo (data URL) exibida no painel Início desta unidade — opcional, configurável em Administração → Entidades. */
   wallpaper?: string
+  /** Ausente = Ativa. Inativa some da seleção pós-login e do campo Projeto/Localidade de Novo Atendimento, mas mantém seu histórico. */
+  status?: 'Ativo' | 'Inativo'
+}
+
+/** Uma localização real de uma entidade (ex.: "Sala de Informática"), cadastrada em Administração →
+ * Entidades. Enquanto uma entidade não tiver nenhuma localização Ativa, o campo Localização de Novo
+ * Atendimento cai na lista de teste genérica (ver LOCALIZACOES_TESTE). */
+export interface Localizacao {
+  id: string
+  nome: string
+  status: 'Ativo' | 'Inativo'
 }
