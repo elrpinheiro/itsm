@@ -58,10 +58,11 @@ interface TimelineEntry {
 /**
  * Detalhe do chamado — timeline vertical, ciclo de vida (widget de referência com os 6 status do
  * GLPI) e ações que dirigem o status, nunca um seletor solto: assumir, planejar tarefa, reatribuir
- * grupo, registrar solução. Ao solucionar, "Gerar OS para assinatura" abre OsAssinaturaView, que monta
- * a Ordem de Serviço a partir dos dados do próprio chamado e leva à dupla assinatura (técnico +
- * requerente) do módulo de Assinatura Digital — só fecha o chamado depois de selada. A OS selada fica
- * anexada ao chamado (card "Documentos" na sidebar) para consulta e novo download a qualquer momento.
+ * grupo, registrar solução. Ao solucionar, "Aceitar solução" fecha o chamado na hora (a OS não é
+ * obrigatória) e abre OsAssinaturaView em seguida como oferta opcional — monta a Ordem de Serviço a
+ * partir dos dados do próprio chamado e leva à dupla assinatura (técnico + requerente) do módulo de
+ * Assinatura Digital, mas pode ser pulada sem afetar o chamado, já fechado. A OS selada (quando gerada)
+ * fica anexada ao chamado (card "Documentos" na sidebar) para consulta e novo download a qualquer momento.
  */
 export default function ChamadoDetalheView({ numero, onClose }: Props) {
   const user = useAuthStore((s) => s.user)
@@ -77,6 +78,7 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
   const reatribuirGrupo = useChamadosStore((s) => s.reatribuirGrupo)
   const registrarSolucao = useChamadosStore((s) => s.registrarSolucao)
   const rejeitarSolucao = useChamadosStore((s) => s.rejeitarSolucao)
+  const confirmarAssinatura = useChamadosStore((s) => s.confirmarAssinatura)
 
   const prioridadeMap = Object.fromEntries(useDropdownEntries('prioridade').map((e) => [e.chave, e]))
   const statusMap = Object.fromEntries(useDropdownEntries('status').map((e) => [e.chave, e]))
@@ -192,6 +194,13 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
     rejeitarSolucao(numero, formRejeicao.trim(), autor)
     setFormRejeicao('')
     setMostrarRejeicao(false)
+  }
+
+  /** Fecha o chamado na hora, sem exigir OS — gerar a Ordem de Serviço é opcional, decidido caso a
+   * caso; o fluxo de assinatura abre em seguida só como oferta, não como bloqueio para o fechamento. */
+  function handleAceitarSolucao() {
+    confirmarAssinatura(numero)
+    setGerandoOs(true)
   }
 
   const podeAgir = canEdit && chamado.status !== 'Fechado' && chamado.status !== 'Solucionado'
@@ -345,15 +354,16 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
             <div className="chd-signature-card">
               <div className="chd-signature-title">Aguardando aceite do requerente</div>
               <p style={{ margin: '4px 0 10px', fontSize: 12.5 }}>
-                Solução registrada — falta o aceite formal do requerente (dupla assinatura técnico + requerente)
-                para fechar o chamado. A Ordem de Serviço reúne automaticamente a descrição, os acompanhamentos
-                públicos e a solução deste atendimento para as duas assinaturas; o chamado só fecha depois de
-                selada (mesmo fluxo de hash e PDF/A do módulo de Assinatura Digital).
+                Solução registrada — confirme se o requerente aceitou o atendimento. <strong>Aceitar
+                solução</strong> fecha o chamado na hora; a Ordem de Serviço (dupla assinatura técnico +
+                requerente) é opcional e abre logo em seguida, só para os casos em que vale a pena
+                formalizar com documento assinado — pode ser cancelada sem afetar o chamado, já fechado.{' '}
+                <strong>Rejeitar solução</strong> reabre o chamado para nova tratativa.
               </p>
               {canEdit && !mostrarRejeicao && (
                 <div className="chd-actions" style={{ marginTop: 0 }}>
-                  <button type="button" className="btn btn-primary" onClick={() => setGerandoOs(true)}>
-                    📄 Gerar OS para assinatura
+                  <button type="button" className="btn btn-primary" onClick={handleAceitarSolucao}>
+                    ✓ Aceitar solução
                   </button>
                   <button type="button" className="btn" onClick={() => setMostrarRejeicao(true)}>
                     Rejeitar solução

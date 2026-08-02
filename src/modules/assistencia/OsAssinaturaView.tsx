@@ -187,14 +187,15 @@ export default function OsAssinaturaView({ numero, onClose, modoConsulta }: Prop
               OS gerada a partir do chamado {chamado.numero}
             </div>
             <p style={{ fontSize: 12.5, color: 'var(--texto-sec)', maxWidth: 640, marginBottom: 14 }}>
-              A descrição, os acompanhamentos públicos e a solução do atendimento já foram trazidos para o
-              documento abaixo — confira antes de coletar as duas assinaturas (técnico e requerente).
-              Acompanhamentos marcados como privados não entram na OS.
+              O chamado já está fechado — gerar e assinar esta OS é opcional, só para quando vale a pena
+              formalizar com documento assinado. A descrição, os acompanhamentos públicos e a solução do
+              atendimento já foram trazidos para o documento abaixo — confira antes de coletar as duas
+              assinaturas (técnico e requerente). Acompanhamentos marcados como privados não entram na OS.
             </p>
             <DocumentPreview style={{ minHeight: 400, maxWidth: 640 }} />
             <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
               <button type="button" className="btn" onClick={onClose}>
-                Cancelar
+                Pular (sem assinar)
               </button>
               <button type="button" className="btn btn-primary" onClick={() => setFase(3)}>
                 ✍ Iniciar assinaturas
@@ -214,7 +215,7 @@ export default function OsAssinaturaView({ numero, onClose, modoConsulta }: Prop
         {fase === 4 && (
           <Step4Seal
             onNovoDocumento={handleSelado}
-            finishLabel="✓ Fechar chamado e voltar"
+            finishLabel="✓ Salvar OS e voltar"
             hash={hash}
             sealedAt={seladoEm ?? undefined}
           />
