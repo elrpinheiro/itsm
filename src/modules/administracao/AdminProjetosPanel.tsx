@@ -136,15 +136,8 @@ export default function AdminProjetosPanel({ canEdit }: { canEdit: boolean }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
-        <div className="mod-section-title" style={{ marginBottom: 0 }}>
-          Empresas
-        </div>
-        {canEdit && (
-          <button className="btn btn-primary" style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: 12.5 }} onClick={() => setBrandModal({ mode: 'novo' })}>
-            + Nova empresa
-          </button>
-        )}
+      <div className="mod-section-title" style={{ marginBottom: 4 }}>
+        Empresas
       </div>
       <div style={{ fontSize: 12, color: 'var(--texto-sec)', marginBottom: 16, maxWidth: 640 }}>
         Cada empresa mantenedora do grupo agrupa suas entidades (o que aparece na tela de seleção pós-login).
@@ -207,6 +200,32 @@ export default function AdminProjetosPanel({ canEdit }: { canEdit: boolean }) {
             </div>
           )
         })}
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => setBrandModal({ mode: 'novo' })}
+            style={{
+              border: '1.5px dashed var(--borda)',
+              borderRadius: 12,
+              background: 'none',
+              padding: 14,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              minHeight: 128,
+              color: 'var(--texto-sec)',
+              fontSize: 12.8,
+              fontWeight: 600,
+              cursor: 'pointer',
+              font: 'inherit',
+            }}
+          >
+            <span style={{ fontSize: 22, lineHeight: 1, color: 'var(--texto-faint)' }}>+</span>
+            Nova empresa
+          </button>
+        )}
       </div>
 
       {brandModal && (
