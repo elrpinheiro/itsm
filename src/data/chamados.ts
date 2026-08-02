@@ -49,9 +49,13 @@ export type TipoInteracao = 'acompanhamento' | 'tarefa' | 'solucao' | 'sistema'
  * mudar a cada consulta). Ver OsAssinaturaView, em Assistência. */
 export interface ChamadoDocumentoOs {
   hash: string
+  /** Quando foi gerada (assinada=false) ou selada com as duas assinaturas (assinada=true). */
   seladoEm: string
   formData: DocumentFormData
   signers: Signer[]
+  /** Falso quando o técnico pulou a assinatura ao aceitar a solução — a OS ainda fica anexada para
+   * download/consulta, só sem as duas assinaturas coletadas. */
+  assinada: boolean
 }
 
 export interface InteracaoChamado {
@@ -75,6 +79,12 @@ export interface Chamado {
   prioridade: Prioridade
   status: StatusChamado
   abertoHa: string
+  /** Data/hora ISO de abertura — só presente em chamados criados pelo próprio sistema (fluxo de Novo
+   * Atendimento); os chamados de exemplo (seed) não têm, por não simular uma data real de abertura. */
+  criadoEm?: string
+  /** Data/hora ISO de fechamento, gravada por confirmarAssinatura() no momento em que o chamado vira
+   * "Fechado" — ausente enquanto o chamado seguir aberto. */
+  fechadoEm?: string
   /** E-mail de quem abriu o chamado (o requerente) — usado para filtrar "meus chamados" em perfis com visibilidade "próprios" e para montar o histórico do requerente. */
   solicitanteEmail?: string
   /** Localização dentro do projeto (ex.: sala/prédio/setor) — hoje escolhida a partir de uma lista de

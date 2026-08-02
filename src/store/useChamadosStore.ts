@@ -108,6 +108,7 @@ export const useChamadosStore = create<ChamadosState>()(
           prioridade: input.prioridade,
           status,
           abertoHa: 'agora mesmo',
+          criadoEm: new Date().toISOString(),
           solicitanteEmail: input.solicitanteEmail,
           localizacao: input.localizacao || undefined,
           categoria: input.categoria,
@@ -202,7 +203,7 @@ export const useChamadosStore = create<ChamadosState>()(
           chamados: atualizarChamado(
             s.chamados,
             numero,
-            { status: 'Fechado', assinaturaStatus: 'assinada', ...(documentoOs ? { documentoOs } : {}) },
+            { status: 'Fechado', assinaturaStatus: 'assinada', fechadoEm: new Date().toISOString(), ...(documentoOs ? { documentoOs } : {}) },
             {
               tipo: 'sistema',
               origem: 'Sistema',

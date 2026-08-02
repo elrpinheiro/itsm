@@ -108,7 +108,7 @@ export default function InicioModule() {
                 <div className="mos-eyebrow">Início — {project.nome}</div>
                 <div style={{ fontSize: 12.5, color: 'var(--mos-text-dim)', marginTop: 4 }}>{project.cidade}</div>
               </div>
-              <button type="button" className="mos-cta" onClick={() => navigate('/app/assistencia')}>
+              <button type="button" className="mos-cta" onClick={() => navigate('/app/assistencia?novo=1')}>
                 <Plus size={14} /> Novo Atendimento
               </button>
             </div>

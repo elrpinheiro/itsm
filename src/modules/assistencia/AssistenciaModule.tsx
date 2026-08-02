@@ -15,7 +15,7 @@ export default function AssistenciaModule() {
   const acesso = useModuleAccess('assistencia')
   const todosChamados = useChamadosStore((s) => s.chamados)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [novoAtendimentoAberto, setNovoAtendimentoAberto] = useState(false)
+  const [novoAtendimentoAberto, setNovoAtendimentoAberto] = useState(() => searchParams.get('novo') === '1')
   const [chamadoAberto, setChamadoAberto] = useState<string | null>(() => searchParams.get('abrir'))
   const [initialTab] = useState<FiltroTab | undefined>(() => (searchParams.get('tab') as FiltroTab) || undefined)
   const [apenasCriticos, setApenasCriticos] = useState(() => searchParams.get('prioridade') === 'critica')

@@ -13,9 +13,12 @@ interface Props {
    * mesmo hash no chamado para reexibir depois) — por padrão são gerados aqui, na primeira selagem. */
   hash?: string
   sealedAt?: Date
+  /** Documento anexado sem coletar assinatura (ex.: OS pulada ao aceitar a solução) — troca o cabeçalho
+   * para não afirmar "selado"/certificado quando não houve assinatura de fato. */
+  semAssinatura?: boolean
 }
 
-export default function Step4Seal({ onNovoDocumento, finishLabel = '↻ Novo documento', hash: hashProp, sealedAt }: Props) {
+export default function Step4Seal({ onNovoDocumento, finishLabel = '↻ Novo documento', hash: hashProp, sealedAt, semAssinatura }: Props) {
   const { template, brand, signers } = useWizard()
   const internalNow = useMemo(() => new Date(), [])
   const now = sealedAt ?? internalNow
@@ -35,26 +38,28 @@ export default function Step4Seal({ onNovoDocumento, finishLabel = '↻ Novo doc
             width: 44,
             height: 44,
             borderRadius: '50%',
-            background: 'var(--verde-pale)',
+            background: semAssinatura ? 'var(--fundo)' : 'var(--verde-pale)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 22,
           }}
         >
-          🛡
+          {semAssinatura ? '📄' : '🛡'}
         </div>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>Documento selado</div>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>{semAssinatura ? 'Documento anexado (sem assinatura)' : 'Documento selado'}</div>
           <div style={{ fontSize: 12, color: 'var(--texto-sec)' }}>
-            PDF/A não editável arquivado na Central de Documentos
+            {semAssinatura
+              ? 'PDF gerado a partir do chamado — nenhuma assinatura foi coletada'
+              : 'PDF/A não editável arquivado na Central de Documentos'}
           </div>
         </div>
       </div>
 
       <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Documento final</div>
       <DocumentPreview ref={docRef} style={{ minHeight: 380, marginBottom: 14 }}>
-        {signers.map((s) => (
+        {!semAssinatura && signers.map((s) => (
           <SignedMark key={s.id} signer={s} />
         ))}
       </DocumentPreview>

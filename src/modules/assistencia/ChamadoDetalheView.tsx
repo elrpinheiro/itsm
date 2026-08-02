@@ -405,7 +405,11 @@ export default function ChamadoDetalheView({ numero, onClose }: Props) {
               <div className="chd-dados-lista">
                 <div>
                   <span className="lbl">Ordem de Serviço</span>
-                  <span>Selada em {new Date(chamado.documentoOs.seladoEm).toLocaleDateString('pt-BR')} · dupla assinatura</span>
+                  <span>
+                    {chamado.documentoOs.assinada
+                      ? `Selada em ${new Date(chamado.documentoOs.seladoEm).toLocaleDateString('pt-BR')} · dupla assinatura`
+                      : `Anexada em ${new Date(chamado.documentoOs.seladoEm).toLocaleDateString('pt-BR')} · sem assinatura`}
+                  </span>
                 </div>
               </div>
               <button

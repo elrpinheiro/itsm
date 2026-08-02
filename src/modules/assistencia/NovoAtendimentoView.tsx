@@ -203,24 +203,25 @@ export default function NovoAtendimentoView({ project, onClose }: Props) {
     aplicarIA(transcricao)
   }
 
-  function aplicarIA(textoBase: string) {
-    const limpo = reformularDescricao(textoBase)
-    setDescricao(limpo)
-    const sugestao = classificarAtendimento(limpo, catalogBruto)
+  function aplicarSugestao(sugestao: ReturnType<typeof classificarAtendimento>) {
     handleCategoriaChange(sugestao.categoria)
+    if (sugestao.subcategoria) setSubcategoria(sugestao.subcategoria)
+    if (sugestao.subsubcategoria) setSubsubcategoria(sugestao.subsubcategoria)
     setTipoAtendimento(sugestao.tipoAtendimento)
     setPrioridade(sugestao.prioridade)
     setGrupoId(sugestao.grupoId)
   }
 
+  function aplicarIA(textoBase: string) {
+    const limpo = reformularDescricao(textoBase)
+    setDescricao(limpo)
+    aplicarSugestao(classificarAtendimento(limpo, catalogBruto))
+  }
+
   function handleDescricaoChange(v: string) {
     setDescricao(v)
     if (v.trim().length > 8) {
-      const sugestao = classificarAtendimento(v, catalogBruto)
-      handleCategoriaChange(sugestao.categoria)
-      setTipoAtendimento(sugestao.tipoAtendimento)
-      setPrioridade(sugestao.prioridade)
-      setGrupoId(sugestao.grupoId)
+      aplicarSugestao(classificarAtendimento(v, catalogBruto))
     }
   }
 

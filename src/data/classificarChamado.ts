@@ -1,4 +1,4 @@
-import type { CatalogItem, ClassificationLabel } from './catalog'
+import type { CatalogItem, CatalogSubItem, ClassificationLabel } from './catalog'
 import type { Chamado, Prioridade } from './chamados'
 
 const COMBINING_DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g')
@@ -30,9 +30,26 @@ const SINONIMOS: Record<string, string[]> = {
 
 export interface ClassificacaoSugerida {
   categoria: string
+  /** Sugestão de subcategoria (e sub-subcategoria) — só quando o item de catálogo tem `subitens` e a
+   * descrição menciona um deles; ausente na maioria dos catálogos, que ainda são só um nível. */
+  subcategoria?: string
+  subsubcategoria?: string
   tipoAtendimento: ClassificationLabel
   prioridade: Prioridade
   grupoId: string
+}
+
+/** Acha, entre os subitens de um item de catálogo, o primeiro cujo rótulo (ou sinônimo cadastrado)
+ * aparece no texto já normalizado — mesma heurística usada para a categoria de nível 1, aplicada de
+ * novo para subcategoria/sub-subcategoria. */
+function acharSubitem(subitens: CatalogSubItem[] | undefined, texto: string): CatalogSubItem | undefined {
+  if (!subitens) return undefined
+  for (const sub of subitens) {
+    const chave = normalizar(sub.label)
+    const variantes = SINONIMOS[chave] ?? [normalizar(sub.label.split('/')[0])]
+    if (variantes.some((v) => texto.includes(v))) return sub
+  }
+  return undefined
 }
 
 /**
@@ -44,12 +61,19 @@ export function classificarAtendimento(descricaoBruta: string, catalog: CatalogI
   const texto = normalizar(descricaoBruta)
 
   let categoria = catalog?.[0]?.label ?? 'Outros'
+  let subcategoria: string | undefined
+  let subsubcategoria: string | undefined
   if (catalog && texto) {
     for (const item of catalog) {
       const chaveItem = normalizar(item.label)
       const variantes = SINONIMOS[chaveItem] ?? [normalizar(item.label.split('/')[0])]
       if (variantes.some((v) => texto.includes(v))) {
         categoria = item.label
+        const sub = acharSubitem(item.subitens, texto)
+        if (sub) {
+          subcategoria = sub.label
+          subsubcategoria = acharSubitem(sub.subitens, texto)?.label
+        }
         break
       }
     }
@@ -81,7 +105,7 @@ export function classificarAtendimento(descricaoBruta: string, catalog: CatalogI
     grupoId = 'grp-n2'
   }
 
-  return { categoria, tipoAtendimento, prioridade, grupoId }
+  return { categoria, subcategoria, subsubcategoria, tipoAtendimento, prioridade, grupoId }
 }
 
 /** Limpeza leve de texto (espaços, maiúscula inicial, ponto final) — não é reescrita generativa real. */

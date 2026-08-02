@@ -73,6 +73,11 @@ export default function FilaChamadosList({ chamados, onOpenChamado, showProjeto 
     return usuarios.find((u) => u.email === c.solicitanteEmail)?.nome ?? c.solicitanteEmail
   }
 
+  function formatarData(iso: string): string {
+    const d = new Date(iso)
+    return `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+  }
+
   return (
     <div>
       <div className="chq-toolbar">
@@ -121,6 +126,12 @@ export default function FilaChamadosList({ chamados, onOpenChamado, showProjeto 
                     </span>
                   )}
                 </div>
+                {(c.criadoEm || c.fechadoEm) && (
+                  <div className="chq-datas-row">
+                    {c.criadoEm && <span>Aberto em {formatarData(c.criadoEm)}</span>}
+                    {c.fechadoEm && <span>Fechado em {formatarData(c.fechadoEm)}</span>}
+                  </div>
+                )}
               </div>
               <span className="badge chq-card-badge" style={badgeStyleFromColor(status?.cor ?? '#5f5e5a')}>
                 {status?.label ?? c.status}
