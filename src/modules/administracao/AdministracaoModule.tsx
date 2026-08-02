@@ -141,19 +141,25 @@ export default function AdministracaoModule() {
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 Perfis de acesso
               </div>
-              <select
-                value={entidadeFiltroPerfis}
-                onChange={(e) => setEntidadeFiltroPerfis(e.target.value)}
-                style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
-                title="Filtrar por entidade (projeto)"
-              >
-                <option value="">Todas as entidades</option>
-                {projetos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nome} — {p.cidade}
-                  </option>
-                ))}
-              </select>
+              {currentProject ? (
+                <select value={entidadeFiltroPerfis} disabled style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }} title="Unidade atual — fixa, mude de projeto para ver outra">
+                  <option value={entidadeFiltroPerfis}>{projetoMap[entidadeFiltroPerfis] ?? currentProject.nome}</option>
+                </select>
+              ) : (
+                <select
+                  value={entidadeFiltroPerfis}
+                  onChange={(e) => setEntidadeFiltroPerfis(e.target.value)}
+                  style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
+                  title="Filtrar por entidade (projeto)"
+                >
+                  <option value="">Todas as entidades</option>
+                  {projetos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome} — {p.cidade}
+                    </option>
+                  ))}
+                </select>
+              )}
               {acessoAdmin.editar && (
                 <button
                   className="btn btn-primary"
@@ -213,19 +219,25 @@ export default function AdministracaoModule() {
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 Usuários
               </div>
-              <select
-                value={entidadeFiltro}
-                onChange={(e) => setEntidadeFiltro(e.target.value)}
-                style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
-                title="Filtrar por entidade (projeto)"
-              >
-                <option value="">Todas as entidades</option>
-                {projetos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nome} — {p.cidade}
-                  </option>
-                ))}
-              </select>
+              {currentProject ? (
+                <select value={entidadeFiltro} disabled style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }} title="Unidade atual — fixa, mude de projeto para ver outra">
+                  <option value={entidadeFiltro}>{projetoMap[entidadeFiltro] ?? currentProject.nome}</option>
+                </select>
+              ) : (
+                <select
+                  value={entidadeFiltro}
+                  onChange={(e) => setEntidadeFiltro(e.target.value)}
+                  style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
+                  title="Filtrar por entidade (projeto)"
+                >
+                  <option value="">Todas as entidades</option>
+                  {projetos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome} — {p.cidade}
+                    </option>
+                  ))}
+                </select>
+              )}
               {acessoAdmin.editar && (
                 <button
                   className="btn btn-primary"
@@ -283,19 +295,25 @@ export default function AdministracaoModule() {
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 Grupos
               </div>
-              <select
-                value={entidadeFiltroGrupos}
-                onChange={(e) => setEntidadeFiltroGrupos(e.target.value)}
-                style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
-                title="Filtrar por entidade (projeto)"
-              >
-                <option value="">Todas as entidades</option>
-                {projetos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nome} — {p.cidade}
-                  </option>
-                ))}
-              </select>
+              {currentProject ? (
+                <select value={entidadeFiltroGrupos} disabled style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }} title="Unidade atual — fixa, mude de projeto para ver outra">
+                  <option value={entidadeFiltroGrupos}>{projetoMap[entidadeFiltroGrupos] ?? currentProject.nome}</option>
+                </select>
+              ) : (
+                <select
+                  value={entidadeFiltroGrupos}
+                  onChange={(e) => setEntidadeFiltroGrupos(e.target.value)}
+                  style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
+                  title="Filtrar por entidade (projeto)"
+                >
+                  <option value="">Todas as entidades</option>
+                  {projetos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome} — {p.cidade}
+                    </option>
+                  ))}
+                </select>
+              )}
               {acessoAdmin.editar && (
                 <button
                   className="btn btn-primary"
@@ -337,19 +355,25 @@ export default function AdministracaoModule() {
               <div className="mod-section-title" style={{ marginBottom: 0 }}>
                 Fornecedores
               </div>
-              <select
-                value={entidadeFiltroFornecedores}
-                onChange={(e) => setEntidadeFiltroFornecedores(e.target.value)}
-                style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
-                title="Filtrar por entidade (projeto)"
-              >
-                <option value="">Todas as entidades</option>
-                {projetos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nome} — {p.cidade}
-                  </option>
-                ))}
-              </select>
+              {currentProject ? (
+                <select value={entidadeFiltroFornecedores} disabled style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }} title="Unidade atual — fixa, mude de projeto para ver outra">
+                  <option value={entidadeFiltroFornecedores}>{projetoMap[entidadeFiltroFornecedores] ?? currentProject.nome}</option>
+                </select>
+              ) : (
+                <select
+                  value={entidadeFiltroFornecedores}
+                  onChange={(e) => setEntidadeFiltroFornecedores(e.target.value)}
+                  style={{ width: 'auto', fontSize: 12.5, padding: '6px 10px' }}
+                  title="Filtrar por entidade (projeto)"
+                >
+                  <option value="">Todas as entidades</option>
+                  {projetos.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome} — {p.cidade}
+                    </option>
+                  ))}
+                </select>
+              )}
               {acessoAdmin.editar && (
                 <button
                   className="btn btn-primary"
